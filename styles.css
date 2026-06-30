@@ -261,6 +261,16 @@ body {
   transform: translateY(-2px);
   box-shadow: 0 12px 48px var(--btn-accent-shadow);
 }
+.cover-btn--secondary {
+  color: var(--text);
+  background: transparent;
+  border: 2px solid var(--accent);
+  box-shadow: none;
+  margin-top: 16px;
+}
+.cover-btn--secondary:hover {
+  box-shadow: 0 8px 32px var(--btn-accent-shadow);
+}
 .cover-footer {
   color: var(--muted);
   font-size: 0.85rem;

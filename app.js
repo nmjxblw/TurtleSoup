@@ -42,6 +42,7 @@ const L = {
     coverDesc:
       "一个故事，一碗汤。\n你只知道开头，却猜不到结局。\n向 AI 提问，拼凑真相，还原完整的故事。",
     startBtn: "开始推理",
+    reviewBtn: "回顾上局",
     // apikey
     apikeyTitle: "API Key配置",
     apikeyDesc:
@@ -137,6 +138,7 @@ const L = {
     coverDesc:
       "A story, a bowl of soup.\nYou know the beginning, but never the ending.\nAsk AI, piece together the truth, and restore the full story.",
     startBtn: "Start",
+    reviewBtn: "Review Last Game",
     // apikey
     apikeyTitle: "Connect AI Engine",
     apikeyDesc:
@@ -268,6 +270,7 @@ function initDom() {
     "view-loading",
     "view-game",
     "cover-start-btn",
+    "cover-review-btn",
     "apikey-input",
     "apikey-toggle",
     "apikey-skip",
@@ -469,9 +472,63 @@ function isFirstVisit() {
   return !localStorage.getItem("turtlesoup-visited");
 }
 
+function saveGameProgress() {
+  if (!S.generated) return;
+  const data = {
+    generated: S.generated,
+    remainingQuestions: S.remainingQuestions,
+    discoveredClues: [...S.discoveredClues],
+    questionLog: S.questionLog,
+    canSubmit: S.canSubmit,
+    isFinished: S.isFinished,
+    scoreResult: S.scoreResult,
+    isWhodunit: S.isWhodunit,
+    demoMode: S.demoMode,
+    questionIndex: questionIndex,
+  };
+  localStorage.setItem("turtlesoup-progress", JSON.stringify(data));
+}
+
+function loadGameProgress() {
+  try {
+    const raw = localStorage.getItem("turtlesoup-progress");
+    if (!raw) return null;
+    const data = JSON.parse(raw);
+    data.discoveredClues = new Set(data.discoveredClues || []);
+    return data;
+  } catch (e) {
+    return null;
+  }
+}
+
+function clearGameProgress() {
+  localStorage.removeItem("turtlesoup-progress");
+}
+
+function restoreGame() {
+  const saved = loadGameProgress();
+  if (!saved || !saved.generated) return false;
+  S.generated = saved.generated;
+  S.remainingQuestions = saved.remainingQuestions;
+  S.discoveredClues = saved.discoveredClues;
+  S.questionLog = saved.questionLog || [];
+  S.canSubmit = saved.canSubmit;
+  S.isFinished = !!saved.isFinished;
+  S.scoreResult = saved.scoreResult || null;
+  S.isWhodunit = !!saved.isWhodunit;
+  S.demoMode = !!saved.demoMode;
+  questionIndex = saved.questionIndex || 0;
+  return true;
+}
+
 /* ---- COVER → APIKEY / CONFIG ---- */
 function goCover() {
   showView("view-cover");
+  E["cover-review-btn"].classList.add("hidden");
+  const progress = loadGameProgress();
+  if (progress && progress.isFinished) {
+    E["cover-review-btn"].classList.remove("hidden");
+  }
 }
 function goApikey() {
   showView("view-apikey");
@@ -487,6 +544,8 @@ function goGame() {
 }
 
 function startFromCover() {
+  clearGameProgress();
+  E["cover-review-btn"].classList.add("hidden");
   loadSettings();
   if (S.apiKey && S.apiKey.startsWith("sk-")) {
     populateConfigForm();
@@ -550,6 +609,7 @@ async function handleConfigSubmit(e) {
     return;
   }
 
+  clearGameProgress();
   // reset game state
   S.generated = null;
   S.questionLog = [];
@@ -657,24 +717,27 @@ function buildDemoStory() {
 }
 
 /* ---- ENTER GAME ---- */
-function enterGame() {
+function enterGame(restoring) {
   goGame();
-  // reset UI
-  E["chat-log"].innerHTML = "";
-  E["question-input"].value = "";
-  E["question-input"].placeholder = t("askPlaceholder");
-  E["question-input"].disabled = false;
-  E["ask-btn"].disabled = false;
-  E["result-overlay"].classList.add("hidden");
-  E["soup-modal"].classList.add("hidden");
-  E["submit-soup-btn"].disabled = true;
-  E["submit-soup-btn"].classList.remove("hidden");
-  E["view-result-btn"].classList.add("hidden");
-  E["deduction-bar"].style.width = "0%";
-  E["deduction-text"].textContent = "0 / 0";
-  questionIndex = 0;
-  S.isFinished = false;
-  S.canSubmit = false;
+  if (!restoring) {
+    E["chat-log"].innerHTML = "";
+  }
+  if (!restoring) {
+    E["question-input"].value = "";
+    E["question-input"].placeholder = t("askPlaceholder");
+    E["question-input"].disabled = false;
+    E["ask-btn"].disabled = false;
+    E["result-overlay"].classList.add("hidden");
+    E["soup-modal"].classList.add("hidden");
+    E["submit-soup-btn"].disabled = true;
+    E["submit-soup-btn"].classList.remove("hidden");
+    E["view-result-btn"].classList.add("hidden");
+    E["deduction-bar"].style.width = "0%";
+    E["deduction-text"].textContent = "0 / 0";
+    questionIndex = 0;
+    S.isFinished = false;
+    S.canSubmit = false;
+  }
 
   if (!S.generated) return;
 
@@ -689,9 +752,31 @@ function enterGame() {
   E["riddle-output"].innerHTML = sanitizeHtml(g.riddle_html || "");
 
   syncI18n();
+  if (restoring) {
+    // replay question log into chat
+    let qi = 0;
+    S.questionLog.forEach((entry) => {
+      if (entry.role === "user") {
+        qi++;
+        questionIndex = qi;
+      }
+      const role = entry.role === "user" ? "user" : "assistant";
+      addChatMsg(role, entry.content, role === "user" ? "玩家" : "LLM");
+    });
+    questionIndex = qi;
+    if (S.remainingQuestions <= 0) {
+      E["question-input"].disabled = true;
+      E["question-input"].placeholder = t("exhaustedPlaceholder");
+      E["ask-btn"].disabled = true;
+    }
+    if (S.canSubmit || S.isFinished) E["submit-soup-btn"].disabled = false;
+    if (S.isFinished) {
+      E["submit-soup-btn"].classList.add("hidden");
+      E["view-result-btn"].classList.remove("hidden");
+    }
+  }
   updateGameStats();
-  //   addChatMsg("assistant", `${g.title}\n\n${g.outline}`, "Story");
-  addChatMsg("assistant", t("gameReady"), "System");
+  if (!restoring) addChatMsg("assistant", t("gameReady"), "System");
 }
 
 function updateGameStats() {
@@ -831,6 +916,7 @@ async function handleQuestion(e) {
     }
   }
   finalizeTurn();
+  saveGameProgress();
 }
 
 function finalizeTurn() {
@@ -961,6 +1047,7 @@ async function submitSoup() {
       S.scoreResult = getLocalScore(guess);
     }
   }
+  saveGameProgress();
   goGame();
   E["submit-soup-btn"].classList.add("hidden");
   E["view-result-btn"].classList.remove("hidden");
@@ -1232,6 +1319,12 @@ async function apiRequestStream(messages, temperature, onChunk) {
 /* ---- EVENT BINDING ---- */
 function wireEvents() {
   E["cover-start-btn"].addEventListener("click", startFromCover);
+  E["cover-review-btn"].addEventListener("click", () => {
+    if (restoreGame()) {
+      enterGame(true);
+      showResultOverlay();
+    }
+  });
   E["apikey-form"].addEventListener("submit", handleApikeySubmit);
   E["apikey-skip"].addEventListener("click", () => {
     S.apiKey = "";
@@ -1351,7 +1444,17 @@ function boot() {
   initLangIcon();
   wireEvents();
   syncI18n();
-  goCover();
+  if (restoreGame()) {
+    enterGame(true);
+    if (S.isFinished) showResultOverlay();
+  } else {
+    goCover();
+    const progress = loadGameProgress();
+    if (progress && progress.isFinished) {
+      E["cover-review-btn"].classList.remove("hidden");
+    }
+  }
+  window.addEventListener("beforeunload", saveGameProgress);
 }
 
 document.addEventListener("DOMContentLoaded", boot);
