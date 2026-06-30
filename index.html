@@ -1,0 +1,431 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta
+      name="description"
+      content="TurtleSoup 海龟汤 —— AI 驱动的推理谜题游戏"
+    />
+    <title>海龟汤 TurtleSoup</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <div class="toolbar">
+      <button id="lang-toggle" class="icon-btn" title="切换语言">🇨🇳</button>
+      <button id="theme-toggle" class="icon-btn" title="切换白天/夜间模式">
+        🌙
+      </button>
+    </div>
+    <!-- ===== COVER ===== -->
+    <main id="view-cover" class="view">
+      <div class="cover-bg"></div>
+      <div class="cover-content">
+        <p class="cover-eyebrow">AI-Powered Mystery Game</p>
+        <h1 class="cover-title">海 龟 汤</h1>
+        <p class="cover-sub">Turtle Soup</p>
+        <p class="cover-desc" data-i18n="coverDesc">
+          一个故事，一碗汤。<br />你只知道开头，却猜不到结局。<br />向 AI
+          提问，拼凑真相，还原完整的故事。
+        </p>
+        <button id="cover-start-btn" class="cover-btn">
+          <span data-i18n="startBtn">开始推理</span>
+          <svg
+            width="20"
+            height="20"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+          >
+            <path d="M5 12h14M12 5l7 7-7 7" />
+          </svg>
+        </button>
+      </div>
+    </main>
+
+    <!-- ===== API KEY ===== -->
+    <main id="view-apikey" class="view hidden">
+      <div class="step-card">
+        <div class="step-indicator">
+          <span class="step-dot active"></span><span class="step-line"></span>
+          <span class="step-dot"></span><span class="step-line"></span>
+          <span class="step-dot"></span>
+        </div>
+        <h2 class="step-title" data-i18n="apikeyTitle">API Key配置</h2>
+        <p class="step-desc" data-i18n="apikeyDesc">
+          输入 DeepSeek API Key 驱动谜题生成与问答。Key 仅保存在你的浏览器本地。
+        </p>
+        <form id="apikey-form" class="step-form">
+          <label class="field">
+            <span data-i18n="apiKeyLabel">DeepSeek API Key</span>
+            <div class="input-row">
+              <input
+                id="apikey-input"
+                type="password"
+                placeholder="sk-..."
+                autocomplete="off"
+              />
+              <button
+                type="button"
+                id="apikey-toggle"
+                class="toggle-vis"
+                title="显示/隐藏"
+              >
+                👁
+              </button>
+            </div>
+          </label>
+          <div class="step-actions">
+            <button type="submit" class="primary-btn" data-i18n="apikeyNext">
+              下一步：配置游戏
+            </button>
+            <button
+              type="button"
+              id="apikey-skip"
+              class="ghost-btn"
+              data-i18n="apikeySkip"
+            >
+              跳过，使用演示模式
+            </button>
+          </div>
+        </form>
+        <button id="apikey-back" class="text-btn" data-i18n="backCover">
+          ← 返回封面
+        </button>
+      </div>
+    </main>
+
+    <!-- ===== CONFIG ===== -->
+    <main id="view-config" class="view hidden">
+      <div class="step-card">
+        <div class="step-indicator">
+          <span class="step-dot done"></span><span class="step-line"></span>
+          <span class="step-dot active"></span><span class="step-line"></span>
+          <span class="step-dot"></span>
+        </div>
+        <h2 class="step-title" data-i18n="configTitle">定制你的谜题</h2>
+        <p class="step-desc" data-i18n="configDesc">
+          选择故事风格、推理类型与难度，AI 将据此生成专属海龟汤。
+        </p>
+        <form id="config-form" class="step-form">
+          <label class="field">
+            <span data-i18n="modelLabel">模型选择</span>
+            <select id="config-model">
+              <option value="deepseek-chat">deepseek-chat</option>
+              <option value="deepseek-reasoner">deepseek-reasoner</option>
+            </select>
+          </label>
+          <label class="field">
+            <span data-i18n="diffLabel">难度</span>
+            <select id="config-difficulty">
+              <option value="custom_model" data-i18n="diffCustom">
+                自定义模式
+              </option>
+              <option value="difficulty.newb" data-i18n="diffNewb">入门</option>
+              <option value="difficulty.easy" data-i18n="diffEasy">简单</option>
+              <option value="difficulty.hard" data-i18n="diffHard">专家</option>
+              <option value="difficulty.hardcore" data-i18n="diffHardcore">
+                硬核
+              </option>
+            </select>
+          </label>
+
+          <div id="custom-controls" class="card-grid hidden">
+            <label class="field">
+              <span data-i18n="customDiffLabel">自定义难度</span>
+              <select id="config-custom-difficulty">
+                <option value="difficulty.newb" data-i18n="diffNewb">
+                  入门
+                </option>
+                <option value="difficulty.easy" selected data-i18n="diffEasy">
+                  简单
+                </option>
+                <option value="difficulty.hard" data-i18n="diffHard">
+                  专家
+                </option>
+                <option value="difficulty.hardcore" data-i18n="diffHardcore">
+                  硬核
+                </option>
+              </select>
+            </label>
+            <label class="field">
+              <span data-i18n="qlLabel">提问次数 <em id="ql-val">20</em></span>
+              <input
+                id="config-question-limit"
+                type="range"
+                min="5"
+                max="30"
+                value="20"
+              />
+            </label>
+            <label class="field">
+              <span data-i18n="tlLabel">文本长度 <em id="tl-val">800</em></span>
+              <input
+                id="config-text-length"
+                type="range"
+                min="200"
+                max="10000"
+                value="800"
+                step="100"
+              />
+            </label>
+          </div>
+          <label class="field toggle-field">
+            <span data-i18n="whodunitLabel">本格推理</span>
+            <label class="toggle">
+              <input id="config-whodunit" type="checkbox" />
+              <span class="toggle-track"></span>
+              <span class="toggle-text" data-i18n="whodunitHint"
+                >强调逻辑闭环与现实约束</span
+              >
+            </label>
+          </label>
+          <div class="field">
+            <span data-i18n="styleLabel">故事风格</span>
+            <div class="style-picks" id="config-style-picks">
+              <label class="chip"
+                ><input type="checkbox" value="悬疑推理" checked /><span
+                  data-i18n="styleSuspense"
+                  >悬疑推理</span
+                ></label
+              >
+              <label class="chip"
+                ><input type="checkbox" value="惊悚" /><span
+                  data-i18n="styleHorror"
+                  >惊悚</span
+                ></label
+              >
+              <label class="chip"
+                ><input type="checkbox" value="恐怖" /><span
+                  data-i18n="styleTerror"
+                  >恐怖</span
+                ></label
+              >
+              <label class="chip"
+                ><input type="checkbox" value="喜剧" /><span
+                  data-i18n="styleComedy"
+                  >喜剧</span
+                ></label
+              >
+              <label class="chip"
+                ><input type="checkbox" value="鬼怪玄幻" /><span
+                  data-i18n="styleSupernatural"
+                  >鬼怪玄幻</span
+                ></label
+              >
+              <label class="chip"
+                ><input type="checkbox" value="刑侦悬疑" /><span
+                  data-i18n="styleCrime"
+                  >刑侦悬疑</span
+                ></label
+              >
+              <label class="chip"
+                ><input type="checkbox" value="仙侠爽文" /><span
+                  data-i18n="styleXianxia"
+                  >仙侠爽文</span
+                ></label
+              >
+            </div>
+            <input
+              id="config-custom-style"
+              type="text"
+              data-i18n-ph="customStylePH"
+              placeholder="补充自定义风格，用逗号分隔"
+            />
+          </div>
+          <div class="step-actions">
+            <button type="submit" class="primary-btn" data-i18n="generateBtn">
+              生成谜题
+            </button>
+            <button
+              type="button"
+              id="config-back"
+              class="ghost-btn"
+              data-i18n="backPrev"
+            >
+              ← 返回上一步
+            </button>
+          </div>
+        </form>
+      </div>
+    </main>
+
+    <!-- ===== LOADING ===== -->
+    <main id="view-loading" class="view hidden">
+      <div class="loading-card">
+        <div class="spinner">
+          <div class="spinner-ring"></div>
+          <div class="spinner-ring spinner-ring--inner"></div>
+          <div class="spinner-icon">🫖</div>
+        </div>
+        <h2 id="loading-title">正在熬汤...</h2>
+        <p id="loading-desc">正在构思故事...</p>
+        <div class="loading-dots"><span></span><span></span><span></span></div>
+      </div>
+    </main>
+
+    <!-- ===== GAME ===== -->
+    <main id="view-game" class="view hidden">
+      <div class="game-layout">
+        <section class="game-panel game-left">
+          <div class="game-header">
+            <div>
+              <p class="game-eyebrow" id="game-difficulty-tag">--</p>
+              <h2 id="game-title">--</h2>
+            </div>
+            <div class="question-ring" id="question-ring">
+              <span id="remaining-count">--</span>
+              <small id="remaining-label" data-i18n="remainingLabel"
+                >剩余提问</small
+              >
+            </div>
+          </div>
+          <div class="game-meta">
+            <span id="game-style-tag">--</span>
+            <span id="game-whodunit-tag">--</span>
+          </div>
+          <article class="riddle-card">
+            <div class="riddle-label" data-i18n="riddleLabel">📜 谜面</div>
+            <div
+              id="riddle-output"
+              class="riddle-output"
+              data-i18n="riddleWaiting"
+            >
+              等待生成...
+            </div>
+          </article>
+          <div class="progress-bar-wrap">
+            <span data-i18n="progressLabel">推理进度</span>
+            <div class="progress-bar">
+              <div
+                id="deduction-bar"
+                class="progress-bar-fill"
+                style="width: 0%"
+              ></div>
+            </div>
+            <small id="deduction-text">0 / 0</small>
+          </div>
+        </section>
+        <section class="game-panel game-right">
+          <div id="chat-log" class="chat-log" aria-live="polite"></div>
+          <form id="question-form" class="question-form">
+            <textarea
+              id="question-input"
+              rows="2"
+              data-i18n-ph="askPlaceholder"
+              placeholder="输入你的问题，一次只问一个..."
+            ></textarea>
+            <button
+              id="ask-btn"
+              type="submit"
+              class="primary-btn"
+              data-i18n="askBtn"
+            >
+              提问
+            </button>
+          </form>
+          <div class="submit-area">
+            <button
+              id="submit-soup-btn"
+              class="secondary-btn"
+              disabled
+              data-i18n="submitSoupBtn"
+            >
+              提交汤底
+            </button>
+            <button
+              id="view-result-btn"
+              class="ghost-btn hidden"
+              data-i18n="viewResultBtn"
+            >
+              查看结果
+            </button>
+          </div>
+        </section>
+      </div>
+      <div id="result-overlay" class="result-overlay hidden">
+        <div class="result-card" id="result-card-content"></div>
+        <div class="result-actions">
+          <button
+            id="result-close-btn"
+            class="primary-btn"
+            data-i18n="closeBtn"
+          >
+            关闭
+          </button>
+          <button
+            id="result-export-btn"
+            class="ghost-btn"
+            data-i18n="exportBtn"
+          >
+            导出 JSON
+          </button>
+        </div>
+      </div>
+
+      <!-- 汤底提交弹窗 -->
+      <div id="soup-modal" class="modal-overlay hidden">
+        <div class="modal-card">
+          <h3 id="modal-title" data-i18n="modalTitle">提交汤底</h3>
+          <p id="modal-desc" data-i18n="modalDesc">
+            请输入你推理出的故事真相。
+          </p>
+          <textarea
+            id="modal-soup-input"
+            rows="4"
+            data-i18n-ph="soupPlaceholder"
+            placeholder="输入你认为的汤底（故事真相）..."
+          ></textarea>
+          <div class="modal-actions">
+            <button
+              id="modal-submit-btn"
+              class="primary-btn"
+              data-i18n="modalSubmit"
+            >
+              确认提交
+            </button>
+            <button
+              id="modal-cancel-btn"
+              class="ghost-btn"
+              data-i18n="modalCancel"
+            >
+              取消
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- 未配置 API Key 确认弹窗 -->
+      <div id="nokey-modal" class="modal-overlay hidden">
+        <div class="modal-card">
+          <h3 data-i18n="nokeyTitle">未配置 API Key</h3>
+          <p data-i18n="nokeyDesc">
+            未配置 API Key 无法生成谜题。请先配置 API Key 后再试。
+          </p>
+          <div class="modal-actions">
+            <button id="nokey-go-btn" class="primary-btn" data-i18n="nokeyGo">
+              去配置 API Key
+            </button>
+            <button
+              id="nokey-cancel-btn"
+              class="ghost-btn"
+              data-i18n="nokeyCancel"
+            >
+              取消
+            </button>
+          </div>
+        </div>
+      </div>
+    </main>
+
+    <template id="chat-template">
+      <article class="chat-item">
+        <div class="chat-meta"></div>
+        <div class="chat-content"></div>
+      </article>
+    </template>
+
+    <script src="app.js"></script>
+  </body>
+</html>
