@@ -6,28 +6,28 @@
 const BASE_URL = "https://api.deepseek.com";
 
 const DIFFICULTY_PRESETS = {
-  "difficulty.newb": {
+  newb: {
     questionLimit: 30,
     minLen: 120,
     maxLen: 500,
     tag: "入门",
     tagEn: "Newbie",
   },
-  "difficulty.easy": {
+  easy: {
     questionLimit: 25,
     minLen: 300,
     maxLen: 1000,
     tag: "简单",
     tagEn: "Easy",
   },
-  "difficulty.hard": {
+  hard: {
     questionLimit: 15,
     minLen: 300,
     maxLen: 2000,
     tag: "专家",
     tagEn: "Hard",
   },
-  "difficulty.hardcore": {
+  hardcore: {
     questionLimit: 12,
     minLen: 200,
     maxLen: 10000,
@@ -36,203 +36,103 @@ const DIFFICULTY_PRESETS = {
   },
 };
 
-const L = {
-  zh: {
-    // cover
-    coverDesc:
-      "一个故事，一碗汤。\n你只知道开头，却猜不到结局。\n向 AI 提问，拼凑真相，还原完整的故事。",
-    startBtn: "开始推理",
-    reviewBtn: "回顾上局",
-    // apikey
-    apikeyTitle: "API Key配置",
-    apikeyDesc:
-      "输入 DeepSeek API Key 驱动谜题生成与问答。Key 仅保存在你的浏览器本地。",
-    apiKeyLabel: "DeepSeek API Key",
-    modelLabel: "模型选择",
-    apikeyNext: "下一步：配置游戏",
-    apikeySkip: "跳过，使用演示模式",
-    backCover: "← 返回封面",
-    // config
-    configTitle: "定制你的谜题",
-    configDesc: "选择故事风格、推理类型与难度，AI 将据此生成专属海龟汤。",
-    langLabel: "界面语言",
-    diffLabel: "难度",
-    diffCustom: "自定义模式",
-    diffNewb: "入门",
-    diffEasy: "简单",
-    diffHard: "专家",
-    diffHardcore: "硬核",
-    customDiffLabel: "自定义难度",
-    qlLabel: "提问次数",
-    tlLabel: "文本长度",
-    whodunitLabel: "本格推理",
-    whodunitHint: "强调逻辑闭环与现实约束",
-    styleLabel: "故事风格",
-    styleSuspense: "悬疑推理",
-    styleHorror: "惊悚",
-    styleTerror: "恐怖",
-    styleComedy: "喜剧",
-    styleSupernatural: "鬼怪玄幻",
-    styleCrime: "刑侦悬疑",
-    styleXianxia: "仙侠爽文",
-    customStylePH: "补充自定义风格，用逗号分隔",
-    generateBtn: "生成谜题",
-    backPrev: "← 返回上一步",
-    // game
-    remainingLabel: "剩余提问",
-    riddleLabel: "📜 谜面",
-    riddleWaiting: "等待生成...",
-    progressLabel: "推理进度",
-    askPlaceholder: "输入你的问题，一次只问一个...",
-    askBtn: "提问",
-    submitSoupBtn: "提交汤底",
-    viewResultBtn: "查看结果",
-    closeBtn: "关闭",
-    exportBtn: "导出 JSON",
-    modalTitle: "提交汤底",
-    modalDesc: "请输入你推理出的故事真相。",
-    soupPlaceholder: "输入你认为的汤底（故事真相）...",
-    modalSubmit: "确认提交",
-    modalCancel: "取消",
-    nokeyTitle: "未配置 API Key",
-    nokeyDesc: "未配置 API Key 无法生成谜题。请先配置 API Key 后再试。",
-    nokeyGo: "去配置 API Key",
-    nokeyCancel: "取消",
-    // runtime
-    loadingTitle: "正在熬汤...",
-    loadingDesc: "正在构思故事、谜面与盘问点，请稍候。",
-    loadingProgress: "已生成 {0} 字...",
-    evaluatingTitle: "正在评分...",
-    evaluatingDesc: "AI 正在评估你的汤底，请稍候。",
-    evaluatingProgress: "已分析 {0} 字...",
-    gameReady: "谜面已生成，开始提问吧。",
-    demoWarning: "未配置 API Key，已切换到本地演示模式。",
-    noQuestion: "请输入一个问题后再发送。",
-    tooMany: "你不能连续提问多个问题。但我可以先回答第一个问题：",
-    waitGenerate: "请先生成谜面。",
-    limitHint: "提问机会已用尽，请提交汤底。",
-    exhaustedPlaceholder: "提问次数用尽，请提交汤底。",
-    unlockHint: "所有盘问点已发现，提交已解锁。",
-    needSoup: "请先输入汤底。",
-    resultTitle: "🎉 游戏结束",
-    clueTitle: "盘问点回顾",
-    clueFound: "已发现",
-    cluePending: "未发现",
-    scoreLabel: "得分",
-    verdictLabel: "定性",
-    fitLabel: "吻合度",
-    mistakesLabel: "失误点",
-    tipsLabel: "提升建议",
-    summaryLabel: "总结",
-    exportName: "turtlesoup-export.json",
-    whodunitOn: "本格推理",
-    whodunitOff: "非本格推理",
-    localScoreVerdict: "本地评估结果。",
-    localFit: "与官方汤底存在部分吻合。",
-    localMistake: "本地模式下未调用 LLM 复核。",
-    localTip: "建议围绕关键盘问点整理时间线。",
-    localSummary: "本地演示分数。",
-  },
-  en: {
-    // cover
-    coverDesc:
-      "A story, a bowl of soup.\nYou know the beginning, but never the ending.\nAsk AI, piece together the truth, and restore the full story.",
-    startBtn: "Start",
-    reviewBtn: "Review Last Game",
-    // apikey
-    apikeyTitle: "Connect AI Engine",
-    apikeyDesc:
-      "Enter your DeepSeek API Key to power puzzle generation and Q&A. The key is stored only in your browser.",
-    apiKeyLabel: "DeepSeek API Key",
-    modelLabel: "Model",
-    apikeyNext: "Next: Configure Game",
-    apikeySkip: "Skip, use Demo Mode",
-    backCover: "← Back to Cover",
-    // config
-    configTitle: "Customize Your Puzzle",
-    configDesc:
-      "Choose story style, reasoning type, and difficulty. AI will generate a unique mystery.",
-    langLabel: "Language",
-    diffLabel: "Difficulty",
-    diffCustom: "Custom",
-    diffNewb: "Newbie",
-    diffEasy: "Easy",
-    diffHard: "Hard",
-    diffHardcore: "Hardcore",
-    customDiffLabel: "Custom Difficulty",
-    qlLabel: "Questions",
-    tlLabel: "Text Length",
-    whodunitLabel: "whodunit",
-    whodunitHint: "Emphasizes logical closure and real-world constraints",
-    styleLabel: "Story Style",
-    styleSuspense: "Suspense",
-    styleHorror: "Horror",
-    styleTerror: "Terror",
-    styleComedy: "Comedy",
-    styleSupernatural: "Supernatural",
-    styleCrime: "Crime",
-    styleXianxia: "Xianxia",
-    customStylePH: "Add custom styles, separated by commas",
-    generateBtn: "Generate Mystery",
-    backPrev: "← Back",
-    // game
-    remainingLabel: "Remaining",
-    riddleLabel: "📜 Riddle",
-    riddleWaiting: "Waiting for generation...",
-    progressLabel: "Progress",
-    askPlaceholder: "Ask one question at a time...",
-    askBtn: "Ask",
-    submitSoupBtn: "Submit Soup",
-    viewResultBtn: "View Result",
-    closeBtn: "Close",
-    exportBtn: "Export JSON",
-    modalTitle: "Submit Soup",
-    modalDesc: "Enter the story truth you have deduced.",
-    soupPlaceholder: "Enter your soup guess (the real story)...",
-    modalSubmit: "Confirm",
-    modalCancel: "Cancel",
-    nokeyTitle: "No API Key",
-    nokeyDesc:
-      "Cannot generate a mystery without an API Key. Please configure your API Key first.",
-    nokeyGo: "Configure API Key",
-    nokeyCancel: "Cancel",
-    // runtime
-    loadingTitle: "Brewing the soup...",
-    loadingDesc: "AI is crafting the story, riddle, and clues. Please wait.",
-    loadingProgress: "{0} characters generated...",
-    evaluatingTitle: "Evaluating...",
-    evaluatingDesc: "AI is evaluating your soup guess. Please wait.",
-    evaluatingProgress: "{0} characters analyzed...",
-    gameReady: "The mystery is ready. Start asking questions.",
-    demoWarning: "No API key configured. Switched to local demo mode.",
-    noQuestion: "Please enter a question first.",
-    tooMany:
-      "You cannot ask multiple questions at once. I can answer the first one: ",
-    waitGenerate: "Generate a mystery first.",
-    limitHint: "No attempts left. Please submit your soup.",
-    exhaustedPlaceholder: "No questions left. Please submit your soup.",
-    unlockHint: "All clues discovered. Submission unlocked.",
-    needSoup: "Please enter your soup guess first.",
-    resultTitle: "🎉 Game Over",
-    clueTitle: "Clue Review",
-    clueFound: "Discovered",
-    cluePending: "Pending",
-    scoreLabel: "Score",
-    verdictLabel: "Verdict",
-    fitLabel: "Fit",
-    mistakesLabel: "Mistakes",
-    tipsLabel: "Tips",
-    summaryLabel: "Summary",
-    exportName: "turtlesoup-export.json",
-    whodunitOn: "whodunit",
-    whodunitOff: "Non-whodunit",
-    localScoreVerdict: "Local evaluation result.",
-    localFit: "Partially matched the official soup.",
-    localMistake: "No LLM validation in local mode.",
-    localTip: "Try to align the timeline around the key clues.",
-    localSummary: "Local demo score.",
-  },
-};
+let L = { zh: {}, en: {} };
+
+/* ---- i18n CSV 异步加载 ---- */
+function parseCSV(text) {
+  const rows = [];
+  let row = [];
+  let field = "";
+  let inQuotes = false;
+  for (let i = 0; i < text.length; i++) {
+    const ch = text[i];
+    if (inQuotes) {
+      if (ch === '"') {
+        if (i + 1 < text.length && text[i + 1] === '"') {
+          field += '"';
+          i++;
+        } else {
+          inQuotes = false;
+        }
+      } else {
+        field += ch;
+      }
+    } else {
+      if (ch === '"') {
+        inQuotes = true;
+      } else if (ch === ",") {
+        row.push(field);
+        field = "";
+      } else if (ch === "\n") {
+        row.push(field);
+        field = "";
+        if (row.length > 0) {
+          rows.push(row);
+          row = [];
+        }
+      } else if (ch === "\r") {
+        // skip carriage return
+      } else {
+        field += ch;
+      }
+    }
+  }
+  // last field + last row
+  row.push(field);
+  if (row.some((f) => f !== "")) rows.push(row);
+  return rows;
+}
+
+async function loadI18n() {
+  try {
+    const resp = await fetch("i18n.csv");
+    if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
+    const text = await resp.text();
+    const rows = parseCSV(text);
+    const data = { zh: {}, en: {} };
+    for (let i = 1; i < rows.length; i++) {
+      const cols = rows[i];
+      if (cols.length >= 3 && cols[0]) {
+        data.zh[cols[0]] = cols[1] || "";
+        data.en[cols[0]] = cols[2] || "";
+      }
+    }
+    L = data;
+  } catch (e) {
+    console.warn("i18n CSV 加载失败，使用内置回退文本", e);
+  }
+}
+
+/* ---- Prompt 模板异步加载 ---- */
+let PROMPTS = { story: "", question: "", score: "" };
+
+function renderTemplate(tmpl, vars) {
+  return tmpl.replace(/\{\{(\w+)\}\}/g, (_, key) =>
+    vars[key] !== undefined ? String(vars[key]) : `{{${key}}}`,
+  );
+}
+
+async function loadPrompt(name) {
+  try {
+    const resp = await fetch(`default.${name}.md`);
+    if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
+    return await resp.text();
+  } catch (e) {
+    console.warn(`Prompt 模板 default.${name}.md 加载失败`, e);
+    return "";
+  }
+}
+
+async function loadPrompts() {
+  const [story, question, score] = await Promise.all([
+    loadPrompt("story"),
+    loadPrompt("question"),
+    loadPrompt("score"),
+  ]);
+  if (story) PROMPTS.story = story;
+  if (question) PROMPTS.question = question;
+  if (score) PROMPTS.score = score;
+}
 
 /* ---- state ---- */
 const S = {
@@ -241,7 +141,7 @@ const S = {
   language: "zh-CN",
   isWhodunit: true,
   difficulty: "custom_model",
-  customDifficulty: "difficulty.easy",
+  customDifficulty: "easy",
   customQuestionLimit: 20,
   customTextLength: 800,
   storyStyles: ["悬疑推理"],
@@ -251,9 +151,12 @@ const S = {
   questionLog: [],
   remainingQuestions: 0,
   discoveredClues: new Set(),
+  questionsWithClueDiscovery: new Set(),
   canSubmit: false,
   isFinished: false,
   scoreResult: null,
+  loadingPhase: null, // "story" | "storyDemo" | "evaluate" | null
+  loadingCount: 0,
 };
 
 /* ---- DOM refs ---- */
@@ -290,7 +193,7 @@ function initDom() {
     "config-form",
     "custom-controls",
     "loading-title",
-    "loading-desc",
+    "loading-words",
     "game-difficulty-tag",
     "game-title",
     "game-style-tag",
@@ -310,6 +213,7 @@ function initDom() {
     "result-card-content",
     "result-close-btn",
     "result-export-btn",
+    "result-replay-btn",
     "soup-modal",
     "modal-soup-input",
     "modal-submit-btn",
@@ -478,6 +382,7 @@ function saveGameProgress() {
     generated: S.generated,
     remainingQuestions: S.remainingQuestions,
     discoveredClues: [...S.discoveredClues],
+    questionsWithClueDiscovery: [...S.questionsWithClueDiscovery],
     questionLog: S.questionLog,
     canSubmit: S.canSubmit,
     isFinished: S.isFinished,
@@ -495,6 +400,9 @@ function loadGameProgress() {
     if (!raw) return null;
     const data = JSON.parse(raw);
     data.discoveredClues = new Set(data.discoveredClues || []);
+    data.questionsWithClueDiscovery = new Set(
+      data.questionsWithClueDiscovery || [],
+    );
     return data;
   } catch (e) {
     return null;
@@ -511,6 +419,7 @@ function restoreGame() {
   S.generated = saved.generated;
   S.remainingQuestions = saved.remainingQuestions;
   S.discoveredClues = saved.discoveredClues;
+  S.questionsWithClueDiscovery = saved.questionsWithClueDiscovery;
   S.questionLog = saved.questionLog || [];
   S.canSubmit = saved.canSubmit;
   S.isFinished = !!saved.isFinished;
@@ -532,15 +441,58 @@ function goCover() {
 }
 function goApikey() {
   showView("view-apikey");
+  if (S.apiKey) E["apikey-input"].value = S.apiKey;
 }
 function goConfig() {
   showView("view-config");
 }
 function goLoading() {
   showView("view-loading");
+  startLoadingWords();
 }
 function goGame() {
   showView("view-game");
+  stopLoadingWords();
+}
+
+/* ---- 加载页词条动画 ---- */
+let _loadingWordsTimer = null;
+
+function startLoadingWords() {
+  stopLoadingWords();
+  const words =
+    loc() === "zh"
+      ? ["加入灵感", "丰富细节", "打磨剧本", "构思谜题"]
+      : [
+          "Adding ideas",
+          "Enriching details",
+          "Polishing plot",
+          "Crafting puzzle",
+        ];
+  const container = E["loading-words"];
+  if (!container) return;
+  container.innerHTML = "";
+  let idx = 0;
+  function tick() {
+    const span = document.createElement("span");
+    span.className = "loading-word";
+    span.textContent = words[idx % words.length];
+    container.appendChild(span);
+    // 动画结束后移除
+    span.addEventListener("animationend", () => span.remove());
+    idx++;
+    _loadingWordsTimer = setTimeout(tick, 600);
+  }
+  tick();
+}
+
+function stopLoadingWords() {
+  if (_loadingWordsTimer) {
+    clearTimeout(_loadingWordsTimer);
+    _loadingWordsTimer = null;
+  }
+  const container = E["loading-words"];
+  if (container) container.innerHTML = "";
 }
 
 function startFromCover() {
@@ -558,7 +510,7 @@ function startFromCover() {
 function populateConfigForm() {
   E["config-difficulty"].value = S.difficulty || "custom_model";
   E["config-model"].value = S.model || "deepseek-chat";
-  E["config-custom-difficulty"].value = S.customDifficulty || "difficulty.easy";
+  E["config-custom-difficulty"].value = S.customDifficulty || "easy";
   E["config-question-limit"].value = S.customQuestionLimit || 20;
   E["ql-val"].textContent = S.customQuestionLimit || 20;
   E["config-text-length"].value = S.customTextLength || 800;
@@ -616,21 +568,26 @@ async function handleConfigSubmit(e) {
   S.scoreResult = null;
   S.remainingQuestions = 0;
   S.discoveredClues = new Set();
+  S.questionsWithClueDiscovery = new Set();
   S.canSubmit = false;
   S.isFinished = false;
   S.demoMode = !S.apiKey;
 
   // go loading
   goLoading();
+  S.loadingPhase = "story";
+  S.loadingCount = 0;
   E["loading-title"].textContent = t("loadingTitle");
-  E["loading-desc"].textContent = t("loadingDesc");
+  startLoadingWords();
 
   // generate
   if (!S.apiKey) {
     S.generated = buildDemoStory();
     S.remainingQuestions = getQuestionLimit();
+    S.loadingPhase = "storyDemo";
     E["loading-title"].textContent = t("demoWarning");
     await sleep(1200);
+    S.loadingPhase = null;
     enterGame();
     return;
   }
@@ -654,10 +611,10 @@ async function handleConfigSubmit(e) {
       ],
       0.95,
       (full) => {
-        E["loading-desc"].textContent = t("loadingProgress").replace(
-          "{0}",
-          full.length,
-        );
+        S.loadingCount = full.length;
+        E["loading-title"].textContent =
+          t("loadingTitle") +
+          ` (${full.length} ${loc() === "zh" ? "字" : "chars"})`;
       },
     );
     const story = normalizeJson(content);
@@ -683,6 +640,7 @@ async function handleConfigSubmit(e) {
     S.remainingQuestions = getQuestionLimit();
   }
   await sleep(800);
+  S.loadingPhase = null;
   enterGame();
 }
 
@@ -737,6 +695,7 @@ function enterGame(restoring) {
     questionIndex = 0;
     S.isFinished = false;
     S.canSubmit = false;
+    S.questionsWithClueDiscovery = new Set();
   }
 
   if (!S.generated) return;
@@ -817,6 +776,13 @@ function addChatMsg(role, content, meta) {
     role === "user" && questionIndex > 0 ? `Q${questionIndex} · ` : "";
   node.querySelector(".chat-meta").textContent = prefix + label;
   node.querySelector(".chat-content").textContent = content;
+  // 标记玩家提问索引，并根据盘问点发现状态添加叶绿色高亮
+  if (role === "user" && questionIndex > 0) {
+    node.setAttribute("data-qindex", String(questionIndex));
+    if (S.questionsWithClueDiscovery.has(questionIndex)) {
+      node.classList.add("clue-discovery");
+    }
+  }
   E["chat-log"].appendChild(node);
   E["chat-log"].scrollTop = E["chat-log"].scrollHeight;
 }
@@ -931,10 +897,21 @@ function finalizeTurn() {
 
 function applyClueHits(indices) {
   if (!Array.isArray(indices)) return;
+  let newDiscovery = false;
   indices.forEach((i) => {
-    if (Number.isInteger(i) && S.generated?.clues?.[i] != null)
+    if (Number.isInteger(i) && S.generated?.clues?.[i] != null) {
+      if (!S.discoveredClues.has(i)) newDiscovery = true;
       S.discoveredClues.add(i);
+    }
   });
+  // 如果有新盘问点被发现，标记当前提问并更新聊天 DOM
+  if (newDiscovery && questionIndex > 0) {
+    S.questionsWithClueDiscovery.add(questionIndex);
+    const node = E["chat-log"].querySelector(
+      `[data-qindex="${questionIndex}"]`,
+    );
+    if (node) node.classList.add("clue-discovery");
+  }
 }
 
 function parseReply(raw) {
@@ -1010,8 +987,10 @@ async function submitSoup() {
   E["soup-modal"].classList.add("hidden");
   S.isFinished = true;
   goLoading();
+  S.loadingPhase = "evaluate";
+  S.loadingCount = 0;
   E["loading-title"].textContent = t("evaluatingTitle");
-  E["loading-desc"].textContent = t("evaluatingDesc");
+  startLoadingWords();
 
   if (S.demoMode) {
     S.scoreResult = getLocalScore(guess);
@@ -1025,10 +1004,10 @@ async function submitSoup() {
         ],
         0.2,
         (full) => {
-          E["loading-desc"].textContent = t("evaluatingProgress").replace(
-            "{0}",
-            full.length,
-          );
+          S.loadingCount = full.length;
+          E["loading-title"].textContent =
+            t("evaluatingTitle") +
+            ` (${full.length} ${loc() === "zh" ? "字" : "chars"})`;
         },
       );
       const p = normalizeJson(raw);
@@ -1048,6 +1027,7 @@ async function submitSoup() {
     }
   }
   saveGameProgress();
+  S.loadingPhase = null;
   goGame();
   E["submit-soup-btn"].classList.add("hidden");
   E["view-result-btn"].classList.remove("hidden");
@@ -1158,82 +1138,75 @@ function exportJson() {
 /* ---- PROMPTS ---- */
 function buildStoryPrompt() {
   const ad = getActiveDifficulty();
-  const p = DIFFICULTY_PRESETS[ad] || DIFFICULTY_PRESETS["difficulty.easy"];
   const lr = getLengthRange();
   const lc = loc();
   const clueCount =
-    ad === "difficulty.newb"
-      ? 3
-      : ad === "difficulty.easy"
-        ? 4
-        : ad === "difficulty.hard"
-          ? 5
-          : 6;
-  return [
-    "You are a professional turtle-soup mystery designer.",
-    `Language: ${lc === "en" ? "English" : "Chinese"}.`,
-    `Story style(s): ${S.storyStyles.join(", ")}.`,
-    `is_whodunit: ${S.isWhodunit}. difficulty: ${ad}.`,
-    `question_limit: ${getQuestionLimit()}. text_length_range: ${lr.min}-${lr.max}.`,
-    `clue_count_target: ${clueCount}.`,
-    "Create a complete, internally consistent mystery.",
-    "TITLE RULE: The title must NOT explicitly reveal the solution, culprit, or twist. Use metaphor, allusion, or atmosphere instead — hint at the theme without spoiling. Example: instead of 'The Wife Did It', use 'Bitter Tea'. The title should intrigue, not expose.",
-    S.isWhodunit
-      ? "PRIORITY: This is a HONKAKU (本格推理) mystery. The story MUST follow strict logical deduction, real-world physics, and fair-play rules. All clues must be logically solvable by the reader. The solution must have a clear cause-and-effect chain with no supernatural elements. Story style is secondary — use it only as flavor on top of the logical core."
-      : "This is a non-traditional mystery. Feel free to use supernatural, absurd, or unconventional elements. Story style may freely influence the plot and solution.",
-    "Return ONLY JSON: {title, outline, riddle_html, clues, soup, meta}.",
-    "riddle_html: safe HTML with <em>,<strong>,<mark>,<br>,<p>. End the riddle with ONE clear question or goal in <strong> tags that the player needs to solve. Craft this goal specifically based on the story's core mystery — do NOT use generic phrases like '还原真相'. Examples: '凶手为什么要等到雨停才动手？', 'Who switched the medicine and why?'. The goal must be unique to this story.",
-    "clues: array of concise clue statements, each discoverable via questions.",
-    "outline: full story logic. soup: official solution. meta: {tone,setting,characters}.",
-    ad === "difficulty.newb"
-      ? "For newb, gently highlight hints with <em>, keep puzzle straightforward."
-      : "Do not reveal answer in riddle.",
-    ad === "difficulty.hardcore"
-      ? "No markup to expose clues; riddle compact but dense."
-      : "Use markup sparingly.",
-  ].join("\n");
+    ad === "newb" ? 3 : ad === "easy" ? 4 : ad === "hard" ? 5 : 6;
+  const whodunitInstruction = S.isWhodunit
+    ? "PRIORITY: This is a HONKAKU (本格推理) mystery. The story MUST follow strict logical deduction, real-world physics, and fair-play rules. All clues must be logically solvable by the reader. The solution must have a clear cause-and-effect chain with no supernatural elements. Story style is secondary — use it only as flavor on top of the logical core."
+    : "This is a non-traditional mystery. Feel free to use supernatural, absurd, or unconventional elements. Story style may freely influence the plot and solution.";
+  const difficultyHint =
+    ad === "newb"
+      ? "For newb, gently highlight hints with <em>, keep puzzle straightforward. Do not reveal answer in riddle."
+      : ad === "hardcore"
+        ? "No markup to expose clues; riddle compact but dense. Do not reveal answer in riddle."
+        : "Do not reveal answer in riddle.";
+
+  return renderTemplate(PROMPTS.story, {
+    language: lc === "en" ? "English" : "Chinese",
+    storyStyles: S.storyStyles.join(", "),
+    isWhodunit: String(S.isWhodunit),
+    difficulty: ad,
+    questionLimit: String(getQuestionLimit()),
+    textLengthMin: String(lr.min),
+    textLengthMax: String(lr.max),
+    clueCount: String(clueCount),
+    whodunitInstruction,
+    difficultyHint,
+  });
 }
 
 function buildQuestionPrompt(question) {
   const undiscovered = (S.generated?.clues || []).filter(
     (_, i) => !S.discoveredClues.has(i),
   );
-  const lang = loc() === "en" ? "English" : "Chinese";
+  const lang = loc() === "en" ? "en-US" : "zh-CN";
   const shortReplies =
     loc() === "en"
-      ? "yes/no/important/unimportant/yes and no/cannot determine"
-      : "是/不是/重要/不重要/是也不是/无法确定";
-  return [
-    `You are the answer engine for a turtle soup mystery. You MUST reply in ${lang}.`,
-    `Language: ${lang}. Difficulty: ${getActiveDifficulty()}.`,
-    `is_whodunit: ${S.isWhodunit}.`,
-    `Reply with short, rule-bound answers in ${lang}: ${shortReplies}.`,
-    "If multiple questions asked, refuse and answer only the first.",
-    "If question is irrelevant or repeats a weak point, redirect gently (unless hardcore).",
-    "Return ONLY JSON: {reply, matchedClues, clueReason}. The 'reply' field MUST be in " +
-      lang +
-      ".",
-    "matchedClues: 0-based indices of ALL clue statements (including previously found ones) that the player has now confirmed or strongly touched upon. Review the player's question against each clue and include its index if the question reveals or confirms it.",
-    `Story: ${S.generated?.title || ""}. Outline: ${S.generated?.outline || ""}.`,
-    `Riddle: ${stripHtml(S.generated?.riddle_html || "")}.`,
-    `All clues (indexed): ${JSON.stringify((S.generated?.clues || []).map((c, i) => ({ i, text: c })))}.`,
-    undiscovered.length
-      ? `Still undiscovered clues: ${JSON.stringify(undiscovered)}.`
+      ? "yes/no/important/unimportant/neither/cannot determine/not relevant"
+      : "是/不是/重要/不重要/是也不是/皆有可能/无法确定/不需要关心";
+
+  return renderTemplate(PROMPTS.question, {
+    language: lang,
+    difficulty: getActiveDifficulty(),
+    isWhodunit: String(S.isWhodunit),
+    shortReplies,
+    storyTitle: S.generated?.title || "",
+    storyOutline: S.generated?.outline || "",
+    riddleText: stripHtml(S.generated?.riddle_html || ""),
+    allClues: JSON.stringify(
+      (S.generated?.clues || []).map((c, i) => ({ i, text: c })),
+    ),
+    undiscoveredClues: undiscovered.length
+      ? `Still undiscovered clues: ${JSON.stringify(undiscovered)}.\n`
       : "",
-    `Already discovered clue indices: ${JSON.stringify([...S.discoveredClues])}.`,
-    `Recent dialogue: ${JSON.stringify(S.questionLog.slice(-6))}.`,
-    `Player question: ${question}`,
-  ].join("\n");
+    discoveredClueIndices: JSON.stringify([...S.discoveredClues]),
+    recentDialogue: JSON.stringify(S.questionLog.slice(-6)),
+    playerQuestion: question,
+  });
 }
 
 function buildScoringPrompt(guess) {
-  return [
-    "You are a fair turtle soup evaluator.",
-    `Language: ${loc() === "en" ? "English" : "Chinese"}.`,
-    "Score 0-100 based on accuracy and efficiency. Return ONLY JSON: {score,verdict,fit,mistakes,tips,conciseSummary}.",
-    `Outline: ${S.generated?.outline || ""}. Soup: ${S.generated?.soup || ""}.`,
-    `Guess: ${guess}. Questions: ${S.questionLog.length}. Remaining: ${S.remainingQuestions}. ClueProgress: ${S.discoveredClues.size}/${S.generated?.clues?.length || 0}.`,
-  ].join("\n");
+  return renderTemplate(PROMPTS.score, {
+    language: loc() === "en" ? "English" : "Chinese",
+    storyOutline: S.generated?.outline || "",
+    storySoup: S.generated?.soup || "",
+    playerGuess: guess,
+    questionCount: String(S.questionLog.length),
+    remainingQuestions: String(S.remainingQuestions),
+    discoveredClues: String(S.discoveredClues.size),
+    totalClues: String(S.generated?.clues?.length || 0),
+  });
 }
 
 /* ---- API ---- */
@@ -1341,8 +1314,7 @@ function wireEvents() {
   });
   E["config-form"].addEventListener("submit", handleConfigSubmit);
   E["config-back"].addEventListener("click", () => {
-    if (isFirstVisit()) goApikey();
-    else goCover();
+    goApikey();
   });
   E["config-difficulty"].addEventListener("change", syncCustomControls);
   E["config-question-limit"].addEventListener("input", () => {
@@ -1360,6 +1332,11 @@ function wireEvents() {
   E["modal-cancel-btn"].addEventListener("click", closeSoupModal);
   E["result-export-btn"].addEventListener("click", exportJson);
   E["result-close-btn"].addEventListener("click", hideResultOverlay);
+  E["result-replay-btn"].addEventListener("click", () => {
+    hideResultOverlay();
+    clearGameProgress();
+    startFromCover();
+  });
   E["theme-toggle"].addEventListener("click", toggleTheme);
   E["lang-toggle"].addEventListener("click", toggleLanguage);
   E["nokey-go-btn"].addEventListener("click", () => {
@@ -1404,6 +1381,28 @@ function syncI18n() {
     E["remaining-label"].textContent = t("remainingLabel");
     E["question-input"].placeholder = t("askPlaceholder");
   }
+  // 加载页面动态文本同步
+  if (S.loadingPhase) {
+    switch (S.loadingPhase) {
+      case "story":
+        E["loading-title"].textContent =
+          S.loadingCount > 0
+            ? t("loadingTitle") +
+              ` (${S.loadingCount} ${loc() === "zh" ? "字" : "chars"})`
+            : t("loadingTitle");
+        break;
+      case "storyDemo":
+        E["loading-title"].textContent = t("demoWarning");
+        break;
+      case "evaluate":
+        E["loading-title"].textContent =
+          S.loadingCount > 0
+            ? t("evaluatingTitle") +
+              ` (${S.loadingCount} ${loc() === "zh" ? "字" : "chars"})`
+            : t("evaluatingTitle");
+        break;
+    }
+  }
 }
 
 function initTheme() {
@@ -1437,7 +1436,8 @@ function closeSoupModal() {
 }
 
 /* ---- BOOT ---- */
-function boot() {
+async function boot() {
+  await Promise.all([loadI18n(), loadPrompts()]);
   initDom();
   loadSettings();
   initTheme();
@@ -1457,4 +1457,4 @@ function boot() {
   window.addEventListener("beforeunload", saveGameProgress);
 }
 
-document.addEventListener("DOMContentLoaded", boot);
+document.addEventListener("DOMContentLoaded", () => boot());

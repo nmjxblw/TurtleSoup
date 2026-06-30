@@ -1,0 +1,94 @@
+key,zh,en
+coverDesc,"一个故事，一碗汤。
+你只知道开头，却猜不到结局。
+向 AI 提问，拼凑真相，还原完整的故事。","A story, a bowl of soup.
+You know the beginning, but never the ending.
+Ask AI, piece together the truth, and restore the full story."
+
+startBtn,开始推理,Start
+reviewBtn,回顾上局,Review Last Game
+apikeyTitle,API Key配置,Connect AI Engine
+apikeyDesc,输入 DeepSeek API Key 驱动谜题生成与问答。Key 仅保存在你的浏览器本地。,"Enter your DeepSeek API Key to power puzzle generation and Q&A. The key is stored only in your browser."
+apiKeyLabel,DeepSeek API Key,DeepSeek API Key
+modelLabel,模型选择,Model
+apikeyNext,下一步：配置游戏,"Next: Configure Game"
+apikeySkip,跳过，使用演示模式,"Skip, use Demo Mode"
+backCover,返回封面,Back to Cover
+configTitle,定制你的谜题,Customize Your Puzzle
+configDesc,"选择故事风格、推理类型与难度，AI 将据此生成专属海龟汤。","Choose story style, reasoning type, and difficulty. AI will generate a unique mystery."
+langLabel,界面语言,Language
+diffLabel,难度,Difficulty
+diffCustom,自定义模式,Custom
+diffNewb,入门,Newbie
+diffEasy,简单,Easy
+diffHard,专家,Hard
+diffHardcore,硬核,Hardcore
+customDiffLabel,自定义难度,Custom Difficulty
+qlLabel,提问次数,Questions
+tlLabel,文本长度,Text Length
+whodunitLabel,本格推理,whodunit
+whodunitHint,强调逻辑闭环与现实约束,Emphasizes logical closure and real-world constraints
+styleLabel,故事风格,Story Style
+styleSuspense,悬疑推理,Suspense
+styleHorror,惊悚,Horror
+styleTerror,恐怖,Terror
+styleComedy,喜剧,Comedy
+styleSupernatural,鬼怪玄幻,Supernatural
+styleCrime,刑侦悬疑,Crime
+styleXianxia,仙侠爽文,Xianxia
+customStylePH,补充自定义风格，用逗号分隔,"Add custom styles, separated by commas"
+generateBtn,生成谜题,Generate Mystery
+backPrev,返回上一步,Back
+remainingLabel,剩余提问,Remaining
+riddleLabel,📜 谜面,📜 Riddle
+riddleWaiting,等待生成...,Waiting for generation...
+progressLabel,推理进度,Progress
+askPlaceholder,输入你的问题，一次只问一个...,Ask one question at a time...
+askBtn,提问,Ask
+submitSoupBtn,提交汤底,Submit Soup
+viewResultBtn,查看结果,View Result
+closeBtn,关闭,Close
+exportBtn,导出 JSON,Export JSON
+replayBtn,再来一汤,One More Soup
+modalTitle,提交汤底,Submit Soup
+modalDesc,请输入你推理出的故事真相。,Enter the story truth you have deduced.
+soupPlaceholder,输入你认为的汤底（故事真相）...,Enter your soup guess (the real story)...
+modalSubmit,确认提交,Confirm
+modalCancel,取消,Cancel
+nokeyTitle,未配置 API Key,No API Key
+nokeyDesc,未配置 API Key 无法生成谜题。请先配置 API Key 后再试。,"Cannot generate a mystery without an API Key. Please configure your API Key first."
+nokeyGo,去配置 API Key,Configure API Key
+nokeyCancel,取消,Cancel
+loadingTitle,正在熬汤...,Brewing the soup...
+loadingDesc,"正在构思故事...","Crafting the story..."
+loadingProgress,已生成 {0} 字...,{0} characters generated...
+evaluatingTitle,正在评分...,Evaluating...
+evaluatingDesc,AI 正在评估你的汤底，请稍候。,AI is evaluating your soup guess. Please wait.
+evaluatingProgress,已分析 {0} 字...,{0} characters analyzed...
+gameReady,"谜面已生成，开始提问吧。","The mystery is ready. Start asking questions."
+demoWarning,"未配置 API Key，已切换到本地演示模式。","No API key configured. Switched to local demo mode."
+noQuestion,请输入一个问题后再发送。,Please enter a question first.
+tooMany,你不能连续提问多个问题。但我可以先回答第一个问题：,"You cannot ask multiple questions at once. I can answer the first one: "
+waitGenerate,请先生成谜面。,Generate a mystery first.
+limitHint,"提问机会已用尽，请提交汤底。","No attempts left. Please submit your soup."
+exhaustedPlaceholder,"提问次数用尽，请提交汤底。","No questions left. Please submit your soup."
+unlockHint,"所有盘问点已发现，提交已解锁。","All clues discovered. Submission unlocked."
+needSoup,请先输入汤底。,Please enter your soup guess first.
+resultTitle,🎉 游戏结束,🎉 Game Over
+clueTitle,盘问点回顾,Clue Review
+clueFound,已发现,Discovered
+cluePending,未发现,Pending
+scoreLabel,得分,Score
+verdictLabel,定性,Verdict
+fitLabel,吻合度,Fit
+mistakesLabel,失误点,Mistakes
+tipsLabel,提升建议,Tips
+summaryLabel,总结,Summary
+exportName,turtlesoup-export.json,turtlesoup-export.json
+whodunitOn,本格推理,whodunit
+whodunitOff,非本格推理,Non-whodunit
+localScoreVerdict,本地评估结果。,Local evaluation result.
+localFit,与官方汤底存在部分吻合。,Partially matched the official soup.
+localMistake,本地模式下未调用 LLM 复核。,No LLM validation in local mode.
+localTip,建议围绕关键盘问点整理时间线。,Try to align the timeline around the key clues.
+localSummary,本地演示分数。,Local demo score.
