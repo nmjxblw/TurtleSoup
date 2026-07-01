@@ -791,11 +791,29 @@ button:disabled {
   color: var(--accent-2);
   font-style: italic;
 }
+.riddle-output strong {
+  color: var(--accent);
+  font-weight: 700;
+}
 .riddle-output mark {
   background: var(--mark-bg);
   color: var(--text);
   padding: 0 4px;
   border-radius: 4px;
+}
+.riddle-output p {
+  margin: 0 0 0.8em;
+}
+.riddle-output p:last-child {
+  margin-bottom: 0;
+}
+.riddle-output ul,
+.riddle-output ol {
+  padding-left: 1.5em;
+  margin: 0.5em 0;
+}
+.riddle-output li {
+  margin-bottom: 0.3em;
 }
 
 /* progress bar */

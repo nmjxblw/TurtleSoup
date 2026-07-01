@@ -1,10 +1,9 @@
 key,zh,en
 coverDesc,"一个故事，一碗汤。
 你只知道开头，却猜不到结局。
-向 AI 提问，拼凑真相，还原完整的故事。","A story, a bowl of soup.
+加入想象的调料，还原完整的味道……","A story, a bowl of soup.
 You know the beginning, but never the ending.
-Ask AI, piece together the truth, and restore the full story."
-
+Add a dash of imagination to savor the full flavor..."
 startBtn,开始推理,Start
 reviewBtn,回顾上局,Review Last Game
 apikeyTitle,API Key配置,Connect AI Engine
@@ -53,7 +52,7 @@ exportBtn,导出 JSON,Export JSON
 replayBtn,再来一汤,One More Soup
 modalTitle,提交汤底,Submit Soup
 modalDesc,请输入你推理出的故事真相。,Enter the story truth you have deduced.
-soupPlaceholder,输入你认为的汤底（故事真相）...,Enter your soup guess (the real story)...
+soupPlaceholder,输入答案，完成汤面,Enter your soup guess ...
 modalSubmit,确认提交,Confirm
 modalCancel,取消,Cancel
 modalGiveup,放弃游戏,Give Up
@@ -67,7 +66,11 @@ loadingProgress,已生成 {0} 字...,{0} characters generated...
 evaluatingTitle,正在评分...,Evaluating...
 evaluatingDesc,AI 正在评估你的汤底，请稍候。,AI is evaluating your soup guess. Please wait.
 evaluatingProgress,已分析 {0} 字...,{0} characters analyzed...
-gameReady,"谜面已生成，开始提问吧。","The mystery is ready. Start asking questions."
+gameReady,"汤底完成，开始调味吧...
+每次只能提出一个问题，系统会告诉你是与否。
+请在有限的提问次数里推理出真相。","Broth's ready—time to season it...
+You may only ask one question at a time; the system will answer yes or no.
+Uncover the truth within your limited attempts.."
 demoWarning,"未配置 API Key，已切换到本地演示模式。","No API key configured. Switched to local demo mode."
 noQuestion,请输入一个问题后再发送。,Please enter a question first.
 tooMany,你不能连续提问多个问题。但我可以先回答第一个问题：,"You cannot ask multiple questions at once. I can answer the first one: "
@@ -98,3 +101,8 @@ shareSoupBtn,分享汤底,Share Soup
 importSoupBtn,导入汤底,Import Soup
 importInvalid,无效的汤底文件，请检查文件格式。,Invalid soup file. Please check the file format.
 importFailed,导入失败，文件可能已损坏。,Import failed. The file may be corrupted.
+errorTitle,生成失败,Generation Failed
+errorDesc,AI 引擎返回了错误，请检查网络或 API Key 后重试。,The AI engine returned an error. Please check your network or API Key and try again.
+errorRetry,重试,Retry
+errorDemo,使用演示模式,Use Demo Mode
+errorCancel,返回,Go Back

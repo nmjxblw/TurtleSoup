@@ -135,7 +135,7 @@ async function loadPrompts() {
 }
 
 /* ---- state ---- */
-const S = {
+const GameState = {
   apiKey: "",
   model: "deepseek-chat",
   language: "zh-CN",
@@ -160,7 +160,7 @@ const S = {
 };
 
 /* ---- DOM refs ---- */
-const E = {};
+const DOMRef = {};
 function $(id) {
   return document.getElementById(id);
 }
@@ -225,6 +225,11 @@ function initDom() {
     "nokey-modal",
     "nokey-go-btn",
     "nokey-cancel-btn",
+    "error-modal",
+    "error-msg",
+    "error-retry-btn",
+    "error-demo-btn",
+    "error-cancel-btn",
     "dice-random-style",
     "game-share-btn",
     "result-share-btn",
@@ -232,7 +237,7 @@ function initDom() {
     "import-soup-input",
   ];
   ids.forEach((id) => {
-    E[id] = $(id);
+    DOMRef[id] = $(id);
   });
 }
 
@@ -241,7 +246,7 @@ function clamp(v, lo, hi) {
   return Math.max(lo, Math.min(hi, v));
 }
 function loc() {
-  return S.language === "en-US" ? "en" : "zh";
+  return GameState.language === "en-US" ? "en" : "zh";
 }
 function t(key) {
   return L[loc()][key] || L.zh[key] || key;
@@ -308,16 +313,18 @@ function normalizeJson(text) {
 }
 
 function getActiveDifficulty() {
-  return S.difficulty === "custom_model" ? S.customDifficulty : S.difficulty;
+  return GameState.difficulty === "custom_model"
+    ? GameState.customDifficulty
+    : GameState.difficulty;
 }
 function getQuestionLimit() {
-  if (S.difficulty === "custom_model")
-    return clamp(S.customQuestionLimit, 5, 30);
+  if (GameState.difficulty === "custom_model")
+    return clamp(GameState.customQuestionLimit, 5, 30);
   return DIFFICULTY_PRESETS[getActiveDifficulty()].questionLimit;
 }
 function getLengthRange() {
-  if (S.difficulty === "custom_model") {
-    const len = clamp(S.customTextLength, 200, 10000);
+  if (GameState.difficulty === "custom_model") {
+    const len = clamp(GameState.customTextLength, 200, 10000);
     return { min: Math.max(100, Math.round(len * 0.7)), max: len };
   }
   const p = DIFFICULTY_PRESETS[getActiveDifficulty()];
@@ -325,11 +332,11 @@ function getLengthRange() {
 }
 function getSelectedStyles() {
   const picks = [
-    ...E["config-style-picks"].querySelectorAll(
+    ...DOMRef["config-style-picks"].querySelectorAll(
       'input[type="checkbox"]:checked',
     ),
   ].map((cb) => cb.value);
-  const custom = E["config-custom-style"].value
+  const custom = DOMRef["config-custom-style"].value
     .split(/[，,、|\\\"\n]/)
     .map((s) => s.trim())
     .filter(Boolean);
@@ -346,23 +353,23 @@ function showView(viewId) {
     "view-loading",
     "view-game",
   ].forEach((id) => {
-    E[id].classList.toggle("hidden", id !== viewId);
+    DOMRef[id].classList.toggle("hidden", id !== viewId);
   });
 }
 
 /* ---- PERSISTENCE ---- */
 function saveSettings() {
   const data = {
-    apiKey: S.apiKey,
-    model: S.model,
-    language: S.language,
-    isWhodunit: S.isWhodunit,
-    difficulty: S.difficulty,
-    customDifficulty: S.customDifficulty,
-    customQuestionLimit: S.customQuestionLimit,
-    customTextLength: S.customTextLength,
-    storyStyles: S.storyStyles,
-    customStyleText: S.customStyleText,
+    apiKey: GameState.apiKey,
+    model: GameState.model,
+    language: GameState.language,
+    isWhodunit: GameState.isWhodunit,
+    difficulty: GameState.difficulty,
+    customDifficulty: GameState.customDifficulty,
+    customQuestionLimit: GameState.customQuestionLimit,
+    customTextLength: GameState.customTextLength,
+    storyStyles: GameState.storyStyles,
+    customStyleText: GameState.customStyleText,
   };
   localStorage.setItem("turtlesoup-settings", JSON.stringify(data));
   localStorage.setItem("turtlesoup-visited", "1");
@@ -372,7 +379,7 @@ function loadSettings() {
     const raw = localStorage.getItem("turtlesoup-settings");
     if (raw) {
       const d = JSON.parse(raw);
-      Object.assign(S, d);
+      Object.assign(GameState, d);
     }
   } catch (e) {
     /* ignore */
@@ -383,18 +390,18 @@ function isFirstVisit() {
 }
 
 function saveGameProgress() {
-  if (!S.generated) return;
+  if (!GameState.generated) return;
   const data = {
-    generated: S.generated,
-    remainingQuestions: S.remainingQuestions,
-    discoveredClues: [...S.discoveredClues],
-    questionsWithClueDiscovery: [...S.questionsWithClueDiscovery],
-    questionLog: S.questionLog,
-    canSubmit: S.canSubmit,
-    isFinished: S.isFinished,
-    scoreResult: S.scoreResult,
-    isWhodunit: S.isWhodunit,
-    demoMode: S.demoMode,
+    generated: GameState.generated,
+    remainingQuestions: GameState.remainingQuestions,
+    discoveredClues: [...GameState.discoveredClues],
+    questionsWithClueDiscovery: [...GameState.questionsWithClueDiscovery],
+    questionLog: GameState.questionLog,
+    canSubmit: GameState.canSubmit,
+    isFinished: GameState.isFinished,
+    scoreResult: GameState.scoreResult,
+    isWhodunit: GameState.isWhodunit,
+    demoMode: GameState.demoMode,
     questionIndex: questionIndex,
   };
   localStorage.setItem("turtlesoup-progress", JSON.stringify(data));
@@ -422,16 +429,16 @@ function clearGameProgress() {
 function restoreGame() {
   const saved = loadGameProgress();
   if (!saved || !saved.generated) return false;
-  S.generated = saved.generated;
-  S.remainingQuestions = saved.remainingQuestions;
-  S.discoveredClues = saved.discoveredClues;
-  S.questionsWithClueDiscovery = saved.questionsWithClueDiscovery;
-  S.questionLog = saved.questionLog || [];
-  S.canSubmit = saved.canSubmit;
-  S.isFinished = !!saved.isFinished;
-  S.scoreResult = saved.scoreResult || null;
-  S.isWhodunit = !!saved.isWhodunit;
-  S.demoMode = !!saved.demoMode;
+  GameState.generated = saved.generated;
+  GameState.remainingQuestions = saved.remainingQuestions;
+  GameState.discoveredClues = saved.discoveredClues;
+  GameState.questionsWithClueDiscovery = saved.questionsWithClueDiscovery;
+  GameState.questionLog = saved.questionLog || [];
+  GameState.canSubmit = saved.canSubmit;
+  GameState.isFinished = !!saved.isFinished;
+  GameState.scoreResult = saved.scoreResult || null;
+  GameState.isWhodunit = !!saved.isWhodunit;
+  GameState.demoMode = !!saved.demoMode;
   questionIndex = saved.questionIndex || 0;
   return true;
 }
@@ -439,15 +446,15 @@ function restoreGame() {
 /* ---- COVER → APIKEY / CONFIG ---- */
 function goCover() {
   showView("view-cover");
-  E["cover-review-btn"].classList.add("hidden");
+  DOMRef["cover-review-btn"].classList.add("hidden");
   const progress = loadGameProgress();
   if (progress && progress.isFinished) {
-    E["cover-review-btn"].classList.remove("hidden");
+    DOMRef["cover-review-btn"].classList.remove("hidden");
   }
 }
 function goApikey() {
   showView("view-apikey");
-  if (S.apiKey) E["apikey-input"].value = S.apiKey;
+  if (GameState.apiKey) DOMRef["apikey-input"].value = GameState.apiKey;
 }
 function goConfig() {
   showView("view-config");
@@ -475,7 +482,7 @@ function startLoadingWords() {
           "Polishing plot",
           "Crafting puzzle",
         ];
-  const container = E["loading-words"];
+  const container = DOMRef["loading-words"];
   if (!container) return;
   container.innerHTML = "";
   let idx = 0;
@@ -497,15 +504,15 @@ function stopLoadingWords() {
     clearTimeout(_loadingWordsTimer);
     _loadingWordsTimer = null;
   }
-  const container = E["loading-words"];
+  const container = DOMRef["loading-words"];
   if (container) container.innerHTML = "";
 }
 
 function startFromCover() {
   clearGameProgress();
-  E["cover-review-btn"].classList.add("hidden");
+  DOMRef["cover-review-btn"].classList.add("hidden");
   loadSettings();
-  if (S.apiKey && S.apiKey.startsWith("sk-")) {
+  if (GameState.apiKey && GameState.apiKey.startsWith("sk-")) {
     populateConfigForm();
     goConfig();
   } else {
@@ -514,34 +521,64 @@ function startFromCover() {
 }
 
 function populateConfigForm() {
-  E["config-difficulty"].value = S.difficulty || "custom_model";
-  E["config-model"].value = S.model || "deepseek-chat";
-  E["config-custom-difficulty"].value = S.customDifficulty || "easy";
-  E["config-question-limit"].value = S.customQuestionLimit || 20;
-  E["ql-val"].textContent = S.customQuestionLimit || 20;
-  E["config-text-length"].value = S.customTextLength || 800;
-  E["tl-val"].textContent = S.customTextLength || 800;
-  E["config-whodunit"].checked = !!S.isWhodunit;
-  E["config-custom-style"].value = S.customStyleText || "";
-  const sel = new Set(S.storyStyles || ["悬疑推理"]);
+  DOMRef["config-difficulty"].value = GameState.difficulty || "custom_model";
+  DOMRef["config-model"].value = GameState.model || "deepseek-chat";
+  DOMRef["config-custom-difficulty"].value =
+    GameState.customDifficulty || "easy";
+  DOMRef["config-question-limit"].value = GameState.customQuestionLimit || 20;
+  DOMRef["ql-val"].textContent = GameState.customQuestionLimit || 20;
+  DOMRef["config-text-length"].value = GameState.customTextLength || 800;
+  DOMRef["tl-val"].textContent = GameState.customTextLength || 800;
+  DOMRef["config-whodunit"].checked = !!GameState.isWhodunit;
+  DOMRef["config-custom-style"].value = GameState.customStyleText || "";
+  const sel = new Set(GameState.storyStyles || ["悬疑推理"]);
   [
-    ...E["config-style-picks"].querySelectorAll('input[type="checkbox"]'),
+    ...DOMRef["config-style-picks"].querySelectorAll('input[type="checkbox"]'),
   ].forEach((cb) => {
     cb.checked = sel.has(cb.value);
   });
   syncCustomControls();
+  fetchModels();
+}
+
+async function fetchModels() {
+  try {
+    const resp = await fetch(`${BASE_URL}/models`);
+    if (!resp.ok) return;
+    const data = await resp.json();
+    const models = (data.data || [])
+      .map((m) => m.id)
+      .filter(
+        (id) => id && !id.includes("embedding") && !id.includes("moderation"),
+      );
+    if (!models.length) return;
+    const select = DOMRef["config-model"];
+    const current = select.value;
+    select.innerHTML = "";
+    models.forEach((id) => {
+      const opt = document.createElement("option");
+      opt.value = id;
+      opt.textContent = id;
+      select.appendChild(opt);
+    });
+    if (models.includes(current)) select.value = current;
+    else if (models.includes("deepseek-chat")) select.value = "deepseek-chat";
+    else select.value = models[0];
+  } catch (e) {
+    /* keep hardcoded options */
+  }
 }
 
 function syncCustomControls() {
-  const isCustom = E["config-difficulty"].value === "custom_model";
-  E["custom-controls"].classList.toggle("hidden", !isCustom);
+  const isCustom = DOMRef["config-difficulty"].value === "custom_model";
+  DOMRef["custom-controls"].classList.toggle("hidden", !isCustom);
 }
 
 /* ---- API KEY SUBMIT ---- */
 function handleApikeySubmit(e) {
   e.preventDefault();
-  S.apiKey = E["apikey-input"].value.trim();
-  S.demoMode = !S.apiKey;
+  GameState.apiKey = DOMRef["apikey-input"].value.trim();
+  GameState.demoMode = !GameState.apiKey;
   saveSettings();
   populateConfigForm();
   goConfig();
@@ -550,48 +587,48 @@ function handleApikeySubmit(e) {
 /* ---- CONFIG SUBMIT → LOADING → GENERATE ---- */
 async function handleConfigSubmit(e) {
   e.preventDefault();
-  S.difficulty = E["config-difficulty"].value;
-  S.model = E["config-model"].value;
-  S.customDifficulty = E["config-custom-difficulty"].value;
-  S.customQuestionLimit = Number(E["config-question-limit"].value);
-  S.customTextLength = Number(E["config-text-length"].value);
-  S.isWhodunit = E["config-whodunit"].checked;
-  S.storyStyles = getSelectedStyles();
-  S.customStyleText = E["config-custom-style"].value.trim();
+  GameState.difficulty = DOMRef["config-difficulty"].value;
+  GameState.model = DOMRef["config-model"].value;
+  GameState.customDifficulty = DOMRef["config-custom-difficulty"].value;
+  GameState.customQuestionLimit = Number(DOMRef["config-question-limit"].value);
+  GameState.customTextLength = Number(DOMRef["config-text-length"].value);
+  GameState.isWhodunit = DOMRef["config-whodunit"].checked;
+  GameState.storyStyles = getSelectedStyles();
+  GameState.customStyleText = DOMRef["config-custom-style"].value.trim();
   saveSettings();
 
-  if (!S.apiKey) {
-    E["nokey-modal"].classList.remove("hidden");
+  if (!GameState.apiKey) {
+    DOMRef["nokey-modal"].classList.remove("hidden");
     return;
   }
 
   clearGameProgress();
   // reset game state
-  S.generated = null;
-  S.questionLog = [];
-  S.scoreResult = null;
-  S.remainingQuestions = 0;
-  S.discoveredClues = new Set();
-  S.questionsWithClueDiscovery = new Set();
-  S.canSubmit = false;
-  S.isFinished = false;
-  S.demoMode = !S.apiKey;
+  GameState.generated = null;
+  GameState.questionLog = [];
+  GameState.scoreResult = null;
+  GameState.remainingQuestions = 0;
+  GameState.discoveredClues = new Set();
+  GameState.questionsWithClueDiscovery = new Set();
+  GameState.canSubmit = false;
+  GameState.isFinished = false;
+  GameState.demoMode = !GameState.apiKey;
 
   // go loading
   goLoading();
-  S.loadingPhase = "story";
-  S.loadingCount = 0;
-  E["loading-title"].textContent = t("loadingTitle");
+  GameState.loadingPhase = "story";
+  GameState.loadingCount = 0;
+  DOMRef["loading-title"].textContent = t("loadingTitle");
   startLoadingWords();
 
   // generate
-  if (!S.apiKey) {
-    S.generated = buildDemoStory();
-    S.remainingQuestions = getQuestionLimit();
-    S.loadingPhase = "storyDemo";
-    E["loading-title"].textContent = t("demoWarning");
+  if (!GameState.apiKey) {
+    GameState.generated = buildDemoStory();
+    GameState.remainingQuestions = getQuestionLimit();
+    GameState.loadingPhase = "storyDemo";
+    DOMRef["loading-title"].textContent = t("demoWarning");
     await sleep(1200);
-    S.loadingPhase = null;
+    GameState.loadingPhase = null;
     enterGame();
     return;
   }
@@ -604,25 +641,25 @@ async function handleConfigSubmit(e) {
         {
           role: "user",
           content: JSON.stringify({
-            language: S.language,
-            is_whodunit: S.isWhodunit,
+            language: GameState.language,
+            is_whodunit: GameState.isWhodunit,
             difficulty: getActiveDifficulty(),
             question_limit: getQuestionLimit(),
-            style: S.storyStyles,
+            style: GameState.storyStyles,
             length: getLengthRange(),
           }),
         },
       ],
       0.95,
       (full) => {
-        S.loadingCount = full.length;
-        E["loading-title"].textContent =
+        GameState.loadingCount = full.length;
+        DOMRef["loading-title"].textContent =
           t("loadingTitle") +
           ` (${full.length} ${loc() === "zh" ? "字" : "chars"})`;
       },
     );
     const story = normalizeJson(content);
-    S.generated = {
+    GameState.generated = {
       title:
         story.title || (loc() === "zh" ? "未命名海龟汤" : "Untitled Mystery"),
       outline: story.outline || "",
@@ -633,18 +670,23 @@ async function handleConfigSubmit(e) {
       difficultyLabel:
         (DIFFICULTY_PRESETS[getActiveDifficulty()] || {}).tag ||
         getActiveDifficulty(),
-      styles: S.storyStyles,
+      styles: GameState.storyStyles,
     };
-    S.remainingQuestions = getQuestionLimit();
-    S.discoveredClues = new Set();
+    GameState.remainingQuestions = getQuestionLimit();
+    GameState.discoveredClues = new Set();
+    saveGameProgress();
   } catch (err) {
     console.error("generate failed", err);
-    S.demoMode = true;
-    S.generated = buildDemoStory();
-    S.remainingQuestions = getQuestionLimit();
+    GameState.loadingPhase = null;
+    stopLoadingWords();
+    goConfig();
+    DOMRef["error-msg"].textContent =
+      t("errorDesc") + "\n" + String(err.message || err).slice(0, 200);
+    DOMRef["error-modal"].classList.remove("hidden");
+    return;
   }
   await sleep(800);
-  S.loadingPhase = null;
+  GameState.loadingPhase = null;
   enterGame();
 }
 
@@ -658,7 +700,7 @@ function buildDemoStory() {
     title: loc() === "zh" ? "失踪的汤锅" : "The Missing Pot",
     difficultyLabel:
       (DIFFICULTY_PRESETS[getActiveDifficulty()] || {}).tag || "Demo",
-    styles: S.storyStyles,
+    styles: GameState.storyStyles,
     outline:
       "一名店主把汤锅借给邻居，邻居误以为锅里剩下的是普通残汤，实际上里面封存着一段带有身份误认线索的真相。",
     riddle_html:
@@ -671,7 +713,7 @@ function buildDemoStory() {
     ],
     soup: "店主用锅保存了与一宗旧案有关的证据，邻居借走后因为误判把证据处理掉，导致店主误以为被盗；真正的秘密藏在锅里残留的气味和时间线里。",
     meta: {
-      tone: S.storyStyles.join("、"),
+      tone: GameState.storyStyles.join("、"),
       setting: "城南小店",
       characters: ["店主", "邻居", "警察"],
     },
@@ -682,43 +724,43 @@ function buildDemoStory() {
 function enterGame(restoring) {
   goGame();
   if (!restoring) {
-    E["chat-log"].innerHTML = "";
+    DOMRef["chat-log"].innerHTML = "";
   }
   if (!restoring) {
-    E["question-input"].value = "";
-    E["question-input"].placeholder = t("askPlaceholder");
-    E["question-input"].disabled = false;
-    E["ask-btn"].disabled = false;
-    E["result-overlay"].classList.add("hidden");
-    E["soup-modal"].classList.add("hidden");
-    E["submit-soup-btn"].disabled = true;
-    E["submit-soup-btn"].classList.remove("hidden");
-    E["view-result-btn"].classList.add("hidden");
-    E["deduction-bar"].style.width = "0%";
-    E["deduction-text"].textContent = "0 / 0";
+    DOMRef["question-input"].value = "";
+    DOMRef["question-input"].placeholder = t("askPlaceholder");
+    DOMRef["question-input"].disabled = false;
+    DOMRef["ask-btn"].disabled = false;
+    DOMRef["result-overlay"].classList.add("hidden");
+    DOMRef["soup-modal"].classList.add("hidden");
+    DOMRef["submit-soup-btn"].disabled = true;
+    DOMRef["submit-soup-btn"].classList.remove("hidden");
+    DOMRef["view-result-btn"].classList.add("hidden");
+    DOMRef["deduction-bar"].style.width = "0%";
+    DOMRef["deduction-text"].textContent = "0 / 0";
     questionIndex = 0;
-    S.isFinished = false;
-    S.canSubmit = false;
-    S.questionsWithClueDiscovery = new Set();
+    GameState.isFinished = false;
+    GameState.canSubmit = false;
+    GameState.questionsWithClueDiscovery = new Set();
   }
 
-  if (!S.generated) return;
+  if (!GameState.generated) return;
 
-  const g = S.generated;
-  E["game-difficulty-tag"].textContent = g.difficultyLabel;
-  E["game-title"].textContent = g.title;
-  E["game-style-tag"].textContent = (g.styles || []).join(" / ");
-  E["game-whodunit-tag"].textContent = S.isWhodunit
+  const g = GameState.generated;
+  DOMRef["game-difficulty-tag"].textContent = g.difficultyLabel;
+  DOMRef["game-title"].textContent = g.title;
+  DOMRef["game-style-tag"].textContent = (g.styles || []).join(" / ");
+  DOMRef["game-whodunit-tag"].textContent = GameState.isWhodunit
     ? t("whodunitOn")
     : t("whodunitOff");
-  E["remaining-count"].textContent = String(S.remainingQuestions);
-  E["riddle-output"].innerHTML = sanitizeHtml(g.riddle_html || "");
+  DOMRef["remaining-count"].textContent = String(GameState.remainingQuestions);
+  DOMRef["riddle-output"].innerHTML = sanitizeHtml(g.riddle_html || "");
 
   syncI18n();
   if (restoring) {
     // replay question log into chat
     let qi = 0;
-    S.questionLog.forEach((entry) => {
+    GameState.questionLog.forEach((entry) => {
       if (entry.role === "user") {
         qi++;
         questionIndex = qi;
@@ -727,15 +769,16 @@ function enterGame(restoring) {
       addChatMsg(role, entry.content, role === "user" ? "玩家" : "LLM");
     });
     questionIndex = qi;
-    if (S.remainingQuestions <= 0) {
-      E["question-input"].disabled = true;
-      E["question-input"].placeholder = t("exhaustedPlaceholder");
-      E["ask-btn"].disabled = true;
+    if (GameState.remainingQuestions <= 0) {
+      DOMRef["question-input"].disabled = true;
+      DOMRef["question-input"].placeholder = t("exhaustedPlaceholder");
+      DOMRef["ask-btn"].disabled = true;
     }
-    if (S.canSubmit || S.isFinished) E["submit-soup-btn"].disabled = false;
-    if (S.isFinished) {
-      E["submit-soup-btn"].classList.add("hidden");
-      E["view-result-btn"].classList.remove("hidden");
+    if (GameState.canSubmit || GameState.isFinished)
+      DOMRef["submit-soup-btn"].disabled = false;
+    if (GameState.isFinished) {
+      DOMRef["submit-soup-btn"].classList.add("hidden");
+      DOMRef["view-result-btn"].classList.remove("hidden");
     }
   }
   updateGameStats();
@@ -743,29 +786,31 @@ function enterGame(restoring) {
 }
 
 function updateGameStats() {
-  E["remaining-count"].textContent = S.generated
-    ? String(S.remainingQuestions)
+  DOMRef["remaining-count"].textContent = GameState.generated
+    ? String(GameState.remainingQuestions)
     : "--";
-  E["submit-soup-btn"].disabled = !S.generated || S.isFinished;
+  DOMRef["submit-soup-btn"].disabled =
+    !GameState.generated || GameState.isFinished;
 
-  const ring = E["question-ring"];
-  if (!S.generated) {
+  const ring = DOMRef["question-ring"];
+  if (!GameState.generated) {
     ring.style.borderColor = "rgba(255,255,255,0.1)";
     return;
   }
   const total =
-    S.remainingQuestions +
-    S.questionLog.filter((l) => l.role === "user").length;
-  const pct = total > 0 ? S.remainingQuestions / total : 1;
-  if (S.remainingQuestions <= 3) ring.style.borderColor = "var(--danger)";
-  else if (S.remainingQuestions <= 8)
+    GameState.remainingQuestions +
+    GameState.questionLog.filter((l) => l.role === "user").length;
+  const pct = total > 0 ? GameState.remainingQuestions / total : 1;
+  if (GameState.remainingQuestions <= 3)
+    ring.style.borderColor = "var(--danger)";
+  else if (GameState.remainingQuestions <= 8)
     ring.style.borderColor = "var(--accent-2)";
   else ring.style.borderColor = "var(--accent)";
 
-  const totalClues = S.generated?.clues?.length || 0;
-  const found = S.discoveredClues?.size || 0;
-  E["deduction-text"].textContent = `${found} / ${totalClues}`;
-  E["deduction-bar"].style.width =
+  const totalClues = GameState.generated?.clues?.length || 0;
+  const found = GameState.discoveredClues?.size || 0;
+  DOMRef["deduction-text"].textContent = `${found} / ${totalClues}`;
+  DOMRef["deduction-bar"].style.width =
     totalClues > 0 ? `${(found / totalClues) * 100}%` : "0%";
 }
 
@@ -783,12 +828,12 @@ function addChatMsg(role, content, meta) {
   // 标记玩家提问索引，并根据盘问点发现状态添加叶绿色高亮
   if (role === "user" && questionIndex > 0) {
     node.setAttribute("data-qindex", String(questionIndex));
-    if (S.questionsWithClueDiscovery.has(questionIndex)) {
+    if (GameState.questionsWithClueDiscovery.has(questionIndex)) {
       node.classList.add("clue-discovery");
     }
   }
-  E["chat-log"].appendChild(node);
-  E["chat-log"].scrollTop = E["chat-log"].scrollHeight;
+  DOMRef["chat-log"].appendChild(node);
+  DOMRef["chat-log"].scrollTop = DOMRef["chat-log"].scrollHeight;
 }
 
 /* ---- QUESTION HANDLING ---- */
@@ -798,21 +843,21 @@ function hasMultipleQuestions(text) {
 
 async function handleQuestion(e) {
   e.preventDefault();
-  if (!S.generated) {
+  if (!GameState.generated) {
     addChatMsg("assistant", t("waitGenerate"), "System");
     return;
   }
-  const q = E["question-input"].value.trim();
+  const q = DOMRef["question-input"].value.trim();
   if (!q) {
     addChatMsg("assistant", t("noQuestion"), "System");
     return;
   }
-  if (S.remainingQuestions <= 0) {
-    S.canSubmit = true;
-    E["question-input"].disabled = true;
-    E["question-input"].value = "";
-    E["question-input"].placeholder = t("exhaustedPlaceholder");
-    E["ask-btn"].disabled = true;
+  if (GameState.remainingQuestions <= 0) {
+    GameState.canSubmit = true;
+    DOMRef["question-input"].disabled = true;
+    DOMRef["question-input"].value = "";
+    DOMRef["question-input"].placeholder = t("exhaustedPlaceholder");
+    DOMRef["ask-btn"].disabled = true;
     updateGameStats();
     addChatMsg("assistant", t("limitHint"), "System");
     return;
@@ -820,18 +865,18 @@ async function handleQuestion(e) {
 
   questionIndex++;
   addChatMsg("user", q, "玩家");
-  E["question-input"].value = "";
-  S.questionLog.push({
+  DOMRef["question-input"].value = "";
+  GameState.questionLog.push({
     role: "user",
     content: q,
     at: new Date().toISOString(),
   });
-  S.remainingQuestions = Math.max(0, S.remainingQuestions - 1);
+  GameState.remainingQuestions = Math.max(0, GameState.remainingQuestions - 1);
 
-  if (S.remainingQuestions <= 0) {
-    E["question-input"].disabled = true;
-    E["question-input"].placeholder = t("exhaustedPlaceholder");
-    E["ask-btn"].disabled = true;
+  if (GameState.remainingQuestions <= 0) {
+    DOMRef["question-input"].disabled = true;
+    DOMRef["question-input"].placeholder = t("exhaustedPlaceholder");
+    DOMRef["ask-btn"].disabled = true;
   }
 
   if (hasMultipleQuestions(q)) {
@@ -841,16 +886,16 @@ async function handleQuestion(e) {
         ? "你先聚焦第一个问题。"
         : "please focus on the first one.");
     addChatMsg("assistant", reply, "Rule");
-    S.questionLog.push({
+    GameState.questionLog.push({
       role: "assistant",
       content: reply,
       at: new Date().toISOString(),
     });
   } else {
-    if (S.demoMode) {
+    if (GameState.demoMode) {
       const reply = getLocalReply(q);
       addChatMsg("assistant", reply.reply, "LLM");
-      S.questionLog.push({
+      GameState.questionLog.push({
         role: "assistant",
         content: reply.reply,
         clueReason: reply.clueReason || "",
@@ -876,7 +921,7 @@ async function handleQuestion(e) {
       }
       const reply = parseReply(raw);
       placeholder.finalize(reply.reply, "LLM");
-      S.questionLog.push({
+      GameState.questionLog.push({
         role: "assistant",
         content: reply.reply,
         clueReason: reply.clueReason || "",
@@ -890,11 +935,14 @@ async function handleQuestion(e) {
 }
 
 function finalizeTurn() {
-  if (S.generated && S.discoveredClues.size === S.generated.clues.length) {
-    S.canSubmit = true;
+  if (
+    GameState.generated &&
+    GameState.discoveredClues.size === GameState.generated.clues.length
+  ) {
+    GameState.canSubmit = true;
   }
-  if (S.remainingQuestions <= 0) {
-    S.canSubmit = true;
+  if (GameState.remainingQuestions <= 0) {
+    GameState.canSubmit = true;
   }
   updateGameStats();
 }
@@ -903,15 +951,15 @@ function applyClueHits(indices) {
   if (!Array.isArray(indices)) return;
   let newDiscovery = false;
   indices.forEach((i) => {
-    if (Number.isInteger(i) && S.generated?.clues?.[i] != null) {
-      if (!S.discoveredClues.has(i)) newDiscovery = true;
-      S.discoveredClues.add(i);
+    if (Number.isInteger(i) && GameState.generated?.clues?.[i] != null) {
+      if (!GameState.discoveredClues.has(i)) newDiscovery = true;
+      GameState.discoveredClues.add(i);
     }
   });
   // 如果有新盘问点被发现，标记当前提问并更新聊天 DOM
   if (newDiscovery && questionIndex > 0) {
-    S.questionsWithClueDiscovery.add(questionIndex);
-    const node = E["chat-log"].querySelector(
+    GameState.questionsWithClueDiscovery.add(questionIndex);
+    const node = DOMRef["chat-log"].querySelector(
       `[data-qindex="${questionIndex}"]`,
     );
     if (node) node.classList.add("clue-discovery");
@@ -940,24 +988,24 @@ function addChatPlaceholder() {
   node.querySelector(".chat-meta").textContent = "LLM";
   const content = node.querySelector(".chat-content");
   content.textContent = "...";
-  E["chat-log"].appendChild(node);
-  E["chat-log"].scrollTop = E["chat-log"].scrollHeight;
+  DOMRef["chat-log"].appendChild(node);
+  DOMRef["chat-log"].scrollTop = DOMRef["chat-log"].scrollHeight;
   return {
     update: (text) => {
       content.textContent = text;
-      E["chat-log"].scrollTop = E["chat-log"].scrollHeight;
+      DOMRef["chat-log"].scrollTop = DOMRef["chat-log"].scrollHeight;
     },
     finalize: (text, meta) => {
       content.textContent = text;
       node.querySelector(".chat-meta").textContent = meta || "LLM";
-      E["chat-log"].scrollTop = E["chat-log"].scrollHeight;
+      DOMRef["chat-log"].scrollTop = DOMRef["chat-log"].scrollHeight;
     },
   };
 }
 
 function getLocalReply(question) {
   const n = question.toLowerCase();
-  const clues = S.generated?.clues || [];
+  const clues = GameState.generated?.clues || [];
   const matched = [];
   clues.forEach((c, i) => {
     const kw = c
@@ -982,22 +1030,22 @@ function getLocalReply(question) {
 
 /* ---- SUBMIT SOUP ---- */
 async function submitSoup() {
-  if (!S.generated) return;
-  const guess = E["modal-soup-input"].value.trim();
+  if (!GameState.generated) return;
+  const guess = DOMRef["modal-soup-input"].value.trim();
   if (!guess) {
     addChatMsg("assistant", t("needSoup"), "System");
     return;
   }
-  E["soup-modal"].classList.add("hidden");
-  S.isFinished = true;
+  DOMRef["soup-modal"].classList.add("hidden");
+  GameState.isFinished = true;
   goLoading();
-  S.loadingPhase = "evaluate";
-  S.loadingCount = 0;
-  E["loading-title"].textContent = t("evaluatingTitle");
+  GameState.loadingPhase = "evaluate";
+  GameState.loadingCount = 0;
+  DOMRef["loading-title"].textContent = t("evaluatingTitle");
   startLoadingWords();
 
-  if (S.demoMode) {
-    S.scoreResult = getLocalScore(guess);
+  if (GameState.demoMode) {
+    GameState.scoreResult = getLocalScore(guess);
     await sleep(800);
   } else {
     try {
@@ -1008,14 +1056,14 @@ async function submitSoup() {
         ],
         0.2,
         (full) => {
-          S.loadingCount = full.length;
-          E["loading-title"].textContent =
+          GameState.loadingCount = full.length;
+          DOMRef["loading-title"].textContent =
             t("evaluatingTitle") +
             ` (${full.length} ${loc() === "zh" ? "字" : "chars"})`;
         },
       );
       const p = normalizeJson(raw);
-      S.scoreResult = {
+      GameState.scoreResult = {
         score: clamp(Number(p.score || 0), 0, 100),
         verdict: p.verdict || "",
         fit: p.fit || "",
@@ -1027,20 +1075,20 @@ async function submitSoup() {
       };
     } catch (e) {
       console.warn("score fallback", e);
-      S.scoreResult = getLocalScore(guess);
+      GameState.scoreResult = getLocalScore(guess);
     }
   }
   saveGameProgress();
-  S.loadingPhase = null;
+  GameState.loadingPhase = null;
   goGame();
-  E["submit-soup-btn"].classList.add("hidden");
-  E["view-result-btn"].classList.remove("hidden");
+  DOMRef["submit-soup-btn"].classList.add("hidden");
+  DOMRef["view-result-btn"].classList.remove("hidden");
   showResultOverlay();
   updateGameStats();
 }
 
 function getLocalScore(guess) {
-  const soup = S.generated?.soup || "";
+  const soup = GameState.generated?.soup || "";
   let score = 30;
   const gt = guess.replace(/\s+/g, "");
   const st = soup.replace(/\s+/g, "");
@@ -1048,7 +1096,7 @@ function getLocalScore(guess) {
   else {
     const overlap = [...new Set(gt)].filter((c) => st.includes(c)).length;
     score = clamp(
-      20 + overlap * 4 + Math.max(0, 20 - S.remainingQuestions),
+      20 + overlap * 4 + Math.max(0, 20 - GameState.remainingQuestions),
       0,
       100,
     );
@@ -1065,18 +1113,18 @@ function getLocalScore(guess) {
 
 /* ---- RESULT OVERLAY ---- */
 function showResultOverlay() {
-  if (!S.scoreResult || !S.generated) return;
+  if (!GameState.scoreResult || !GameState.generated) return;
   const lc = loc();
-  const r = S.scoreResult;
-  const g = S.generated;
+  const r = GameState.scoreResult;
+  const g = GameState.generated;
   const cluesHtml = g.clues
     .map((c, i) => {
-      const found = S.discoveredClues.has(i);
+      const found = GameState.discoveredClues.has(i);
       return `<li class="${found ? "found" : ""}">${escapeHtml(c)} <small>(${found ? t("clueFound") : t("cluePending")})</small></li>`;
     })
     .join("");
 
-  E["result-card-content"].innerHTML = `
+  DOMRef["result-card-content"].innerHTML = `
     <h3>${t("resultTitle")}</h3>
     <div class="score-big">${r.score} / 100</div>
     <div><strong>${t("verdictLabel")}</strong>：${escapeHtml(r.verdict || "")}</div>
@@ -1087,43 +1135,43 @@ function showResultOverlay() {
     <h3>${t("clueTitle")}</h3>
     <ol class="clue-reveal">${cluesHtml}</ol>
   `;
-  E["result-overlay"].classList.remove("hidden");
+  DOMRef["result-overlay"].classList.remove("hidden");
 }
 
 function hideResultOverlay() {
-  E["result-overlay"].classList.add("hidden");
+  DOMRef["result-overlay"].classList.add("hidden");
 }
 
 /* ---- EXPORT ---- */
 function exportJson() {
-  if (!S.generated) return;
+  if (!GameState.generated) return;
   const payload = {
     exportedAt: new Date().toISOString(),
     settings: {
-      language: S.language,
-      model: S.model,
-      isWhodunit: S.isWhodunit,
-      difficulty: S.difficulty,
-      customDifficulty: S.customDifficulty,
+      language: GameState.language,
+      model: GameState.model,
+      isWhodunit: GameState.isWhodunit,
+      difficulty: GameState.difficulty,
+      customDifficulty: GameState.customDifficulty,
       questionLimit: getQuestionLimit(),
       lengthRange: getLengthRange(),
-      storyStyles: S.storyStyles,
+      storyStyles: GameState.storyStyles,
     },
     story: {
-      title: S.generated.title,
-      outline: S.generated.outline,
-      riddle_html: S.generated.riddle_html,
-      clues: S.generated.clues,
-      soup: S.generated.soup,
-      meta: S.generated.meta,
+      title: GameState.generated.title,
+      outline: GameState.generated.outline,
+      riddle_html: GameState.generated.riddle_html,
+      clues: GameState.generated.clues,
+      soup: GameState.generated.soup,
+      meta: GameState.generated.meta,
     },
     player: {
-      remainingQuestions: S.remainingQuestions,
-      questionsAsked: S.questionLog,
-      discoveredClues: [...S.discoveredClues],
-      soupGuess: E["modal-soup-input"].value.trim(),
-      scoreResult: S.scoreResult,
-      demoMode: S.demoMode,
+      remainingQuestions: GameState.remainingQuestions,
+      questionsAsked: GameState.questionLog,
+      discoveredClues: [...GameState.discoveredClues],
+      soupGuess: DOMRef["modal-soup-input"].value.trim(),
+      scoreResult: GameState.scoreResult,
+      demoMode: GameState.demoMode,
     },
   };
   const blob = new Blob([JSON.stringify(payload, null, 2)], {
@@ -1141,26 +1189,26 @@ function exportJson() {
 
 /* ---- SHARE (二进制导出) ---- */
 function exportSoup() {
-  if (!S.generated) return;
+  if (!GameState.generated) return;
   const payload = {
     version: 1,
     exportedAt: new Date().toISOString(),
     story: {
-      title: S.generated.title,
-      outline: S.generated.outline,
-      riddle_html: S.generated.riddle_html,
-      clues: S.generated.clues,
-      soup: S.generated.soup,
-      meta: S.generated.meta,
-      difficultyLabel: S.generated.difficultyLabel,
-      styles: S.generated.styles,
+      title: GameState.generated.title,
+      outline: GameState.generated.outline,
+      riddle_html: GameState.generated.riddle_html,
+      clues: GameState.generated.clues,
+      soup: GameState.generated.soup,
+      meta: GameState.generated.meta,
+      difficultyLabel: GameState.generated.difficultyLabel,
+      styles: GameState.generated.styles,
     },
     config: {
-      isWhodunit: S.isWhodunit,
-      difficulty: S.difficulty,
-      customDifficulty: S.customDifficulty,
+      isWhodunit: GameState.isWhodunit,
+      difficulty: GameState.difficulty,
+      customDifficulty: GameState.customDifficulty,
       questionLimit: getQuestionLimit(),
-      textLength: S.customTextLength,
+      textLength: GameState.customTextLength,
     },
   };
   const json = JSON.stringify(payload);
@@ -1169,7 +1217,7 @@ function exportSoup() {
   const url = URL.createObjectURL(blob);
   const a = document.createElement("a");
   a.href = url;
-  const safeTitle = (S.generated.title || "turtlesoup")
+  const safeTitle = (GameState.generated.title || "turtlesoup")
     .replace(/[\\/:*?"<>|]/g, "_")
     .slice(0, 40);
   a.download = `${safeTitle}.turtlesoup`;
@@ -1194,7 +1242,7 @@ async function importSoup(file) {
 
     // 恢复游戏状态
     clearGameProgress();
-    S.generated = {
+    GameState.generated = {
       title: data.story.title || "Untitled",
       outline: data.story.outline || "",
       riddle_html: data.story.riddle_html || "",
@@ -1204,21 +1252,23 @@ async function importSoup(file) {
       difficultyLabel: data.story.difficultyLabel || "导入",
       styles: data.story.styles || [],
     };
-    S.isWhodunit = !!(data.config && data.config.isWhodunit);
-    S.difficulty = (data.config && data.config.difficulty) || "custom_model";
-    S.customDifficulty =
+    GameState.isWhodunit = !!(data.config && data.config.isWhodunit);
+    GameState.difficulty =
+      (data.config && data.config.difficulty) || "custom_model";
+    GameState.customDifficulty =
       (data.config && data.config.customDifficulty) || "easy";
-    S.customQuestionLimit = (data.config && data.config.questionLimit) || 20;
-    S.customTextLength = (data.config && data.config.textLength) || 800;
+    GameState.customQuestionLimit =
+      (data.config && data.config.questionLimit) || 20;
+    GameState.customTextLength = (data.config && data.config.textLength) || 800;
 
     // 重置游戏进度
-    S.questionLog = [];
-    S.remainingQuestions = getQuestionLimit();
-    S.discoveredClues = new Set();
-    S.questionsWithClueDiscovery = new Set();
-    S.canSubmit = false;
-    S.isFinished = false;
-    S.scoreResult = null;
+    GameState.questionLog = [];
+    GameState.remainingQuestions = getQuestionLimit();
+    GameState.discoveredClues = new Set();
+    GameState.questionsWithClueDiscovery = new Set();
+    GameState.canSubmit = false;
+    GameState.isFinished = false;
+    GameState.scoreResult = null;
 
     enterGame();
   } catch (e) {
@@ -1229,33 +1279,33 @@ async function importSoup(file) {
 
 /* ---- PROMPTS ---- */
 function buildStoryPrompt() {
-  const ad = getActiveDifficulty();
-  const lr = getLengthRange();
+  const difficulty = getActiveDifficulty();
+  const text_length_range = getLengthRange();
   const lc = loc();
   const clueCount =
-    ad === "newb"
+    difficulty === "newb"
       ? Math.floor(Math.random() * 3) + 2
-      : ad === "easy"
+      : difficulty === "easy"
         ? Math.floor(Math.random() * 3) + 3
-        : ad === "hard"
+        : difficulty === "hard"
           ? Math.floor(Math.random() * 3) + 3
           : Math.floor(Math.random() * 3) + 4;
 
   return renderTemplate(PROMPTS.story, {
     language: lc === "en" ? "English" : "Chinese",
-    storyStyles: S.storyStyles.join(", "),
-    isWhodunit: String(S.isWhodunit),
-    difficulty: ad,
+    storyStyles: GameState.storyStyles.join(", "),
+    isWhodunit: String(GameState.isWhodunit),
+    difficulty: difficulty,
     questionLimit: String(getQuestionLimit()),
-    textLengthMin: String(lr.min),
-    textLengthMax: String(lr.max),
+    textLengthMin: String(text_length_range.min),
+    textLengthMax: String(text_length_range.max),
     clueCount: String(clueCount),
   });
 }
 
 function buildQuestionPrompt(question) {
-  const undiscovered = (S.generated?.clues || []).filter(
-    (_, i) => !S.discoveredClues.has(i),
+  const undiscovered = (GameState.generated?.clues || []).filter(
+    (_, i) => !GameState.discoveredClues.has(i),
   );
   const lang = loc() === "en" ? "en-US" : "zh-CN";
   const shortReplies =
@@ -1266,19 +1316,19 @@ function buildQuestionPrompt(question) {
   return renderTemplate(PROMPTS.question, {
     language: lang,
     difficulty: getActiveDifficulty(),
-    isWhodunit: String(S.isWhodunit),
+    isWhodunit: String(GameState.isWhodunit),
     shortReplies,
-    storyTitle: S.generated?.title || "",
-    storyOutline: S.generated?.outline || "",
-    riddleText: stripHtml(S.generated?.riddle_html || ""),
+    storyTitle: GameState.generated?.title || "",
+    storyOutline: GameState.generated?.outline || "",
+    riddleText: stripHtml(GameState.generated?.riddle_html || ""),
     allClues: JSON.stringify(
-      (S.generated?.clues || []).map((c, i) => ({ i, text: c })),
+      (GameState.generated?.clues || []).map((c, i) => ({ i, text: c })),
     ),
     undiscoveredClues: undiscovered.length
       ? `Still undiscovered clues: ${JSON.stringify(undiscovered)}.\n`
       : "",
-    discoveredClueIndices: JSON.stringify([...S.discoveredClues]),
-    recentDialogue: JSON.stringify(S.questionLog.slice(-6)),
+    discoveredClueIndices: JSON.stringify([...GameState.discoveredClues]),
+    recentDialogue: JSON.stringify(GameState.questionLog.slice(-6)),
     playerQuestion: question,
   });
 }
@@ -1286,13 +1336,13 @@ function buildQuestionPrompt(question) {
 function buildScoringPrompt(guess) {
   return renderTemplate(PROMPTS.score, {
     language: loc() === "en" ? "English" : "Chinese",
-    storyOutline: S.generated?.outline || "",
-    storySoup: S.generated?.soup || "",
+    storyOutline: GameState.generated?.outline || "",
+    storySoup: GameState.generated?.soup || "",
     playerGuess: guess,
-    questionCount: String(S.questionLog.length),
-    remainingQuestions: String(S.remainingQuestions),
-    discoveredClues: String(S.discoveredClues.size),
-    totalClues: String(S.generated?.clues?.length || 0),
+    questionCount: String(GameState.questionLog.length),
+    remainingQuestions: String(GameState.remainingQuestions),
+    discoveredClues: String(GameState.discoveredClues.size),
+    totalClues: String(GameState.generated?.clues?.length || 0),
   });
 }
 
@@ -1302,10 +1352,10 @@ async function apiRequest(messages, temperature = 0.8) {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
-      Authorization: `Bearer ${S.apiKey}`,
+      Authorization: `Bearer ${GameState.apiKey}`,
     },
     body: JSON.stringify({
-      model: S.model,
+      model: GameState.model,
       messages,
       temperature,
       stream: false,
@@ -1323,10 +1373,10 @@ async function apiRequestStream(messages, temperature, onChunk) {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
-      Authorization: `Bearer ${S.apiKey}`,
+      Authorization: `Bearer ${GameState.apiKey}`,
     },
     body: JSON.stringify({
-      model: S.model,
+      model: GameState.model,
       messages,
       temperature,
       stream: true,
@@ -1378,103 +1428,123 @@ async function apiRequestStream(messages, temperature, onChunk) {
 
 /* ---- EVENT BINDING ---- */
 function wireEvents() {
-  E["cover-start-btn"].addEventListener("click", startFromCover);
-  E["cover-review-btn"].addEventListener("click", () => {
+  DOMRef["cover-start-btn"].addEventListener("click", startFromCover);
+  DOMRef["cover-review-btn"].addEventListener("click", () => {
     if (restoreGame()) {
       enterGame(true);
       showResultOverlay();
     }
   });
-  E["apikey-form"].addEventListener("submit", handleApikeySubmit);
-  E["apikey-skip"].addEventListener("click", () => {
-    S.apiKey = "";
-    S.demoMode = true;
+  DOMRef["apikey-form"].addEventListener("submit", handleApikeySubmit);
+  DOMRef["apikey-skip"].addEventListener("click", () => {
+    GameState.apiKey = "";
+    GameState.demoMode = true;
     saveSettings();
     populateConfigForm();
     goConfig();
   });
-  E["apikey-back"].addEventListener("click", goCover);
-  E["apikey-toggle"].addEventListener("click", () => {
-    const inp = E["apikey-input"];
+  DOMRef["apikey-back"].addEventListener("click", goCover);
+  DOMRef["apikey-toggle"].addEventListener("click", () => {
+    const inp = DOMRef["apikey-input"];
     inp.type = inp.type === "password" ? "text" : "password";
-    E["apikey-toggle"].textContent = inp.type === "password" ? "👁" : "🙈";
+    DOMRef["apikey-toggle"].textContent = inp.type === "password" ? "👁" : "🙈";
   });
-  E["config-form"].addEventListener("submit", handleConfigSubmit);
-  E["config-back"].addEventListener("click", () => {
+  DOMRef["config-form"].addEventListener("submit", handleConfigSubmit);
+  DOMRef["config-back"].addEventListener("click", () => {
     goApikey();
   });
-  E["config-difficulty"].addEventListener("change", syncCustomControls);
-  E["dice-random-style"].addEventListener("click", () => {
+  DOMRef["config-difficulty"].addEventListener("change", syncCustomControls);
+  DOMRef["dice-random-style"].addEventListener("click", () => {
     // 随机自定义难度
     const diffs = ["newb", "easy", "hard", "hardcore"];
     const randDiff = diffs[Math.floor(Math.random() * diffs.length)];
-    E["config-custom-difficulty"].value = randDiff;
+    DOMRef["config-custom-difficulty"].value = randDiff;
     // 随机提问次数 (5-30)
     const randQL = Math.floor(Math.random() * 26) + 5;
-    E["config-question-limit"].value = randQL;
-    E["ql-val"].textContent = randQL;
+    DOMRef["config-question-limit"].value = randQL;
+    DOMRef["ql-val"].textContent = randQL;
     // 随机文本长度 (200-10000, step 100)
     const randTL = Math.floor(Math.random() * 99) * 100 + 200;
-    E["config-text-length"].value = randTL;
-    E["tl-val"].textContent = randTL;
+    DOMRef["config-text-length"].value = randTL;
+    DOMRef["tl-val"].textContent = randTL;
     // 随机本格推理
-    E["config-whodunit"].checked = Math.random() > 0.5;
+    DOMRef["config-whodunit"].checked = Math.random() > 0.5;
     // 随机故事风格 - 取消所有勾选，填入"随机风格"
     [
-      ...E["config-style-picks"].querySelectorAll('input[type="checkbox"]'),
+      ...DOMRef["config-style-picks"].querySelectorAll(
+        'input[type="checkbox"]',
+      ),
     ].forEach((cb) => (cb.checked = false));
-    E["config-custom-style"].value = "随机风格";
+    DOMRef["config-custom-style"].value = "随机风格";
   });
-  E["config-question-limit"].addEventListener("input", () => {
-    E["ql-val"].textContent = E["config-question-limit"].value;
+  DOMRef["config-question-limit"].addEventListener("input", () => {
+    DOMRef["ql-val"].textContent = DOMRef["config-question-limit"].value;
   });
-  E["config-text-length"].addEventListener("input", () => {
-    E["tl-val"].textContent = E["config-text-length"].value;
+  DOMRef["config-text-length"].addEventListener("input", () => {
+    DOMRef["tl-val"].textContent = DOMRef["config-text-length"].value;
   });
-  E["question-form"].addEventListener("submit", handleQuestion);
-  E["submit-soup-btn"].addEventListener("click", openSoupModal);
-  E["view-result-btn"].addEventListener("click", () => {
-    if (S.scoreResult) showResultOverlay();
+  DOMRef["question-form"].addEventListener("submit", handleQuestion);
+  DOMRef["submit-soup-btn"].addEventListener("click", openSoupModal);
+  DOMRef["view-result-btn"].addEventListener("click", () => {
+    if (GameState.scoreResult) showResultOverlay();
   });
-  E["modal-submit-btn"].addEventListener("click", submitSoup);
-  E["modal-cancel-btn"].addEventListener("click", closeSoupModal);
-  E["modal-giveup-btn"].addEventListener("click", () => {
-    E["soup-modal"].classList.add("hidden");
+  DOMRef["modal-submit-btn"].addEventListener("click", submitSoup);
+  DOMRef["modal-cancel-btn"].addEventListener("click", closeSoupModal);
+  DOMRef["modal-giveup-btn"].addEventListener("click", () => {
+    DOMRef["soup-modal"].classList.add("hidden");
     clearGameProgress();
     startFromCover();
   });
-  E["result-export-btn"].addEventListener("click", exportJson);
-  E["result-share-btn"].addEventListener("click", exportSoup);
-  E["game-share-btn"].addEventListener("click", exportSoup);
-  E["result-close-btn"].addEventListener("click", hideResultOverlay);
-  E["result-replay-btn"].addEventListener("click", () => {
+  DOMRef["result-export-btn"].addEventListener("click", exportJson);
+  DOMRef["result-share-btn"].addEventListener("click", exportSoup);
+  DOMRef["game-share-btn"].addEventListener("click", exportSoup);
+  DOMRef["result-close-btn"].addEventListener("click", hideResultOverlay);
+  DOMRef["result-replay-btn"].addEventListener("click", () => {
     hideResultOverlay();
     clearGameProgress();
     startFromCover();
   });
-  E["theme-toggle"].addEventListener("click", toggleTheme);
-  E["lang-toggle"].addEventListener("click", toggleLanguage);
-  E["nokey-go-btn"].addEventListener("click", () => {
-    E["nokey-modal"].classList.add("hidden");
+  DOMRef["theme-toggle"].addEventListener("click", toggleTheme);
+  DOMRef["lang-toggle"].addEventListener("click", toggleLanguage);
+  DOMRef["nokey-go-btn"].addEventListener("click", () => {
+    DOMRef["nokey-modal"].classList.add("hidden");
     goApikey();
   });
-  E["nokey-cancel-btn"].addEventListener("click", () => {
-    E["nokey-modal"].classList.add("hidden");
+  DOMRef["nokey-cancel-btn"].addEventListener("click", () => {
+    DOMRef["nokey-modal"].classList.add("hidden");
   });
-  E["import-soup-btn"].addEventListener("click", () => {
-    E["import-soup-input"].click();
+  DOMRef["error-retry-btn"].addEventListener("click", () => {
+    DOMRef["error-modal"].classList.add("hidden");
+    DOMRef["config-form"].dispatchEvent(
+      new Event("submit", { cancelable: true }),
+    );
   });
-  E["import-soup-input"].addEventListener("change", (e) => {
+  DOMRef["error-demo-btn"].addEventListener("click", () => {
+    DOMRef["error-modal"].classList.add("hidden");
+    GameState.demoMode = true;
+    GameState.generated = buildDemoStory();
+    GameState.remainingQuestions = getQuestionLimit();
+    saveGameProgress();
+    enterGame();
+  });
+  DOMRef["error-cancel-btn"].addEventListener("click", () => {
+    DOMRef["error-modal"].classList.add("hidden");
+  });
+  DOMRef["import-soup-btn"].addEventListener("click", () => {
+    DOMRef["import-soup-input"].click();
+  });
+  DOMRef["import-soup-input"].addEventListener("change", (e) => {
     const file = e.target.files[0];
     if (file) importSoup(file);
-    E["import-soup-input"].value = "";
+    DOMRef["import-soup-input"].value = "";
   });
 }
 
 function toggleLanguage() {
-  S.language = S.language === "zh-CN" ? "en-US" : "zh-CN";
-  E["lang-toggle"].textContent = S.language === "zh-CN" ? "🇨🇳" : "🇺🇸";
-  document.documentElement.lang = S.language;
+  GameState.language = GameState.language === "zh-CN" ? "en-US" : "zh-CN";
+  DOMRef["lang-toggle"].textContent =
+    GameState.language === "zh-CN" ? "🇨🇳" : "🇺🇸";
+  document.documentElement.lang = GameState.language;
   syncI18n();
   saveSettings();
 }
@@ -1483,7 +1553,7 @@ function syncI18n() {
   document.querySelectorAll("[data-i18n]").forEach((el) => {
     const key = el.getAttribute("data-i18n");
     if (L[loc()] && L[loc()][key]) {
-      if (el.id === "riddle-output" && S.generated) return;
+      if (el.id === "riddle-output" && GameState.generated) return;
       if (key === "qlLabel" || key === "tlLabel") {
         // 只更新文本节点，保留 <em> 元素不被 innerHTML 销毁
         const textNode = el.firstChild;
@@ -1499,31 +1569,31 @@ function syncI18n() {
     const key = el.getAttribute("data-i18n-ph");
     if (L[loc()] && L[loc()][key]) el.placeholder = t(key);
   });
-  if (S.generated) {
-    E["game-whodunit-tag"].textContent = S.isWhodunit
+  if (GameState.generated) {
+    DOMRef["game-whodunit-tag"].textContent = GameState.isWhodunit
       ? t("whodunitOn")
       : t("whodunitOff");
-    E["remaining-label"].textContent = t("remainingLabel");
-    E["question-input"].placeholder = t("askPlaceholder");
+    DOMRef["remaining-label"].textContent = t("remainingLabel");
+    DOMRef["question-input"].placeholder = t("askPlaceholder");
   }
   // 加载页面动态文本同步
-  if (S.loadingPhase) {
-    switch (S.loadingPhase) {
+  if (GameState.loadingPhase) {
+    switch (GameState.loadingPhase) {
       case "story":
-        E["loading-title"].textContent =
-          S.loadingCount > 0
+        DOMRef["loading-title"].textContent =
+          GameState.loadingCount > 0
             ? t("loadingTitle") +
-              ` (${S.loadingCount} ${loc() === "zh" ? "字" : "chars"})`
+              ` (${GameState.loadingCount} ${loc() === "zh" ? "字" : "chars"})`
             : t("loadingTitle");
         break;
       case "storyDemo":
-        E["loading-title"].textContent = t("demoWarning");
+        DOMRef["loading-title"].textContent = t("demoWarning");
         break;
       case "evaluate":
-        E["loading-title"].textContent =
-          S.loadingCount > 0
+        DOMRef["loading-title"].textContent =
+          GameState.loadingCount > 0
             ? t("evaluatingTitle") +
-              ` (${S.loadingCount} ${loc() === "zh" ? "字" : "chars"})`
+              ` (${GameState.loadingCount} ${loc() === "zh" ? "字" : "chars"})`
             : t("evaluatingTitle");
         break;
     }
@@ -1542,22 +1612,23 @@ function toggleTheme() {
 }
 function applyTheme(theme) {
   document.documentElement.setAttribute("data-theme", theme);
-  E["theme-toggle"].textContent = theme === "dark" ? "🌙" : "☀️";
+  DOMRef["theme-toggle"].textContent = theme === "dark" ? "🌙" : "☀️";
 }
 
 function initLangIcon() {
-  E["lang-toggle"].textContent = S.language === "zh-CN" ? "🇨🇳" : "🇺🇸";
+  DOMRef["lang-toggle"].textContent =
+    GameState.language === "zh-CN" ? "🇨🇳" : "🇺🇸";
 }
 
 function openSoupModal() {
-  if (!S.generated) return;
-  E["modal-soup-input"].value = "";
-  E["modal-soup-input"].placeholder = t("soupPlaceholder");
-  E["soup-modal"].classList.remove("hidden");
-  E["modal-soup-input"].focus();
+  if (!GameState.generated) return;
+  DOMRef["modal-soup-input"].value = "";
+  DOMRef["modal-soup-input"].placeholder = t("soupPlaceholder");
+  DOMRef["soup-modal"].classList.remove("hidden");
+  DOMRef["modal-soup-input"].focus();
 }
 function closeSoupModal() {
-  E["soup-modal"].classList.add("hidden");
+  DOMRef["soup-modal"].classList.add("hidden");
 }
 
 /* ---- BOOT ---- */
@@ -1571,12 +1642,12 @@ async function boot() {
   syncI18n();
   if (restoreGame()) {
     enterGame(true);
-    if (S.isFinished) showResultOverlay();
+    if (GameState.isFinished) showResultOverlay();
   } else {
     goCover();
     const progress = loadGameProgress();
     if (progress && progress.isFinished) {
-      E["cover-review-btn"].classList.remove("hidden");
+      DOMRef["cover-review-btn"].classList.remove("hidden");
     }
   }
   window.addEventListener("beforeunload", saveGameProgress);

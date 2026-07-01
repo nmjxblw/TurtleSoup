@@ -475,6 +475,39 @@
           </div>
         </div>
       </div>
+
+      <!-- LLM 错误弹窗 -->
+      <div id="error-modal" class="modal-overlay hidden">
+        <div class="modal-card">
+          <h3 data-i18n="errorTitle">生成失败</h3>
+          <p id="error-msg" data-i18n="errorDesc">
+            AI 引擎返回了错误，请检查网络或 API Key 后重试。
+          </p>
+          <div class="modal-actions">
+            <button
+              id="error-retry-btn"
+              class="primary-btn"
+              data-i18n="errorRetry"
+            >
+              重试
+            </button>
+            <button
+              id="error-demo-btn"
+              class="secondary-btn"
+              data-i18n="errorDemo"
+            >
+              使用演示模式
+            </button>
+            <button
+              id="error-cancel-btn"
+              class="ghost-btn"
+              data-i18n="errorCancel"
+            >
+              返回
+            </button>
+          </div>
+        </div>
+      </div>
     </main>
 
     <template id="chat-template">
