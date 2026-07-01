@@ -224,6 +224,7 @@ function initDom() {
     "nokey-modal",
     "nokey-go-btn",
     "nokey-cancel-btn",
+    "dice-random-style",
   ];
   ids.forEach((id) => {
     E[id] = $(id);
@@ -324,7 +325,7 @@ function getSelectedStyles() {
     ),
   ].map((cb) => cb.value);
   const custom = E["config-custom-style"].value
-    .split(/[，,\n]/)
+    .split(/[，,|\\\n]/)
     .map((s) => s.trim())
     .filter(Boolean);
   const merged = [...new Set([...picks, ...custom])];
@@ -527,10 +528,9 @@ function populateConfigForm() {
 }
 
 function syncCustomControls() {
-  E["custom-controls"].classList.toggle(
-    "hidden",
-    E["config-difficulty"].value !== "custom_model",
-  );
+  const isCustom = E["config-difficulty"].value === "custom_model";
+  E["custom-controls"].classList.toggle("hidden", !isCustom);
+  E["dice-random-style"].classList.toggle("hidden", !isCustom);
 }
 
 /* ---- API KEY SUBMIT ---- */
@@ -1141,16 +1141,13 @@ function buildStoryPrompt() {
   const lr = getLengthRange();
   const lc = loc();
   const clueCount =
-    ad === "newb" ? 3 : ad === "easy" ? 4 : ad === "hard" ? 5 : 6;
-  const whodunitInstruction = S.isWhodunit
-    ? "PRIORITY: This is a HONKAKU (本格推理) mystery. The story MUST follow strict logical deduction, real-world physics, and fair-play rules. All clues must be logically solvable by the reader. The solution must have a clear cause-and-effect chain with no supernatural elements. Story style is secondary — use it only as flavor on top of the logical core."
-    : "This is a non-traditional mystery. Feel free to use supernatural, absurd, or unconventional elements. Story style may freely influence the plot and solution.";
-  const difficultyHint =
     ad === "newb"
-      ? "For newb, gently highlight hints with <em>, keep puzzle straightforward. Do not reveal answer in riddle."
-      : ad === "hardcore"
-        ? "No markup to expose clues; riddle compact but dense. Do not reveal answer in riddle."
-        : "Do not reveal answer in riddle.";
+      ? Math.floor(Math.random() * 3) + 2
+      : ad === "easy"
+        ? Math.floor(Math.random() * 3) + 3
+        : ad === "hard"
+          ? Math.floor(Math.random() * 3) + 3
+          : Math.floor(Math.random() * 3) + 4;
 
   return renderTemplate(PROMPTS.story, {
     language: lc === "en" ? "English" : "Chinese",
@@ -1161,8 +1158,6 @@ function buildStoryPrompt() {
     textLengthMin: String(lr.min),
     textLengthMax: String(lr.max),
     clueCount: String(clueCount),
-    whodunitInstruction,
-    difficultyHint,
   });
 }
 
@@ -1317,6 +1312,14 @@ function wireEvents() {
     goApikey();
   });
   E["config-difficulty"].addEventListener("change", syncCustomControls);
+  E["dice-random-style"].addEventListener("click", () => {
+    // 取消所有风格勾选
+    [
+      ...E["config-style-picks"].querySelectorAll('input[type="checkbox"]'),
+    ].forEach((cb) => (cb.checked = false));
+    // 填入"随机风格"
+    E["config-custom-style"].value = "随机风格";
+  });
   E["config-question-limit"].addEventListener("input", () => {
     E["ql-val"].textContent = E["config-question-limit"].value;
   });

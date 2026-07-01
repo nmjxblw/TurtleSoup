@@ -182,7 +182,17 @@
             </label>
           </label>
           <div class="field">
-            <span data-i18n="styleLabel">故事风格</span>
+            <span class="style-label-row">
+              <span data-i18n="styleLabel">故事风格</span>
+              <button
+                type="button"
+                id="dice-random-style"
+                class="dice-btn hidden"
+                title="随机风格"
+              >
+                🎲
+              </button>
+            </span>
             <div class="style-picks" id="config-style-picks">
               <label class="chip"
                 ><input type="checkbox" value="悬疑推理" checked /><span
@@ -224,6 +234,12 @@
                 ><input type="checkbox" value="仙侠爽文" /><span
                   data-i18n="styleXianxia"
                   >仙侠爽文</span
+                ></label
+              >
+              <label class="chip"
+                ><input type="checkbox" value="规则怪谈" /><span
+                  data-i18n="styleRuleHorror"
+                  >规则怪谈</span
                 ></label
               >
             </div>
