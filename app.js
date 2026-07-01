@@ -302,14 +302,84 @@ function sanitizeHtml(html) {
   );
   return tpl.innerHTML;
 }
+/**
+ * 安全解析 LLM 返回的 JSON 字符串（兼容富文本 HTML 标签截断、未转义换行等问题）
+ * @param {string} text - LLM 原始返回文本
+ * @returns {Object} - 解析后的 JSON 对象
+ */
 function normalizeJson(text) {
-  const s = String(text || "").trim();
+  let s = String(text || "").trim();
+
+  // 1. 提取 Markdown 代码块中的 JSON 内容
   const m =
-    s.match(/```json\s*([\s\S]*?)```/i) || s.match(/```\s*([\s\S]*?)```/);
-  const raw = m ? m[1].trim() : s;
-  const a = raw.indexOf("{");
-  const b = raw.lastIndexOf("}");
-  return JSON.parse(a >= 0 && b >= 0 ? raw.slice(a, b + 1) : raw);
+    s.match(/```(?:json|javascript|js)?\s*([\s\S]*?)```/i) ||
+    s.match(/```\s*([\s\S]*?)```/);
+  let raw = m ? m[1].trim() : s;
+
+  // 2. 截取最外层的 { } 或 [ ] (防止 LLM 在 JSON 前后夹杂废话)
+  const firstBrace = raw.indexOf("{");
+  const firstBracket = raw.indexOf("[");
+  const a = Math.min(
+    firstBrace !== -1 ? firstBrace : Infinity,
+    firstBracket !== -1 ? firstBracket : Infinity,
+  );
+  const lastBrace = raw.lastIndexOf("}");
+  const lastBracket = raw.lastIndexOf("]");
+  const b = Math.max(lastBrace, lastBracket);
+  if (a !== Infinity && b >= 0 && b >= a) {
+    raw = raw.slice(a, b + 1);
+  }
+
+  // 3. 修复中文/全角双引号和单引号
+  raw = raw
+    .replace(/[\u201C\u201D\u201E\u201F\uFF02]/g, '"')
+    .replace(/[\u2018\u2019\u201A\u201B]/g, "'");
+
+  // 4. 【核心修复】：前置解决 HTML 属性导致的解析失败 (e.g. class="text-red" -> class='text-red')
+  // 匹配常规 HTML 属性赋值，替换为单引号。不会破坏标准 JSON 结构。
+  raw = raw.replace(/([a-zA-Z0-9_\-]+)="([^"\\]*?)"/g, "$1='$2'");
+
+  // 5. 修复 JSON 字符串内部未转义的换行符和制表符
+  // 此时 HTML 双引号已被处理，正则可以安全匹配到完整的 JSON String
+  raw = raw.replace(/"((?:[^"\\]|\\.)*)"/g, (match, inner) => {
+    const cleaned = inner.replace(/[\n\r\t]/g, (c) => {
+      if (c === "\n") return "\\n";
+      if (c === "\r") return "\\r";
+      if (c === "\t") return "\\t";
+      return c;
+    });
+    return '"' + cleaned + '"';
+  });
+
+  // 6. 修复多余的尾部逗号 (e.g. {"a": 1,})
+  raw = raw.replace(/,(\s*[}\]])/g, "$1");
+
+  // 7. 修复由于换行导致缺失的逗号 (e.g. "a": 1 \n "b": 2)
+  raw = raw.replace(/"(?=\s*\n?\s*"[a-zA-Z0-9_]+"\s*:)/g, '",');
+
+  try {
+    return JSON.parse(raw);
+  } catch (e1) {
+    // 8. 终极兜底：如果字符串值内部还有乱七八糟的未转义双引号 (如句子里的双引号)
+    // 我们利用正则匹配 `: "任意内容" 结尾是 , 或 } 或 ]` 的模式，把内容里的双引号强行转义
+    try {
+      let repaired = raw.replace(
+        /:\s*"([\s\S]*?)"(\s*[,}\]])/g,
+        (match, innerText, endChar) => {
+          // 使用 ( ^|[^\\] ) 确保不重复转义已经转义过的双引号，兼容所有浏览器
+          const escaped = innerText.replace(/(^|[^\\])"/g, '$1\\"');
+          return ': "' + escaped + '"' + endChar;
+        },
+      );
+      return JSON.parse(repaired);
+    } catch (e2) {
+      console.warn(
+        "normalizeJson: 所有修复策略失败。Raw text 片段:",
+        raw.slice(0, 300),
+      );
+      throw e1; // 抛出原始异常
+    }
+  }
 }
 
 function getActiveDifficulty() {
@@ -543,7 +613,9 @@ function populateConfigForm() {
 
 async function fetchModels() {
   try {
-    const resp = await fetch(`${BASE_URL}/models`);
+    const headers = {};
+    if (GameState.apiKey) headers.Authorization = `Bearer ${GameState.apiKey}`;
+    const resp = await fetch(`${BASE_URL}/models`, { headers });
     if (!resp.ok) return;
     const data = await resp.json();
     const models = (data.data || [])
@@ -1359,6 +1431,7 @@ async function apiRequest(messages, temperature = 0.8) {
       messages,
       temperature,
       stream: false,
+      response_format: { type: "json_object" },
     }),
   });
   if (!resp.ok) {
@@ -1380,6 +1453,7 @@ async function apiRequestStream(messages, temperature, onChunk) {
       messages,
       temperature,
       stream: true,
+      response_format: { type: "json_object" },
     }),
   });
   if (!resp.ok) {
