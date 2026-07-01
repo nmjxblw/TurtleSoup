@@ -14,11 +14,35 @@
     <link rel="stylesheet" href="styles.css" />
   </head>
   <body>
-    <div class="toolbar">
-      <button id="lang-toggle" class="icon-btn" title="切换语言">🇨🇳</button>
-      <button id="theme-toggle" class="icon-btn" title="切换白天/夜间模式">
-        🌙
-      </button>
+    <!-- ===== MENU TOGGLE (独立于 side-menu，最高层级) ===== -->
+    <button
+      id="menu-toggle"
+      class="icon-btn"
+      title="菜单"
+      aria-label="打开菜单"
+    >
+      ☰
+    </button>
+    <!-- ===== SIDE MENU ===== -->
+    <div class="side-menu" id="side-menu">
+      <div class="side-menu-overlay" id="menu-overlay"></div>
+      <nav class="side-menu-drawer" id="menu-drawer">
+        <div class="menu-drawer-header">
+          <span data-i18n="menuLabel">菜单</span>
+          <button id="menu-close-btn" class="icon-btn" aria-label="关闭菜单">
+            ✕
+          </button>
+        </div>
+        <button id="lang-toggle" class="menu-item">
+          <span class="menu-item-icon">🇨🇳</span>
+          <span class="menu-item-label" data-i18n="langLabel">界面语言</span>
+        </button>
+        <button id="theme-toggle" class="menu-item">
+          <span class="menu-item-icon">🌙</span>
+          <span class="menu-item-label" data-i18n="themeLabel">主题切换</span>
+        </button>
+      </nav>
+      <div class="side-menu-edge"></div>
     </div>
     <!-- ===== COVER ===== -->
     <main id="view-cover" class="view">
@@ -98,11 +122,16 @@
             >
               跳过，使用演示模式
             </button>
+            <button
+              id="apikey-back"
+              class="ghost-btn"
+              type="button"
+              data-i18n="backCover"
+            >
+              返回封面
+            </button>
           </div>
         </form>
-        <button id="apikey-back" class="text-btn" data-i18n="backCover">
-          返回封面
-        </button>
       </div>
     </main>
 
@@ -140,7 +169,7 @@
           </label>
 
           <div id="custom-controls" class="card-grid hidden">
-            <label class="field">
+            <div class="field">
               <span class="style-label-row">
                 <span data-i18n="customDiffLabel">自定义难度</span>
                 <button
@@ -158,7 +187,7 @@
                 <option value="hard" data-i18n="diffHard">专家</option>
                 <option value="hardcore" data-i18n="diffHardcore">硬核</option>
               </select>
-            </label>
+            </div>
             <label class="field">
               <span data-i18n="qlLabel">提问次数 <em id="ql-val">20</em></span>
               <input
@@ -181,7 +210,7 @@
               />
             </label>
           </div>
-          <label class="field toggle-field">
+          <div class="field toggle-field">
             <span data-i18n="whodunitLabel">本格推理</span>
             <label class="toggle">
               <input id="config-whodunit" type="checkbox" />
@@ -190,7 +219,19 @@
                 >强调逻辑闭环与现实约束</span
               >
             </label>
-          </label>
+          </div>
+          <div class="field toggle-field hidden" id="death-mode-field">
+            <span data-i18n="deathModeLabel" data-i18n-title="deathModeTooltip"
+              >死亡模式</span
+            >
+            <label class="toggle">
+              <input id="config-death-mode" type="checkbox" />
+              <span class="toggle-track"></span>
+              <span class="toggle-text" data-i18n="deathModeHint"
+                >限时竞速，超时即失败</span
+              >
+            </label>
+          </div>
           <div class="field">
             <span data-i18n="styleLabel">故事风格</span>
             <div class="style-picks" id="config-style-picks">
@@ -301,7 +342,14 @@
         <section class="game-panel game-left">
           <div class="game-header">
             <div>
-              <p class="game-eyebrow" id="game-difficulty-tag">--</p>
+              <p class="game-eyebrow" id="game-difficulty-tag">
+                --<span
+                  class="death-mode-tag hidden"
+                  id="death-mode-tag"
+                  data-i18n-title="deathModeTooltip"
+                  >💀 死亡模式</span
+                >
+              </p>
               <h2 id="game-title">--</h2>
             </div>
             <div class="speed-timer" id="speed-timer">
@@ -341,6 +389,7 @@
             <small id="deduction-text">0 / 0</small>
           </div>
         </section>
+        <div class="game-split-handle" id="game-split-handle"></div>
         <section class="game-panel game-right">
           <div id="chat-log" class="chat-log" aria-live="polite"></div>
           <form id="question-form" class="question-form">

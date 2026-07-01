@@ -125,34 +125,165 @@ body {
     color 0.35s ease;
 }
 
-/* ===== TOOLBAR ===== */
-.toolbar {
+/* ===== SIDE MENU ===== */
+.side-menu {
+  z-index: 300;
+}
+#menu-toggle {
   position: fixed;
   top: 20px;
   right: 20px;
-  z-index: 300;
-  display: flex;
-  gap: 10px;
-}
-.icon-btn {
+  z-index: 9999;
   width: 44px;
   height: 44px;
   padding: 0;
   border-radius: 50%;
   border: 1px solid var(--line);
   background: var(--panel);
+  color: var(--text);
   backdrop-filter: blur(8px);
   font-size: 1.3rem;
+  line-height: 1;
+  cursor: grab;
+  display: grid;
+  place-items: center;
+  opacity: 1;
+  transition:
+    box-shadow 0.2s ease,
+    opacity 0.25s ease;
+  user-select: none;
+  touch-action: none;
+}
+#menu-toggle.menu-open {
+  opacity: 0;
+  pointer-events: none;
+}
+#menu-toggle:active {
+  cursor: grabbing;
+  box-shadow: 0 4px 24px var(--btn-accent-shadow);
+}
+.side-menu-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 305;
+  background: rgba(0, 0, 0, 0.45);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.3s ease;
+}
+.side-menu.open .side-menu-overlay {
+  opacity: 1;
+  pointer-events: auto;
+}
+.side-menu-drawer {
+  position: fixed;
+  top: 0;
+  right: 0;
+  z-index: 306;
+  width: 260px;
+  height: 100vh;
+  height: 100dvh;
+  background: var(--panel);
+  backdrop-filter: blur(16px);
+  border-left: 1px solid var(--line);
+  padding: 24px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  transform: translateX(100%);
+  transition:
+    transform 0.35s cubic-bezier(0.22, 0.61, 0.36, 1),
+    background 0.35s ease;
+  box-shadow: -8px 0 40px rgba(0, 0, 0, 0.25);
+}
+.side-menu.open .side-menu-drawer {
+  transform: translateX(0);
+}
+.side-menu-drawer.dragging {
+  transition: none;
+}
+/* 右边缘拖拽提示（菜单关闭时显示） */
+.side-menu-edge {
+  position: fixed;
+  top: 50%;
+  right: 0;
+  transform: translateY(-50%);
+  width: 8px;
+  height: 80px;
+  border-radius: 8px 0 0 8px;
+  background: var(--line);
+  z-index: 303;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+.side-menu:not(.open) .side-menu-edge {
+  opacity: 0.55;
+}
+.menu-drawer-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 8px;
+}
+.menu-drawer-header span {
+  font-family: var(--font-heading);
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: var(--text);
+}
+#menu-close-btn {
+  width: 36px;
+  height: 36px;
+  padding: 0;
+  border-radius: 50%;
+  border: 1px solid var(--line);
+  background: var(--ghost-bg);
+  color: var(--text);
+  font-size: 1rem;
   line-height: 1;
   cursor: pointer;
   display: grid;
   place-items: center;
   transition:
-    transform 0.2s ease,
-    background 0.35s ease;
+    background 0.2s ease,
+    transform 0.2s ease;
 }
-.icon-btn:hover {
+#menu-close-btn:hover {
+  background: var(--chip-bg);
   transform: scale(1.1);
+}
+.menu-item {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  width: 100%;
+  padding: 14px 16px;
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  background: var(--ghost-bg);
+  color: var(--text);
+  font: inherit;
+  font-size: 0.95rem;
+  font-weight: 600;
+  cursor: pointer;
+  text-align: left;
+  transition:
+    background 0.2s ease,
+    border-color 0.2s ease,
+    transform 0.15s ease;
+}
+.menu-item:hover {
+  border-color: var(--focus-ring);
+  background: var(--chip-bg);
+  transform: translateX(-2px);
+}
+.menu-item-icon {
+  font-size: 1.4rem;
+  flex-shrink: 0;
+}
+.menu-item-label {
+  flex: 1;
 }
 
 /* ===== UTILITY ===== */
@@ -392,12 +523,18 @@ textarea {
   flex: 1;
 }
 .toggle-vis {
+  width: 44px;
+  height: 44px;
+  padding: 0;
   background: var(--toggle-vis-bg);
   border: 1px solid var(--line);
-  border-radius: 14px;
-  padding: 0 14px;
+  border-radius: 50%;
   font-size: 1.1rem;
+  line-height: 1;
   cursor: pointer;
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
 }
 
 /* toggle */
@@ -592,18 +729,10 @@ button:disabled {
   place-items: center;
 }
 .spinner-ring {
-  position: absolute;
-  inset: 0;
-  border-radius: 50%;
-  border: 3px solid transparent;
-  border-top-color: var(--accent);
-  animation: spin 1.2s linear infinite;
+  display: none;
 }
 .spinner-ring--inner {
-  inset: 16px;
-  border-top-color: var(--accent-2);
-  animation-duration: 0.9s;
-  animation-direction: reverse;
+  display: none;
 }
 .spinner-icon {
   font-size: 2rem;
@@ -613,7 +742,7 @@ button:disabled {
 /* 词条动画容器 */
 .loading-words {
   position: absolute;
-  top: -12px;
+  top: -20px;
   left: 50%;
   transform: translateX(-50%);
   pointer-events: none;
@@ -627,24 +756,24 @@ button:disabled {
   font-size: 0.85rem;
   font-weight: 600;
   color: var(--accent);
-  animation: potDrop 1s ease-in forwards;
+  animation: potDrop 2.2s ease-out forwards;
 }
 @keyframes potDrop {
   0% {
     opacity: 0;
-    transform: translateX(-50%) translateY(8px);
+    transform: translateX(-50%) translateY(-28px) scale(0.6);
   }
-  15% {
+  18% {
     opacity: 1;
-    transform: translateX(-50%) translateY(0);
+    transform: translateX(-50%) translateY(0) scale(1);
   }
-  45% {
+  55% {
     opacity: 1;
-    transform: translateX(-50%) translateY(0);
+    transform: translateX(-50%) translateY(0) scale(1);
   }
   100% {
     opacity: 0;
-    transform: translateX(-50%) translateY(42px) scale(0.3);
+    transform: translateX(-50%) translateY(48px) scale(0.15);
   }
 }
 @keyframes spin {
@@ -698,7 +827,7 @@ button:disabled {
   grid-template-columns: 1fr 1fr;
   gap: 24px;
   height: 100vh;
-  padding: 72px 24px 24px;
+  padding: 24px;
   max-width: 1400px;
   margin: 0 auto;
   overflow: hidden;
@@ -716,6 +845,33 @@ button:disabled {
     background 0.35s ease,
     border-color 0.35s ease;
 }
+.game-split-handle {
+  display: none;
+  cursor: row-resize;
+  position: relative;
+  z-index: 50;
+  background: transparent;
+  touch-action: none;
+}
+.game-split-handle::after {
+  content: "";
+  position: absolute;
+  left: 20%;
+  right: 20%;
+  top: 50%;
+  transform: translateY(-50%);
+  height: 3px;
+  border-radius: 2px;
+  background: var(--line);
+  transition:
+    background 0.2s ease,
+    height 0.2s ease;
+}
+.game-split-handle:hover::after,
+.game-split-handle.dragging::after {
+  background: var(--accent);
+  height: 4px;
+}
 .game-header {
   display: flex;
   justify-content: space-between;
@@ -728,6 +884,21 @@ button:disabled {
   font-size: 0.85rem;
   color: var(--accent);
   letter-spacing: 0.1em;
+}
+.death-mode-tag {
+  display: inline-block;
+  margin-left: 8px;
+  padding: 2px 8px;
+  border-radius: 6px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: #fff;
+  background: var(--danger);
+  letter-spacing: 0;
+  vertical-align: middle;
+}
+.death-mode-tag.hidden {
+  display: none;
 }
 .game-header h2 {
   font-family: var(--font-heading);
@@ -768,7 +939,7 @@ button:disabled {
   border: 1px solid var(--line);
   background: var(--game-meta-bg);
   flex-shrink: 0;
-  margin-left: auto;
+  transform-origin: center top;
 }
 .speed-timer-icon {
   font-size: 1rem;
@@ -780,6 +951,55 @@ button:disabled {
   color: var(--accent);
   min-width: 4.5ch;
   text-align: center;
+  transition: color 1s ease;
+}
+/* 死亡模式呼吸灯 */
+.speed-timer-text.breathing {
+  animation: deathBreath 1.2s ease-in-out infinite;
+}
+@keyframes deathBreath {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.35;
+  }
+}
+/* 时间补偿浮动提示 */
+.speed-timer-bonus {
+  position: absolute;
+  top: -4px;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 0.85rem;
+  font-weight: 800;
+  color: var(--accent);
+  pointer-events: none;
+  white-space: nowrap;
+  animation: bonusFloat 1.8s ease-out forwards;
+}
+@keyframes bonusFloat {
+  0% {
+    opacity: 0;
+    transform: translateX(-50%) translateY(8px);
+  }
+  15% {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+  }
+  55% {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+  }
+  100% {
+    opacity: 0;
+    transform: translateX(-50%) translateY(-28px);
+  }
+}
+/* speed-timer 容器需要 relative 以定位 bonus */
+.speed-timer {
+  position: relative;
 }
 .question-ring span {
   font-size: 1.3rem;
@@ -1067,16 +1287,28 @@ button:disabled {
    移动端适配 — 竖屏优先 (max-width: 768px)
    ================================================================ */
 @media (max-width: 768px) {
-  /* ---- TOOLBAR ---- */
-  .toolbar {
-    top: 12px;
-    right: 12px;
-    gap: 8px;
+  /* ---- SIDE MENU ---- */
+  .side-menu {
+    z-index: 300;
   }
-  .icon-btn {
+  #menu-toggle {
     width: 38px;
     height: 38px;
     font-size: 1.1rem;
+    top: 12px;
+    right: 12px;
+  }
+  .side-menu-drawer {
+    width: 240px;
+    padding: 20px 16px;
+  }
+  .side-menu-edge {
+    height: 56px;
+    width: 5px;
+  }
+  .menu-item {
+    padding: 12px 14px;
+    font-size: 0.9rem;
   }
 
   /* ---- COVER ---- */
@@ -1163,18 +1395,21 @@ button:disabled {
     font-size: 1.3rem;
   }
   .loading-word {
-    font-size: 0.75rem;
+    font-size: 0.72rem;
   }
 
   /* ---- GAME: 上下布局 ---- */
   .game-layout {
     grid-template-columns: 1fr;
-    grid-template-rows: 1fr 1fr;
-    gap: 12px;
+    grid-template-rows: 1fr 8px 1fr;
+    gap: 0;
     height: 100vh;
     height: 100dvh;
-    padding: 56px 12px 12px;
+    padding: 12px;
     max-width: 100%;
+  }
+  .game-split-handle {
+    display: block;
   }
   .game-panel {
     padding: 16px;
@@ -1337,7 +1572,7 @@ button:disabled {
 @media (min-width: 769px) and (max-width: 1024px) {
   .game-layout {
     gap: 16px;
-    padding: 72px 16px 16px;
+    padding: 5px 16px 16px;
     max-width: 100%;
   }
   .game-panel {

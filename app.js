@@ -158,6 +158,11 @@ const GameState = {
   loadingPhase: null, // "story" | "storyDemo" | "evaluate" | null
   loadingCount: 0,
   gameStartTime: null, // timestamp when game page first appeared
+  deathMode: false,
+  deathModeRemaining: 0, // 剩余倒计时秒数
+  deathModeTotal: 0, // 总倒计时秒数
+  deathModeFrozen: false, // 是否已冻结
+  deathModeExpired: false, // 是否已超时
 };
 
 let gameTimerInterval = null;
@@ -225,6 +230,11 @@ function initDom() {
     "question-ring",
     "theme-toggle",
     "lang-toggle",
+    "side-menu",
+    "menu-toggle",
+    "menu-overlay",
+    "menu-drawer",
+    "menu-close-btn",
     "nokey-modal",
     "nokey-go-btn",
     "nokey-cancel-btn",
@@ -240,6 +250,9 @@ function initDom() {
     "import-soup-input",
     "speed-timer",
     "speed-timer-text",
+    "config-death-mode",
+    "death-mode-field",
+    "death-mode-tag",
   ];
   ids.forEach((id) => {
     DOMRef[id] = $(id);
@@ -385,6 +398,11 @@ function getSelectedStyles() {
 
 /* ---- VIEW ROUTING ---- */
 function showView(viewId) {
+  // 死亡模式：离开游戏界面时冻结计时器
+  const wasGame = !DOMRef["view-game"].classList.contains("hidden");
+  if (GameState.deathMode && wasGame && viewId !== "view-game") {
+    freezeDeathTimer();
+  }
   [
     "view-cover",
     "view-apikey",
@@ -394,6 +412,10 @@ function showView(viewId) {
   ].forEach((id) => {
     DOMRef[id].classList.toggle("hidden", id !== viewId);
   });
+  // 死亡模式：回到游戏界面时恢复计时器
+  if (GameState.deathMode && viewId === "view-game") {
+    resumeDeathTimer();
+  }
 }
 
 /* ---- PERSISTENCE ---- */
@@ -409,6 +431,7 @@ function saveSettings() {
     customTextLength: GameState.customTextLength,
     storyStyles: GameState.storyStyles,
     customStyleText: GameState.customStyleText,
+    deathMode: GameState.deathMode,
   };
   localStorage.setItem("turtlesoup-settings", JSON.stringify(data));
   localStorage.setItem("turtlesoup-visited", "1");
@@ -447,6 +470,10 @@ function saveGameProgress() {
     questionIndex: questionIndex,
     gameStartTime: GameState.gameStartTime,
     gameElapsed: elapsed,
+    deathMode: GameState.deathMode,
+    deathModeRemaining: GameState.deathModeRemaining,
+    deathModeTotal: GameState.deathModeTotal,
+    deathModeExpired: GameState.deathModeExpired,
   };
   localStorage.setItem("turtlesoup-progress", JSON.stringify(data));
 }
@@ -504,6 +531,12 @@ function restoreGame() {
       ? Date.now() - saved.gameElapsed * 1000
       : saved.gameStartTime || null;
 
+  // 死亡模式
+  GameState.deathMode = saved.deathMode || false;
+  GameState.deathModeRemaining = saved.deathModeRemaining || 0;
+  GameState.deathModeTotal = saved.deathModeTotal || 0;
+  GameState.deathModeExpired = saved.deathModeExpired || false;
+
   return true;
 }
 
@@ -558,7 +591,7 @@ function startLoadingWords() {
     // 动画结束后移除
     span.addEventListener("animationend", () => span.remove());
     idx++;
-    _loadingWordsTimer = setTimeout(tick, 600);
+    _loadingWordsTimer = setTimeout(tick, 900);
   }
   tick();
 }
@@ -576,7 +609,16 @@ function startFromCover() {
   clearGameProgress();
   stopSpeedTimer();
   GameState.gameStartTime = null;
+  GameState.deathMode = false;
+  GameState.deathModeRemaining = 0;
+  GameState.deathModeTotal = 0;
+  GameState.deathModeFrozen = false;
+  GameState.deathModeExpired = false;
   DOMRef["speed-timer-text"].textContent = "00:00";
+  DOMRef["speed-timer-text"].style.color = "";
+  DOMRef["speed-timer-text"].classList.remove("breathing");
+  const icon = document.querySelector(".speed-timer-icon");
+  if (icon) icon.textContent = "⏱";
   DOMRef["cover-review-btn"].classList.add("hidden");
   loadSettings();
   if (GameState.apiKey && GameState.apiKey.startsWith("sk-")) {
@@ -596,6 +638,7 @@ function populateConfigForm() {
   DOMRef["config-text-length"].value = GameState.customTextLength || 800;
   DOMRef["tl-val"].textContent = GameState.customTextLength || 800;
   DOMRef["config-whodunit"].checked = !!GameState.isWhodunit;
+  DOMRef["config-death-mode"].checked = !!GameState.deathMode;
   DOMRef["config-custom-style"].value = GameState.customStyleText || "";
   const sel = new Set(GameState.storyStyles || ["悬疑推理"]);
   [
@@ -640,6 +683,15 @@ async function fetchModels() {
 function syncCustomControls() {
   const isCustom = DOMRef["config-difficulty"].value === "custom_model";
   DOMRef["custom-controls"].classList.toggle("hidden", !isCustom);
+  syncDeathModeToggle();
+}
+
+function syncDeathModeToggle() {
+  const diff =
+    DOMRef["config-difficulty"].value === "custom_model"
+      ? DOMRef["config-custom-difficulty"].value
+      : DOMRef["config-difficulty"].value;
+  DOMRef["death-mode-field"].classList.toggle("hidden", diff !== "hardcore");
 }
 
 /* ---- API KEY SUBMIT ---- */
@@ -661,6 +713,8 @@ async function handleConfigSubmit(e) {
   GameState.customQuestionLimit = Number(DOMRef["config-question-limit"].value);
   GameState.customTextLength = Number(DOMRef["config-text-length"].value);
   GameState.isWhodunit = DOMRef["config-whodunit"].checked;
+  GameState.deathMode =
+    DOMRef["config-death-mode"].checked && getActiveDifficulty() === "hardcore";
   GameState.storyStyles = getSelectedStyles();
   GameState.customStyleText = DOMRef["config-custom-style"].value.trim();
   saveSettings();
@@ -789,9 +843,29 @@ function buildDemoStory() {
 }
 
 /* ---- ENTER GAME ---- */
+function formatTimer(seconds) {
+  const h = Math.floor(seconds / 3600);
+  const m = Math.floor((seconds % 3600) / 60);
+  const s = seconds % 60;
+  return h > 0
+    ? `${String(h).padStart(2, "0")}:${String(m).padStart(2, "0")}:${String(s).padStart(2, "0")}`
+    : `${String(m).padStart(2, "0")}:${String(s).padStart(2, "0")}`;
+}
+
 function startSpeedTimer() {
-  if (!GameState.gameStartTime) {
-    GameState.gameStartTime = Date.now();
+  if (GameState.deathMode) {
+    // 死亡模式：初始化倒计时
+    if (!GameState.deathModeTotal) {
+      GameState.deathModeTotal = getQuestionLimit() * 60;
+      GameState.deathModeRemaining = GameState.deathModeTotal;
+    }
+    GameState.deathModeFrozen = false;
+    const icon = document.querySelector(".speed-timer-icon");
+    if (icon) icon.textContent = "💀";
+  } else {
+    if (!GameState.gameStartTime) {
+      GameState.gameStartTime = Date.now();
+    }
   }
   stopSpeedTimer();
   updateSpeedTimer();
@@ -805,21 +879,110 @@ function stopSpeedTimer() {
   }
 }
 
+function freezeDeathTimer() {
+  if (!GameState.deathMode || GameState.deathModeFrozen) return;
+  GameState.deathModeFrozen = true;
+  stopSpeedTimer();
+}
+
+function resumeDeathTimer() {
+  if (!GameState.deathMode || !GameState.deathModeFrozen) return;
+  if (GameState.deathModeExpired || GameState.isFinished) return;
+  GameState.deathModeFrozen = false;
+  updateSpeedTimer();
+  gameTimerInterval = setInterval(updateSpeedTimer, 1000);
+}
+
 function updateSpeedTimer() {
-  if (!GameState.gameStartTime) return;
-  const elapsed = Math.max(
-    0,
-    Math.floor((Date.now() - GameState.gameStartTime) / 1000),
+  if (GameState.deathMode) {
+    // ---- 死亡模式：倒计时 ----
+    if (GameState.deathModeFrozen || GameState.deathModeExpired) return;
+    GameState.deathModeRemaining = Math.max(
+      0,
+      GameState.deathModeRemaining - 1,
+    );
+    const remaining = GameState.deathModeRemaining;
+    const total = GameState.deathModeTotal || 1;
+    DOMRef["speed-timer-text"].textContent = formatTimer(remaining);
+
+    // 颜色渐变：accent(绿) → danger(红)，越少越红
+    const ratio = Math.max(0, Math.min(1, remaining / total));
+    // 前半段时间保持 accent，后半段线性过渡到 danger
+    const dangerStart = 0.5; // 剩余 50% 开始变色
+    const t = ratio >= dangerStart ? 1 : ratio / dangerStart; // 1=全绿, 0=全红
+    DOMRef["speed-timer-text"].style.color = "";
+
+    // 最后 60 秒呼吸灯
+    if (remaining <= 60) {
+      DOMRef["speed-timer-text"].classList.add("breathing");
+      DOMRef["speed-timer-text"].style.color = "var(--danger)";
+    } else if (remaining <= total * dangerStart) {
+      DOMRef["speed-timer-text"].classList.remove("breathing");
+      DOMRef["speed-timer-text"].style.color =
+        "color-mix(in srgb, var(--danger) " +
+        Math.round((1 - t) * 100) +
+        "%, var(--accent) " +
+        Math.round(t * 100) +
+        "%)";
+    } else {
+      DOMRef["speed-timer-text"].classList.remove("breathing");
+      DOMRef["speed-timer-text"].style.color = "";
+    }
+
+    if (remaining <= 0) {
+      handleDeathModeExpiration();
+    }
+  } else {
+    // ---- 普通模式：正计时 ----
+    if (!GameState.gameStartTime) return;
+    const elapsed = Math.max(
+      0,
+      Math.floor((Date.now() - GameState.gameStartTime) / 1000),
+    );
+    DOMRef["speed-timer-text"].textContent = formatTimer(elapsed);
+  }
+}
+
+function handleDeathModeExpiration() {
+  stopSpeedTimer();
+  GameState.deathModeExpired = true;
+  GameState.remainingQuestions = 0;
+  GameState.canSubmit = true;
+  DOMRef["question-input"].disabled = true;
+  DOMRef["question-input"].placeholder = t("deathExpiredPH") || "时间耗尽...";
+  DOMRef["ask-btn"].disabled = true;
+  DOMRef["speed-timer-text"].textContent = "00:00";
+  DOMRef["speed-timer-text"].classList.add("breathing");
+  DOMRef["speed-timer-text"].style.color = "var(--danger)";
+  DOMRef["submit-soup-btn"].disabled = false;
+  updateGameStats();
+  addChatMsg(
+    "assistant",
+    t("deathExpired") || "💀 时间耗尽！你的所有提问次数已被清零，请提交汤底。",
+    "System",
+    "deathExpired",
   );
-  const m = Math.floor(elapsed / 60);
-  const s = elapsed % 60;
-  const h = Math.floor(m / 60);
-  const mm = m % 60;
-  const text =
-    h > 0
-      ? `${String(h).padStart(2, "0")}:${String(mm).padStart(2, "0")}:${String(s).padStart(2, "0")}`
-      : `${String(m).padStart(2, "0")}:${String(s).padStart(2, "0")}`;
-  DOMRef["speed-timer-text"].textContent = text;
+  saveGameProgress();
+}
+
+function addDeathTime(seconds) {
+  if (!GameState.deathMode || GameState.deathModeExpired) return;
+  GameState.deathModeRemaining += seconds;
+  if (GameState.deathModeRemaining > GameState.deathModeTotal) {
+    GameState.deathModeRemaining = GameState.deathModeTotal;
+  }
+  updateSpeedTimer();
+
+  // 浮动补偿动画
+  const timer = DOMRef["speed-timer"];
+  if (!timer) return;
+  const bonus = document.createElement("span");
+  bonus.className = "speed-timer-bonus";
+  bonus.textContent = "+" + seconds + "s";
+  timer.appendChild(bonus);
+  bonus.addEventListener("animationend", function () {
+    bonus.remove();
+  });
 }
 
 function enterGame(restoring) {
@@ -849,7 +1012,9 @@ function enterGame(restoring) {
   if (!GameState.generated) return;
 
   const g = GameState.generated;
-  DOMRef["game-difficulty-tag"].textContent = g.difficultyLabel;
+  DOMRef["game-difficulty-tag"].childNodes[0].textContent = g.difficultyLabel;
+  // 死亡模式标记
+  DOMRef["death-mode-tag"].classList.toggle("hidden", !GameState.deathMode);
   DOMRef["game-title"].textContent = g.title;
   DOMRef["game-style-tag"].textContent = (g.styles || []).join(" / ");
   DOMRef["game-whodunit-tag"].textContent = GameState.isWhodunit
@@ -876,18 +1041,51 @@ function enterGame(restoring) {
       DOMRef["question-input"].placeholder = t("exhaustedPlaceholder");
       DOMRef["ask-btn"].disabled = true;
     }
-    if (GameState.canSubmit || GameState.isFinished)
+    if (
+      GameState.canSubmit ||
+      GameState.isFinished ||
+      GameState.deathModeExpired
+    )
       DOMRef["submit-soup-btn"].disabled = false;
-    if (GameState.isFinished) {
+    if (GameState.isFinished && !GameState.deathModeExpired) {
       DOMRef["submit-soup-btn"].classList.add("hidden");
       DOMRef["view-result-btn"].classList.remove("hidden");
     }
   }
   updateGameStats();
-  if (!restoring)
-    addChatMsg("assistant", t("gameReady"), "System", "gameReady");
+  if (!restoring) {
+    const readyMsg = GameState.deathMode
+      ? t("gameReadyDeath") ||
+        "时间正在流逝，若是不能尽快完成调味，美味将会转瞬即逝..."
+      : t("gameReady");
+    addChatMsg("assistant", readyMsg, "System", "gameReady");
+    // 存入日志以便恢复时重放
+    GameState.questionLog.push({
+      role: "assistant",
+      content: readyMsg,
+      at: new Date().toISOString(),
+    });
+    saveGameProgress();
+  }
   if (restoring) {
-    if (GameState.isFinished) {
+    // 死亡模式恢复：更新图标和过期状态
+    if (GameState.deathMode) {
+      const icon = document.querySelector(".speed-timer-icon");
+      if (icon) icon.textContent = "💀";
+      if (GameState.deathModeRemaining <= 60) {
+        DOMRef["speed-timer-text"].style.color = "var(--danger)";
+        DOMRef["speed-timer-text"].classList.add("breathing");
+      } else {
+        DOMRef["speed-timer-text"].classList.remove("breathing");
+      }
+      if (GameState.deathModeExpired) {
+        DOMRef["speed-timer-text"].textContent = "00:00";
+        DOMRef["speed-timer-text"].classList.add("breathing");
+        DOMRef["question-input"].disabled = true;
+        DOMRef["ask-btn"].disabled = true;
+      }
+    }
+    if (GameState.isFinished || GameState.deathModeExpired) {
       updateSpeedTimer();
     } else {
       startSpeedTimer();
@@ -900,7 +1098,8 @@ function updateGameStats() {
     ? String(GameState.remainingQuestions)
     : "--";
   DOMRef["submit-soup-btn"].disabled =
-    !GameState.generated || GameState.isFinished;
+    !GameState.generated ||
+    (GameState.isFinished && !GameState.deathModeExpired);
 
   const ring = DOMRef["question-ring"];
   if (!GameState.generated) {
@@ -1004,6 +1203,12 @@ async function handleQuestion(e) {
       at: new Date().toISOString(),
     });
   } else {
+    // 死亡模式：记录 LLM 开始时间 & 当前已解锁线索数
+    const dmStart = GameState.deathMode ? Date.now() : null;
+    const clueCountBefore = GameState.deathMode
+      ? GameState.discoveredClues.size
+      : 0;
+
     if (GameState.demoMode) {
       const reply = getLocalReply(q);
       addChatMsg("assistant", reply.reply, "LLM");
@@ -1014,6 +1219,13 @@ async function handleQuestion(e) {
         at: new Date().toISOString(),
       });
       applyClueHits(reply.matchedClues || []);
+
+      // 死亡模式：演示模式也计入补偿（用较短时间）
+      if (dmStart) {
+        const elapsed = Math.max(1, Math.floor((Date.now() - dmStart) / 1000));
+        const newClues = GameState.discoveredClues.size - clueCountBefore;
+        if (newClues > 0) addDeathTime(newClues * elapsed);
+      }
     } else {
       const placeholder = addChatPlaceholder();
       let raw = "";
@@ -1040,6 +1252,13 @@ async function handleQuestion(e) {
         at: new Date().toISOString(),
       });
       applyClueHits(reply.matchedClues || []);
+
+      // 死亡模式：按解锁线索数 × LLM 耗时返还时间
+      if (dmStart) {
+        const elapsed = Math.max(1, Math.floor((Date.now() - dmStart) / 1000));
+        const newClues = GameState.discoveredClues.size - clueCountBefore;
+        if (newClues > 0) addDeathTime(newClues * elapsed);
+      }
     }
   }
   finalizeTurn();
@@ -1569,6 +1788,10 @@ function wireEvents() {
     goApikey();
   });
   DOMRef["config-difficulty"].addEventListener("change", syncCustomControls);
+  DOMRef["config-custom-difficulty"].addEventListener(
+    "change",
+    syncDeathModeToggle,
+  );
   DOMRef["dice-random-style"].addEventListener("click", () => {
     // 随机自定义难度
     const diffs = ["newb", "easy", "hard", "hardcore"];
@@ -1619,8 +1842,21 @@ function wireEvents() {
     clearGameProgress();
     startFromCover();
   });
-  DOMRef["theme-toggle"].addEventListener("click", toggleTheme);
-  DOMRef["lang-toggle"].addEventListener("click", toggleLanguage);
+  DOMRef["theme-toggle"].addEventListener("click", () => {
+    toggleTheme();
+    closeSideMenu();
+  });
+  DOMRef["lang-toggle"].addEventListener("click", () => {
+    toggleLanguage();
+    closeSideMenu();
+  });
+  DOMRef["menu-close-btn"].addEventListener("click", closeSideMenu);
+  DOMRef["menu-overlay"].addEventListener("click", closeSideMenu);
+  document.addEventListener("keydown", (e) => {
+    if (e.key === "Escape" && DOMRef["side-menu"].classList.contains("open")) {
+      closeSideMenu();
+    }
+  });
   DOMRef["nokey-go-btn"].addEventListener("click", () => {
     DOMRef["nokey-modal"].classList.add("hidden");
     goApikey();
@@ -1657,8 +1893,9 @@ function wireEvents() {
 
 function toggleLanguage() {
   GameState.language = GameState.language === "zh-CN" ? "en-US" : "zh-CN";
-  DOMRef["lang-toggle"].textContent =
-    GameState.language === "zh-CN" ? "🇨🇳" : "🇺🇸";
+  const langIcon = DOMRef["lang-toggle"].querySelector(".menu-item-icon");
+  if (langIcon)
+    langIcon.textContent = GameState.language === "zh-CN" ? "🇨🇳" : "🇺🇸";
   document.documentElement.lang = GameState.language;
   syncI18n();
   saveSettings();
@@ -1683,6 +1920,10 @@ function syncI18n() {
   document.querySelectorAll("[data-i18n-ph]").forEach((el) => {
     const key = el.getAttribute("data-i18n-ph");
     if (L[loc()] && L[loc()][key]) el.placeholder = t(key);
+  });
+  document.querySelectorAll("[data-i18n-title]").forEach((el) => {
+    const key = el.getAttribute("data-i18n-title");
+    if (L[loc()] && L[loc()][key]) el.title = t(key);
   });
   if (GameState.generated) {
     DOMRef["game-whodunit-tag"].textContent = GameState.isWhodunit
@@ -1727,12 +1968,286 @@ function toggleTheme() {
 }
 function applyTheme(theme) {
   document.documentElement.setAttribute("data-theme", theme);
-  DOMRef["theme-toggle"].textContent = theme === "dark" ? "🌙" : "☀️";
+  const themeIcon = DOMRef["theme-toggle"].querySelector(".menu-item-icon");
+  if (themeIcon) themeIcon.textContent = theme === "dark" ? "🌙" : "☀️";
 }
 
 function initLangIcon() {
-  DOMRef["lang-toggle"].textContent =
-    GameState.language === "zh-CN" ? "🇨🇳" : "🇺🇸";
+  const langIcon = DOMRef["lang-toggle"].querySelector(".menu-item-icon");
+  if (langIcon)
+    langIcon.textContent = GameState.language === "zh-CN" ? "🇨🇳" : "🇺🇸";
+}
+
+/* ---- Toggle Button Drag (自由拖动 ☰) ---- */
+const TOGGLE_DRAG = { on: false, sx: 0, sy: 0, ox: 0, oy: 0, moved: false };
+
+function initToggleDrag() {
+  const btn = DOMRef["menu-toggle"];
+  const sideMenu = DOMRef["side-menu"];
+
+  // 恢复保存的位置
+  const saved = localStorage.getItem("turtlesoup-toggle-pos");
+  if (saved) {
+    try {
+      const pos = JSON.parse(saved);
+      btn.style.right = "auto";
+      if (pos.side === "right") {
+        btn.style.left = window.innerWidth - btn.offsetWidth + "px";
+      } else {
+        btn.style.left = "0px";
+      }
+      btn.style.top = pos.t + "px";
+    } catch (_) {}
+  }
+
+  function getXY(e) {
+    return e.touches
+      ? { x: e.touches[0].clientX, y: e.touches[0].clientY }
+      : { x: e.clientX, y: e.clientY };
+  }
+
+  function onStart(e) {
+    if (MENU_DRAG.on) return;
+    if (!btn.contains(e.target)) return;
+    e.preventDefault();
+    const { x, y } = getXY(e);
+    const rect = btn.getBoundingClientRect();
+    TOGGLE_DRAG.on = true;
+    TOGGLE_DRAG.sx = x;
+    TOGGLE_DRAG.sy = y;
+    TOGGLE_DRAG.ox = rect.left;
+    TOGGLE_DRAG.oy = rect.top;
+    TOGGLE_DRAG.moved = false;
+    btn.style.transition = "none";
+    btn.style.right = "auto";
+    btn.style.left = rect.left + "px";
+    btn.style.top = rect.top + "px";
+  }
+
+  function onMove(e) {
+    if (!TOGGLE_DRAG.on) return;
+    e.preventDefault();
+    const { x, y } = getXY(e);
+    const dx = x - TOGGLE_DRAG.sx;
+    const dy = y - TOGGLE_DRAG.sy;
+    if (Math.abs(dx) > 3 || Math.abs(dy) > 3) TOGGLE_DRAG.moved = true;
+    const nx = TOGGLE_DRAG.ox + dx;
+    const ny = TOGGLE_DRAG.oy + dy;
+    btn.style.left =
+      Math.max(0, Math.min(window.innerWidth - btn.offsetWidth, nx)) + "px";
+    btn.style.top =
+      Math.max(0, Math.min(window.innerHeight - btn.offsetHeight, ny)) + "px";
+  }
+
+  function onEnd() {
+    if (!TOGGLE_DRAG.on) return;
+    TOGGLE_DRAG.on = false;
+    btn.style.transition = "left 0.25s ease, top 0.25s ease";
+
+    const bw = btn.offsetWidth;
+    const bh = btn.offsetHeight;
+    const cx = parseFloat(btn.style.left) + bw / 2;
+    const cy = parseFloat(btn.style.top) + bh / 2;
+
+    // 吸附到最近的一侧：左 / 右
+    const snapLeft = cx < window.innerWidth / 2;
+    btn.style.left = (snapLeft ? 0 : window.innerWidth - bw) + "px";
+    btn.style.right = "auto";
+    // 垂直保持在边界内
+    btn.style.top =
+      Math.max(
+        0,
+        Math.min(window.innerHeight - bh, parseFloat(btn.style.top)),
+      ) + "px";
+
+    // 清除过渡以便下次拖拽即时响应
+    setTimeout(function () {
+      btn.style.transition = "";
+    }, 260);
+
+    // 持久化（记录吸附侧和 Y 位置）
+    localStorage.setItem(
+      "turtlesoup-toggle-pos",
+      JSON.stringify({
+        side: snapLeft ? "left" : "right",
+        t: parseFloat(btn.style.top),
+      }),
+    );
+
+    // 如果没有拖动，视为点击
+    if (!TOGGLE_DRAG.moved) {
+      if (sideMenu.classList.contains("open")) {
+        closeSideMenu();
+      } else {
+        openSideMenu();
+      }
+    }
+  }
+
+  btn.addEventListener("touchstart", onStart, { passive: false });
+  btn.addEventListener("mousedown", onStart);
+  document.addEventListener("touchmove", onMove, { passive: false });
+  document.addEventListener("touchend", onEnd);
+  document.addEventListener("mousemove", onMove);
+  document.addEventListener("mouseup", onEnd);
+}
+
+/* ---- Side Menu (drag-enabled) ---- */
+const MENU_DRAG = { on: false, sx: 0, st: 0, last: 0 };
+
+function initMenuDrag() {
+  const drawer = DOMRef["menu-drawer"];
+  const sideMenu = DOMRef["side-menu"];
+  const overlay = DOMRef["menu-overlay"];
+
+  function getX(e) {
+    return e.touches ? e.touches[0].clientX : e.clientX;
+  }
+
+  function onStart(e) {
+    if (MENU_DRAG.on) return;
+    const x = getX(e);
+    const w = drawer.offsetWidth;
+    const isOpen = sideMenu.classList.contains("open");
+    const onDrawer = drawer.contains(e.target);
+    const nearEdge =
+      !isOpen &&
+      x > window.innerWidth - 40 &&
+      !e.target.closest("button, a, input, textarea, select, label");
+
+    if (!onDrawer && !nearEdge) return;
+
+    MENU_DRAG.on = true;
+    MENU_DRAG.sx = x;
+    MENU_DRAG.st = isOpen ? 0 : w;
+    MENU_DRAG.last = MENU_DRAG.st;
+    drawer.classList.add("dragging");
+
+    if (!isOpen) {
+      sideMenu.classList.add("open");
+      overlay.style.transition = "none";
+    }
+  }
+
+  function onMove(e) {
+    if (!MENU_DRAG.on) return;
+    e.preventDefault();
+    const w = drawer.offsetWidth;
+    const dx = getX(e) - MENU_DRAG.sx;
+    let t = MENU_DRAG.st + dx;
+    t = Math.max(0, Math.min(w, t));
+    MENU_DRAG.last = t;
+    drawer.style.transform = "translateX(" + t + "px)";
+    const p = 1 - t / w;
+    overlay.style.opacity = p;
+    overlay.style.pointerEvents = p > 0.01 ? "auto" : "none";
+  }
+
+  function onEnd() {
+    if (!MENU_DRAG.on) return;
+    MENU_DRAG.on = false;
+    drawer.classList.remove("dragging");
+    drawer.style.transform = "";
+    overlay.style.transition = "";
+    overlay.style.opacity = "";
+    overlay.style.pointerEvents = "";
+
+    const threshold = drawer.offsetWidth * 0.4;
+    if (MENU_DRAG.last < threshold) {
+      openSideMenu();
+    } else {
+      closeSideMenu();
+    }
+  }
+
+  document.addEventListener("touchstart", onStart, { passive: false });
+  document.addEventListener("touchmove", onMove, { passive: false });
+  document.addEventListener("touchend", onEnd);
+  document.addEventListener("mousedown", onStart);
+  document.addEventListener("mousemove", onMove);
+  document.addEventListener("mouseup", onEnd);
+}
+
+function openSideMenu() {
+  DOMRef["side-menu"].classList.add("open");
+  DOMRef["menu-toggle"].classList.add("menu-open");
+}
+function closeSideMenu() {
+  DOMRef["side-menu"].classList.remove("open");
+  DOMRef["menu-toggle"].classList.remove("menu-open");
+}
+
+/* ---- Game Split Handle (移动端面板占比拖拽) ---- */
+const SPLIT_DRAG = { on: false, sy: 0, sh: 0 };
+
+function initGameSplitHandle() {
+  const handle = document.getElementById("game-split-handle");
+  const layout = document.querySelector(".game-layout");
+  if (!handle || !layout) return;
+
+  function getY(e) {
+    return e.touches ? e.touches[0].clientY : e.clientY;
+  }
+
+  function isMobile() {
+    return window.innerWidth <= 768;
+  }
+
+  function onStart(e) {
+    if (!handle.contains(e.target)) return;
+    if (!isMobile()) return;
+    SPLIT_DRAG.on = true;
+    SPLIT_DRAG.sy = getY(e);
+    const topPanel = layout.querySelector(".game-left");
+    SPLIT_DRAG.sh = topPanel
+      ? topPanel.getBoundingClientRect().height
+      : layout.clientHeight / 2;
+    handle.classList.add("dragging");
+    e.preventDefault();
+  }
+
+  function onMove(e) {
+    if (!SPLIT_DRAG.on) return;
+    e.preventDefault();
+    const dy = getY(e) - SPLIT_DRAG.sy;
+    const layoutH = layout.clientHeight;
+    const hh = handle.offsetHeight || 8;
+    const minH = layoutH * 0.15;
+    const maxH = layoutH * 0.85 - hh;
+    let topH = Math.max(minH, Math.min(maxH, SPLIT_DRAG.sh + dy));
+    const topPct = (topH / layoutH) * 100;
+    const botPct = 100 - topPct - (hh / layoutH) * 100;
+    layout.style.gridTemplateRows = topPct + "% " + hh + "px " + botPct + "%";
+  }
+
+  function onEnd() {
+    if (!SPLIT_DRAG.on) return;
+    SPLIT_DRAG.on = false;
+    handle.classList.remove("dragging");
+    const rows = layout.style.gridTemplateRows;
+    const m = rows.match(/^([\d.]+)%/);
+    if (m) localStorage.setItem("turtlesoup-split", parseFloat(m[1]));
+  }
+
+  // 恢复保存的比例
+  function restoreRatio() {
+    if (!isMobile()) return;
+    const saved = parseFloat(localStorage.getItem("turtlesoup-split"));
+    if (!saved) return;
+    const hh = handle.offsetHeight || 8;
+    const botPct = 100 - saved - (hh / layout.clientHeight) * 100;
+    layout.style.gridTemplateRows = saved + "% " + hh + "px " + botPct + "%";
+  }
+
+  handle.addEventListener("touchstart", onStart, { passive: false });
+  handle.addEventListener("mousedown", onStart);
+  document.addEventListener("touchmove", onMove, { passive: false });
+  document.addEventListener("touchend", onEnd);
+  document.addEventListener("mousemove", onMove);
+  document.addEventListener("mouseup", onEnd);
+  window.addEventListener("resize", restoreRatio);
+
+  restoreRatio();
 }
 
 function openSoupModal() {
@@ -1754,6 +2269,9 @@ async function boot() {
   initTheme();
   initLangIcon();
   wireEvents();
+  initToggleDrag();
+  initMenuDrag();
+  initGameSplitHandle();
   syncI18n();
   if (restoreGame()) {
     enterGame(true);

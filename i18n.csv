@@ -16,12 +16,25 @@ backCover,返回封面,Back to Cover
 configTitle,定制你的谜题,Customize Your Puzzle
 configDesc,"选择故事风格、推理类型与难度，AI 将据此生成专属海龟汤。","Choose story style, reasoning type, and difficulty. AI will generate a unique mystery."
 langLabel,界面语言,Language
+menuLabel,菜单,Menu
+themeLabel,主题切换,Theme
 diffLabel,难度,Difficulty
 diffCustom,自定义模式,Custom
 diffNewb,入门,Newbie
 diffEasy,简单,Easy
 diffHard,专家,Hard
 diffHardcore,硬核,Hardcore
+deathModeLabel,死亡模式,Death Mode
+deathModeHint,限时竞速，超时即失败,Timed challenge — fail on timeout
+deathModeTooltip,"🕐 倒计时 = 提问次数 × 1 分钟
+❄️ 离开游戏界面时冻结计时
+⏳ 超时强制清零提问次数
+🎁 解锁线索返还 LLM 耗时","🕐 Countdown = questions × 1 min
+❄️ Timer freezes when leaving game
+⏳ Timeout clears all questions
+🎁 Clue discovery refunds LLM time"
+deathExpired,💀 时间耗尽！你的所有提问次数已被清零，请提交汤底。,"💀 Time's up! All questions cleared. Submit your answer."
+deathExpiredPH,时间耗尽...,Time's up...
 customDiffLabel,自定义难度,Custom Difficulty
 qlLabel,提问次数,Questions
 tlLabel,文本长度,Text Length
@@ -71,6 +84,11 @@ gameReady,"汤底完成，开始调味吧...
 请在有限的提问次数里推理出真相。","Broth's ready—time to season it...
 You may only ask one question at a time; the system will answer yes or no.
 Uncover the truth within your limited attempts.."
+gameReadyDeath,"时间正在流逝，若是不能尽快完成调味，美味将会转瞬即逝...
+每次只能提出一个问题，系统会告诉你是与否。
+请在有限的提问次数里推理出真相。","Time is running out—if you don't finish seasoning soon, the flavor will vanish in an instant...
+You may only ask one question at a time; the system will answer yes or no.
+Uncover the truth within your limited attempts."
 demoWarning,"未配置 API Key，已切换到本地演示模式。","No API key configured. Switched to local demo mode."
 noQuestion,请输入一个问题后再发送。,Please enter a question first.
 tooMany,你不能连续提问多个问题。但我可以先回答第一个问题：,"You cannot ask multiple questions at once. I can answer the first one: "
