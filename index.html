@@ -141,7 +141,17 @@
 
           <div id="custom-controls" class="card-grid hidden">
             <label class="field">
-              <span data-i18n="customDiffLabel">自定义难度</span>
+              <span class="style-label-row">
+                <span data-i18n="customDiffLabel">自定义难度</span>
+                <button
+                  type="button"
+                  id="dice-random-style"
+                  class="dice-btn"
+                  title="随机配置"
+                >
+                  🎲
+                </button>
+              </span>
               <select id="config-custom-difficulty">
                 <option value="newb" data-i18n="diffNewb">入门</option>
                 <option value="easy" selected data-i18n="diffEasy">简单</option>
@@ -182,17 +192,7 @@
             </label>
           </label>
           <div class="field">
-            <span class="style-label-row">
-              <span data-i18n="styleLabel">故事风格</span>
-              <button
-                type="button"
-                id="dice-random-style"
-                class="dice-btn hidden"
-                title="随机风格"
-              >
-                🎲
-              </button>
-            </span>
+            <span data-i18n="styleLabel">故事风格</span>
             <div class="style-picks" id="config-style-picks">
               <label class="chip"
                 ><input type="checkbox" value="悬疑推理" checked /><span
@@ -262,6 +262,20 @@
             >
               返回API Key配置
             </button>
+            <button
+              type="button"
+              id="import-soup-btn"
+              class="ghost-btn"
+              data-i18n="importSoupBtn"
+            >
+              导入汤底
+            </button>
+            <input
+              type="file"
+              id="import-soup-input"
+              accept=".turtlesoup"
+              class="hidden"
+            />
           </div>
         </form>
       </div>
@@ -357,6 +371,13 @@
             >
               查看结果
             </button>
+            <button
+              id="game-share-btn"
+              class="ghost-btn"
+              data-i18n="shareSoupBtn"
+            >
+              分享汤底
+            </button>
           </div>
         </section>
       </div>
@@ -376,6 +397,13 @@
             data-i18n="exportBtn"
           >
             导出 JSON
+          </button>
+          <button
+            id="result-share-btn"
+            class="ghost-btn"
+            data-i18n="shareSoupBtn"
+          >
+            分享汤底
           </button>
           <button
             id="result-replay-btn"
@@ -414,6 +442,13 @@
               data-i18n="modalCancel"
             >
               取消
+            </button>
+            <button
+              id="modal-giveup-btn"
+              class="danger-btn"
+              data-i18n="modalGiveup"
+            >
+              放弃游戏
             </button>
           </div>
         </div>

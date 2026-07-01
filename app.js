@@ -218,6 +218,7 @@ function initDom() {
     "modal-soup-input",
     "modal-submit-btn",
     "modal-cancel-btn",
+    "modal-giveup-btn",
     "question-ring",
     "theme-toggle",
     "lang-toggle",
@@ -225,6 +226,10 @@ function initDom() {
     "nokey-go-btn",
     "nokey-cancel-btn",
     "dice-random-style",
+    "game-share-btn",
+    "result-share-btn",
+    "import-soup-btn",
+    "import-soup-input",
   ];
   ids.forEach((id) => {
     E[id] = $(id);
@@ -325,7 +330,7 @@ function getSelectedStyles() {
     ),
   ].map((cb) => cb.value);
   const custom = E["config-custom-style"].value
-    .split(/[，,|\\\n]/)
+    .split(/[，,、|\\\"\n]/)
     .map((s) => s.trim())
     .filter(Boolean);
   const merged = [...new Set([...picks, ...custom])];
@@ -530,7 +535,6 @@ function populateConfigForm() {
 function syncCustomControls() {
   const isCustom = E["config-difficulty"].value === "custom_model";
   E["custom-controls"].classList.toggle("hidden", !isCustom);
-  E["dice-random-style"].classList.toggle("hidden", !isCustom);
 }
 
 /* ---- API KEY SUBMIT ---- */
@@ -1135,6 +1139,94 @@ function exportJson() {
   URL.revokeObjectURL(url);
 }
 
+/* ---- SHARE (二进制导出) ---- */
+function exportSoup() {
+  if (!S.generated) return;
+  const payload = {
+    version: 1,
+    exportedAt: new Date().toISOString(),
+    story: {
+      title: S.generated.title,
+      outline: S.generated.outline,
+      riddle_html: S.generated.riddle_html,
+      clues: S.generated.clues,
+      soup: S.generated.soup,
+      meta: S.generated.meta,
+      difficultyLabel: S.generated.difficultyLabel,
+      styles: S.generated.styles,
+    },
+    config: {
+      isWhodunit: S.isWhodunit,
+      difficulty: S.difficulty,
+      customDifficulty: S.customDifficulty,
+      questionLimit: getQuestionLimit(),
+      textLength: S.customTextLength,
+    },
+  };
+  const json = JSON.stringify(payload);
+  const bytes = new TextEncoder().encode(json);
+  const blob = new Blob([bytes], { type: "application/octet-stream" });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  const safeTitle = (S.generated.title || "turtlesoup")
+    .replace(/[\\/:*?"<>|]/g, "_")
+    .slice(0, 40);
+  a.download = `${safeTitle}.turtlesoup`;
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  URL.revokeObjectURL(url);
+}
+
+/* ---- IMPORT (二进制导入) ---- */
+async function importSoup(file) {
+  try {
+    const buffer = await file.arrayBuffer();
+    const bytes = new Uint8Array(buffer);
+    const json = new TextDecoder().decode(bytes);
+    const data = JSON.parse(json);
+
+    if (!data.version || !data.story || !data.story.clues) {
+      alert(t("importInvalid"));
+      return;
+    }
+
+    // 恢复游戏状态
+    clearGameProgress();
+    S.generated = {
+      title: data.story.title || "Untitled",
+      outline: data.story.outline || "",
+      riddle_html: data.story.riddle_html || "",
+      clues: data.story.clues || [],
+      soup: data.story.soup || "",
+      meta: data.story.meta || {},
+      difficultyLabel: data.story.difficultyLabel || "导入",
+      styles: data.story.styles || [],
+    };
+    S.isWhodunit = !!(data.config && data.config.isWhodunit);
+    S.difficulty = (data.config && data.config.difficulty) || "custom_model";
+    S.customDifficulty =
+      (data.config && data.config.customDifficulty) || "easy";
+    S.customQuestionLimit = (data.config && data.config.questionLimit) || 20;
+    S.customTextLength = (data.config && data.config.textLength) || 800;
+
+    // 重置游戏进度
+    S.questionLog = [];
+    S.remainingQuestions = getQuestionLimit();
+    S.discoveredClues = new Set();
+    S.questionsWithClueDiscovery = new Set();
+    S.canSubmit = false;
+    S.isFinished = false;
+    S.scoreResult = null;
+
+    enterGame();
+  } catch (e) {
+    console.error("import failed", e);
+    alert(t("importFailed"));
+  }
+}
+
 /* ---- PROMPTS ---- */
 function buildStoryPrompt() {
   const ad = getActiveDifficulty();
@@ -1313,11 +1405,24 @@ function wireEvents() {
   });
   E["config-difficulty"].addEventListener("change", syncCustomControls);
   E["dice-random-style"].addEventListener("click", () => {
-    // 取消所有风格勾选
+    // 随机自定义难度
+    const diffs = ["newb", "easy", "hard", "hardcore"];
+    const randDiff = diffs[Math.floor(Math.random() * diffs.length)];
+    E["config-custom-difficulty"].value = randDiff;
+    // 随机提问次数 (5-30)
+    const randQL = Math.floor(Math.random() * 26) + 5;
+    E["config-question-limit"].value = randQL;
+    E["ql-val"].textContent = randQL;
+    // 随机文本长度 (200-10000, step 100)
+    const randTL = Math.floor(Math.random() * 99) * 100 + 200;
+    E["config-text-length"].value = randTL;
+    E["tl-val"].textContent = randTL;
+    // 随机本格推理
+    E["config-whodunit"].checked = Math.random() > 0.5;
+    // 随机故事风格 - 取消所有勾选，填入"随机风格"
     [
       ...E["config-style-picks"].querySelectorAll('input[type="checkbox"]'),
     ].forEach((cb) => (cb.checked = false));
-    // 填入"随机风格"
     E["config-custom-style"].value = "随机风格";
   });
   E["config-question-limit"].addEventListener("input", () => {
@@ -1333,7 +1438,14 @@ function wireEvents() {
   });
   E["modal-submit-btn"].addEventListener("click", submitSoup);
   E["modal-cancel-btn"].addEventListener("click", closeSoupModal);
+  E["modal-giveup-btn"].addEventListener("click", () => {
+    E["soup-modal"].classList.add("hidden");
+    clearGameProgress();
+    startFromCover();
+  });
   E["result-export-btn"].addEventListener("click", exportJson);
+  E["result-share-btn"].addEventListener("click", exportSoup);
+  E["game-share-btn"].addEventListener("click", exportSoup);
   E["result-close-btn"].addEventListener("click", hideResultOverlay);
   E["result-replay-btn"].addEventListener("click", () => {
     hideResultOverlay();
@@ -1348,6 +1460,14 @@ function wireEvents() {
   });
   E["nokey-cancel-btn"].addEventListener("click", () => {
     E["nokey-modal"].classList.add("hidden");
+  });
+  E["import-soup-btn"].addEventListener("click", () => {
+    E["import-soup-input"].click();
+  });
+  E["import-soup-input"].addEventListener("change", (e) => {
+    const file = e.target.files[0];
+    if (file) importSoup(file);
+    E["import-soup-input"].value = "";
   });
 }
 
@@ -1364,11 +1484,13 @@ function syncI18n() {
     const key = el.getAttribute("data-i18n");
     if (L[loc()] && L[loc()][key]) {
       if (el.id === "riddle-output" && S.generated) return;
-      if (key === "qlLabel")
-        el.innerHTML = `${t(key)} <em id="ql-val">${E["ql-val"]?.textContent || "20"}</em>`;
-      else if (key === "tlLabel")
-        el.innerHTML = `${t(key)} <em id="tl-val">${E["tl-val"]?.textContent || "800"}</em>`;
-      else if (key === "coverDesc")
+      if (key === "qlLabel" || key === "tlLabel") {
+        // 只更新文本节点，保留 <em> 元素不被 innerHTML 销毁
+        const textNode = el.firstChild;
+        if (textNode && textNode.nodeType === Node.TEXT_NODE)
+          textNode.textContent = t(key) + " ";
+        else el.textContent = t(key);
+      } else if (key === "coverDesc")
         el.innerHTML = t(key).replace(/\n/g, "<br>");
       else el.textContent = t(key);
     }

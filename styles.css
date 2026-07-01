@@ -543,6 +543,10 @@ button:disabled {
   color: var(--btn-text);
   background: linear-gradient(135deg, var(--accent-2), var(--btn-accent2-end));
 }
+.danger-btn {
+  color: #fff;
+  background: linear-gradient(135deg, var(--danger), #e8847e);
+}
 .ghost-btn {
   color: var(--text);
   background: var(--ghost-bg);

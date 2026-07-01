@@ -56,6 +56,7 @@ modalDesc,请输入你推理出的故事真相。,Enter the story truth you have
 soupPlaceholder,输入你认为的汤底（故事真相）...,Enter your soup guess (the real story)...
 modalSubmit,确认提交,Confirm
 modalCancel,取消,Cancel
+modalGiveup,放弃游戏,Give Up
 nokeyTitle,未配置 API Key,No API Key
 nokeyDesc,未配置 API Key 无法生成谜题。请先配置 API Key 后再试。,"Cannot generate a mystery without an API Key. Please configure your API Key first."
 nokeyGo,去配置 API Key,Configure API Key
@@ -93,3 +94,7 @@ localFit,与官方汤底存在部分吻合。,Partially matched the official sou
 localMistake,本地模式下未调用 LLM 复核。,No LLM validation in local mode.
 localTip,建议围绕关键盘问点整理时间线。,Try to align the timeline around the key clues.
 localSummary,本地演示分数。,Local demo score.
+shareSoupBtn,分享汤底,Share Soup
+importSoupBtn,导入汤底,Import Soup
+importInvalid,无效的汤底文件，请检查文件格式。,Invalid soup file. Please check the file format.
+importFailed,导入失败，文件可能已损坏。,Import failed. The file may be corrupted.
