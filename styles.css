@@ -759,6 +759,28 @@ button:disabled {
   flex-shrink: 0;
   transition: border-color 0.35s ease;
 }
+.speed-timer {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 16px;
+  border-radius: 12px;
+  border: 1px solid var(--line);
+  background: var(--game-meta-bg);
+  flex-shrink: 0;
+  margin-left: auto;
+}
+.speed-timer-icon {
+  font-size: 1rem;
+}
+.speed-timer-text {
+  font-size: 1.1rem;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  color: var(--accent);
+  min-width: 4.5ch;
+  text-align: center;
+}
 .question-ring span {
   font-size: 1.3rem;
   font-weight: 800;
@@ -1191,6 +1213,14 @@ button:disabled {
   }
   .question-ring small {
     font-size: 0.55rem;
+  }
+  .speed-timer {
+    padding: 6px 12px;
+    border-radius: 10px;
+    gap: 4px;
+  }
+  .speed-timer-text {
+    font-size: 0.95rem;
   }
   .riddle-card {
     flex: 1;

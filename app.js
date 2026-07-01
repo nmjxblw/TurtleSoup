@@ -141,7 +141,7 @@ const GameState = {
   language: "zh-CN",
   isWhodunit: true,
   difficulty: "custom_model",
-  customDifficulty: "easy",
+  customDifficulty: null,
   customQuestionLimit: 20,
   customTextLength: 800,
   storyStyles: ["悬疑推理"],
@@ -157,7 +157,10 @@ const GameState = {
   scoreResult: null,
   loadingPhase: null, // "story" | "storyDemo" | "evaluate" | null
   loadingCount: 0,
+  gameStartTime: null, // timestamp when game page first appeared
 };
+
+let gameTimerInterval = null;
 
 /* ---- DOM refs ---- */
 const DOMRef = {};
@@ -235,6 +238,8 @@ function initDom() {
     "result-share-btn",
     "import-soup-btn",
     "import-soup-input",
+    "speed-timer",
+    "speed-timer-text",
   ];
   ids.forEach((id) => {
     DOMRef[id] = $(id);
@@ -302,82 +307,46 @@ function sanitizeHtml(html) {
   );
   return tpl.innerHTML;
 }
-/**
- * 安全解析 LLM 返回的 JSON 字符串（兼容富文本 HTML 标签截断、未转义换行等问题）
- * @param {string} text - LLM 原始返回文本
- * @returns {Object} - 解析后的 JSON 对象
- */
 function normalizeJson(text) {
-  let s = String(text || "").trim();
-
-  // 1. 提取 Markdown 代码块中的 JSON 内容
+  const s = String(text || "").trim();
   const m =
-    s.match(/```(?:json|javascript|js)?\s*([\s\S]*?)```/i) ||
-    s.match(/```\s*([\s\S]*?)```/);
+    s.match(/```json\s*([\s\S]*?)```/i) || s.match(/```\s*([\s\S]*?)```/);
   let raw = m ? m[1].trim() : s;
-
-  // 2. 截取最外层的 { } 或 [ ] (防止 LLM 在 JSON 前后夹杂废话)
-  const firstBrace = raw.indexOf("{");
-  const firstBracket = raw.indexOf("[");
-  const a = Math.min(
-    firstBrace !== -1 ? firstBrace : Infinity,
-    firstBracket !== -1 ? firstBracket : Infinity,
+  const a = raw.indexOf("{");
+  const b = raw.lastIndexOf("}");
+  if (a >= 0 && b >= 0) raw = raw.slice(a, b + 1);
+  // Escape literal control chars within double-quoted JSON strings first.
+  // Use [\s\S] in \\[\s\S] so backslash+newline is also captured.
+  raw = raw.replace(
+    /"((?:[^"\\]|\\[\s\S])*)"/g,
+    (_m, inner) =>
+      '"' +
+      inner.replace(/[\n\r\t]/g, (c) =>
+        c === "\n" ? "\\n" : c === "\r" ? "\\r" : "\\t",
+      ) +
+      '"',
   );
-  const lastBrace = raw.lastIndexOf("}");
-  const lastBracket = raw.lastIndexOf("]");
-  const b = Math.max(lastBrace, lastBracket);
-  if (a !== Infinity && b >= 0 && b >= a) {
-    raw = raw.slice(a, b + 1);
-  }
-
-  // 3. 修复中文/全角双引号和单引号
-  raw = raw
-    .replace(/[\u201C\u201D\u201E\u201F\uFF02]/g, '"')
-    .replace(/[\u2018\u2019\u201A\u201B]/g, "'");
-
-  // 4. 【核心修复】：前置解决 HTML 属性导致的解析失败 (e.g. class="text-red" -> class='text-red')
-  // 匹配常规 HTML 属性赋值，替换为单引号。不会破坏标准 JSON 结构。
-  raw = raw.replace(/([a-zA-Z0-9_\-]+)="([^"\\]*?)"/g, "$1='$2'");
-
-  // 5. 修复 JSON 字符串内部未转义的换行符和制表符
-  // 此时 HTML 双引号已被处理，正则可以安全匹配到完整的 JSON String
-  raw = raw.replace(/"((?:[^"\\]|\\.)*)"/g, (match, inner) => {
-    const cleaned = inner.replace(/[\n\r\t]/g, (c) => {
-      if (c === "\n") return "\\n";
-      if (c === "\r") return "\\r";
-      if (c === "\t") return "\\t";
-      return c;
-    });
-    return '"' + cleaned + '"';
-  });
-
-  // 6. 修复多余的尾部逗号 (e.g. {"a": 1,})
+  // Remove trailing commas before } or ]
   raw = raw.replace(/,(\s*[}\]])/g, "$1");
-
-  // 7. 修复由于换行导致缺失的逗号 (e.g. "a": 1 \n "b": 2)
-  raw = raw.replace(/"(?=\s*\n?\s*"[a-zA-Z0-9_]+"\s*:)/g, '",');
 
   try {
     return JSON.parse(raw);
-  } catch (e1) {
-    // 8. 终极兜底：如果字符串值内部还有乱七八糟的未转义双引号 (如句子里的双引号)
-    // 我们利用正则匹配 `: "任意内容" 结尾是 , 或 } 或 ]` 的模式，把内容里的双引号强行转义
+  } catch (_e1) {
+    // Model may have used curly quotes as JSON delimiters — fix those
+    let repaired = raw
+      .replace(/[\u201C\u201D\u201E\u201F\uFF02]/g, '"')
+      .replace(/[\u2018\u2019\u201A\u201B]/g, "'");
+    repaired = repaired
+      .replace(/,(\s*[}\]])/g, "$1")
+      .replace(/=\s*"([^"<>]*?)"/g, "='$1'");
     try {
-      let repaired = raw.replace(
-        /:\s*"([\s\S]*?)"(\s*[,}\]])/g,
-        (match, innerText, endChar) => {
-          // 使用 ( ^|[^\\] ) 确保不重复转义已经转义过的双引号，兼容所有浏览器
-          const escaped = innerText.replace(/(^|[^\\])"/g, '$1\\"');
-          return ': "' + escaped + '"' + endChar;
-        },
-      );
       return JSON.parse(repaired);
-    } catch (e2) {
+    } catch (_e2) {
       console.warn(
-        "normalizeJson: 所有修复策略失败。Raw text 片段:",
+        "normalizeJson: repair failed, raw (~300):",
         raw.slice(0, 300),
       );
-      throw e1; // 抛出原始异常
+      throw _e1;
     }
   }
 }
@@ -461,6 +430,9 @@ function isFirstVisit() {
 
 function saveGameProgress() {
   if (!GameState.generated) return;
+  const elapsed = GameState.gameStartTime
+    ? Math.max(0, Math.floor((Date.now() - GameState.gameStartTime) / 1000))
+    : 0;
   const data = {
     generated: GameState.generated,
     remainingQuestions: GameState.remainingQuestions,
@@ -473,6 +445,8 @@ function saveGameProgress() {
     isWhodunit: GameState.isWhodunit,
     demoMode: GameState.demoMode,
     questionIndex: questionIndex,
+    gameStartTime: GameState.gameStartTime,
+    gameElapsed: elapsed,
   };
   localStorage.setItem("turtlesoup-progress", JSON.stringify(data));
 }
@@ -498,18 +472,38 @@ function clearGameProgress() {
 
 function restoreGame() {
   const saved = loadGameProgress();
-  if (!saved || !saved.generated) return false;
-  GameState.generated = saved.generated;
-  GameState.remainingQuestions = saved.remainingQuestions;
-  GameState.discoveredClues = saved.discoveredClues;
-  GameState.questionsWithClueDiscovery = saved.questionsWithClueDiscovery;
-  GameState.questionLog = saved.questionLog || [];
-  GameState.canSubmit = saved.canSubmit;
-  GameState.isFinished = !!saved.isFinished;
-  GameState.scoreResult = saved.scoreResult || null;
-  GameState.isWhodunit = !!saved.isWhodunit;
-  GameState.demoMode = !!saved.demoMode;
+  if (!saved?.generated) return false;
+
+  // 自动映射同名字段到 GameState
+  const mapKeys = [
+    "generated",
+    "remainingQuestions",
+    "questionLog",
+    "canSubmit",
+    "isFinished",
+    "scoreResult",
+    "isWhodunit",
+    "demoMode",
+  ];
+  mapKeys.forEach((k) => {
+    if (k in saved) GameState[k] = saved[k];
+  });
+
+  // Set 类型需从数组还原
+  GameState.discoveredClues = new Set(saved.discoveredClues || []);
+  GameState.questionsWithClueDiscovery = new Set(
+    saved.questionsWithClueDiscovery || [],
+  );
+
+  // 全局变量
   questionIndex = saved.questionIndex || 0;
+
+  // 游戏时间：以 gameElapsed 为准反算
+  GameState.gameStartTime =
+    saved.gameElapsed != null
+      ? Date.now() - saved.gameElapsed * 1000
+      : saved.gameStartTime || null;
+
   return true;
 }
 
@@ -580,6 +574,9 @@ function stopLoadingWords() {
 
 function startFromCover() {
   clearGameProgress();
+  stopSpeedTimer();
+  GameState.gameStartTime = null;
+  DOMRef["speed-timer-text"].textContent = "00:00";
   DOMRef["cover-review-btn"].classList.add("hidden");
   loadSettings();
   if (GameState.apiKey && GameState.apiKey.startsWith("sk-")) {
@@ -593,8 +590,7 @@ function startFromCover() {
 function populateConfigForm() {
   DOMRef["config-difficulty"].value = GameState.difficulty || "custom_model";
   DOMRef["config-model"].value = GameState.model || "deepseek-chat";
-  DOMRef["config-custom-difficulty"].value =
-    GameState.customDifficulty || "easy";
+  DOMRef["config-custom-difficulty"].value = GameState.customDifficulty;
   DOMRef["config-question-limit"].value = GameState.customQuestionLimit || 20;
   DOMRef["ql-val"].textContent = GameState.customQuestionLimit || 20;
   DOMRef["config-text-length"].value = GameState.customTextLength || 800;
@@ -793,6 +789,39 @@ function buildDemoStory() {
 }
 
 /* ---- ENTER GAME ---- */
+function startSpeedTimer() {
+  if (!GameState.gameStartTime) {
+    GameState.gameStartTime = Date.now();
+  }
+  stopSpeedTimer();
+  updateSpeedTimer();
+  gameTimerInterval = setInterval(updateSpeedTimer, 1000);
+}
+
+function stopSpeedTimer() {
+  if (gameTimerInterval) {
+    clearInterval(gameTimerInterval);
+    gameTimerInterval = null;
+  }
+}
+
+function updateSpeedTimer() {
+  if (!GameState.gameStartTime) return;
+  const elapsed = Math.max(
+    0,
+    Math.floor((Date.now() - GameState.gameStartTime) / 1000),
+  );
+  const m = Math.floor(elapsed / 60);
+  const s = elapsed % 60;
+  const h = Math.floor(m / 60);
+  const mm = m % 60;
+  const text =
+    h > 0
+      ? `${String(h).padStart(2, "0")}:${String(mm).padStart(2, "0")}:${String(s).padStart(2, "0")}`
+      : `${String(m).padStart(2, "0")}:${String(s).padStart(2, "0")}`;
+  DOMRef["speed-timer-text"].textContent = text;
+}
+
 function enterGame(restoring) {
   goGame();
   if (!restoring) {
@@ -814,6 +843,7 @@ function enterGame(restoring) {
     GameState.isFinished = false;
     GameState.canSubmit = false;
     GameState.questionsWithClueDiscovery = new Set();
+    startSpeedTimer();
   }
 
   if (!GameState.generated) return;
@@ -854,7 +884,15 @@ function enterGame(restoring) {
     }
   }
   updateGameStats();
-  if (!restoring) addChatMsg("assistant", t("gameReady"), "System");
+  if (!restoring)
+    addChatMsg("assistant", t("gameReady"), "System", "gameReady");
+  if (restoring) {
+    if (GameState.isFinished) {
+      updateSpeedTimer();
+    } else {
+      startSpeedTimer();
+    }
+  }
 }
 
 function updateGameStats() {
@@ -888,7 +926,7 @@ function updateGameStats() {
 
 /* ---- CHAT ---- */
 let questionIndex = 0;
-function addChatMsg(role, content, meta) {
+function addChatMsg(role, content, meta, i18nKey) {
   const tpl = $("chat-template");
   const node = tpl.content.firstElementChild.cloneNode(true);
   node.classList.add(role);
@@ -896,7 +934,9 @@ function addChatMsg(role, content, meta) {
   const prefix =
     role === "user" && questionIndex > 0 ? `Q${questionIndex} · ` : "";
   node.querySelector(".chat-meta").textContent = prefix + label;
-  node.querySelector(".chat-content").textContent = content;
+  const contentEl = node.querySelector(".chat-content");
+  contentEl.textContent = content;
+  if (i18nKey) contentEl.setAttribute("data-i18n", i18nKey);
   // 标记玩家提问索引，并根据盘问点发现状态添加叶绿色高亮
   if (role === "user" && questionIndex > 0) {
     node.setAttribute("data-qindex", String(questionIndex));
@@ -916,12 +956,12 @@ function hasMultipleQuestions(text) {
 async function handleQuestion(e) {
   e.preventDefault();
   if (!GameState.generated) {
-    addChatMsg("assistant", t("waitGenerate"), "System");
+    addChatMsg("assistant", t("waitGenerate"), "System", "waitGenerate");
     return;
   }
   const q = DOMRef["question-input"].value.trim();
   if (!q) {
-    addChatMsg("assistant", t("noQuestion"), "System");
+    addChatMsg("assistant", t("noQuestion"), "System", "noQuestion");
     return;
   }
   if (GameState.remainingQuestions <= 0) {
@@ -931,7 +971,7 @@ async function handleQuestion(e) {
     DOMRef["question-input"].placeholder = t("exhaustedPlaceholder");
     DOMRef["ask-btn"].disabled = true;
     updateGameStats();
-    addChatMsg("assistant", t("limitHint"), "System");
+    addChatMsg("assistant", t("limitHint"), "System", "limitHint");
     return;
   }
 
@@ -1105,11 +1145,12 @@ async function submitSoup() {
   if (!GameState.generated) return;
   const guess = DOMRef["modal-soup-input"].value.trim();
   if (!guess) {
-    addChatMsg("assistant", t("needSoup"), "System");
+    addChatMsg("assistant", t("needSoup"), "System", "needSoup");
     return;
   }
   DOMRef["soup-modal"].classList.add("hidden");
   GameState.isFinished = true;
+  stopSpeedTimer();
   goLoading();
   GameState.loadingPhase = "evaluate";
   GameState.loadingCount = 0;

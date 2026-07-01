@@ -69,7 +69,7 @@
 仅返回 JSON 格式数据：{title, outline, riddle_html, clues, soup, meta}。
 title：故事标题
 outline：完整的故事逻辑链/故事大纲/第三方视角陈述。
-riddle_html：安全的 HTML 代码，可使用富文本。
+riddle_html：安全的 HTML 代码。
 clues：string[]数组形式，包含简洁的线索陈述，每条线索均可通过提问获取。
 soup：官方解答。
 meta：{tone, setting, characters}。
