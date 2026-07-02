@@ -86,7 +86,7 @@ function getChatMetaKeyFromLog(entry) {
  */
 function syncChatLogI18n() {
   const items = DOMRef["chat-log"]?.querySelectorAll(".chat-item") || [];
-  const fixedContentKeys = new Set([
+  const systemContentKeys = new Set([
     "gameReady",
     "gameReadyDeath",
     "waitGenerate",
@@ -94,9 +94,6 @@ function syncChatLogI18n() {
     "limitHint",
     "needSoup",
     "deathExpired",
-    "replyYes",
-    "replyNo",
-    "replyImportant",
   ]);
   items.forEach((node) => {
     const metaEl = node.querySelector(".chat-meta");
@@ -122,17 +119,18 @@ function syncChatLogI18n() {
     }
     const inferredMetaKey =
       metaKey ||
-      (contentKey && fixedContentKeys.has(contentKey)
+      (contentKey && systemContentKeys.has(contentKey)
         ? "chatRoleSystem"
         : role === "user"
           ? "chatRolePlayer"
           : "chatRoleHost");
     metaEl.textContent = renderChatMetaLabel(role, qindex, inferredMetaKey);
-    if (contentEl && fixedContentKeys.has(contentKey)) {
-      contentEl.textContent = t(contentKey);
-    } else if (contentEl && contentKey === "tooMany") {
+    if (!contentEl || !contentKey) return;
+    if (contentKey === "tooMany") {
       const followUpKey = contentVars?.followUpKey || "tooManyFollowUp";
       contentEl.textContent = t("tooMany", { followUp: t(followUpKey) });
+    } else {
+      contentEl.textContent = t(contentKey, contentVars || {});
     }
   });
 }

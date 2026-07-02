@@ -146,7 +146,7 @@ function buildQuestionPrompt(question) {
       (GameState.generated?.clues || []).map((c, i) => ({ i, text: c })),
     ),
     undiscoveredClues: undiscovered.length
-      ? `Still undiscovered clues: ${JSON.stringify(undiscovered)}.\n`
+      ? `${t("undiscoveredCluesPrefix")}${JSON.stringify(undiscovered)}.\n`
       : "",
     discoveredClueIndices: JSON.stringify([...GameState.discoveredClues]),
     recentDialogue: JSON.stringify(GameState.questionLog.slice(-6)),

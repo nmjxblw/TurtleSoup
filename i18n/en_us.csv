@@ -19,6 +19,8 @@ pageDescription,TurtleSoup mystery soup game
 langLabel,Language
 menuLabel,Menu
 coverLogoAlt,TurtleSoup
+coverSub,Turtle Soup
+undiscoveredCluesPrefix,Still undiscovered clues: 
 menuToggleTitle,Menu
 menuToggleAria,Open menu
 menuCloseAria,Close menu

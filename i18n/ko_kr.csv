@@ -19,6 +19,8 @@ pageDescription,TurtleSoup 터틀스프
 langLabel,인터페이스 언어
 menuLabel,메뉴
 coverLogoAlt,터틀스프
+coverSub,터틀스프
+undiscoveredCluesPrefix,아직 발견하지 못한 단서: 
 menuToggleTitle,메뉴
 menuToggleAria,메뉴 열기
 menuCloseAria,메뉴 닫기
