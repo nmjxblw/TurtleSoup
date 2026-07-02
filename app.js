@@ -1033,7 +1033,11 @@ function enterGame(restoring) {
         questionIndex = qi;
       }
       const role = entry.role === "user" ? "user" : "assistant";
-      addChatMsg(role, entry.content, role === "user" ? "玩家" : "LLM");
+      addChatMsg(
+        role,
+        entry.content,
+        role === "user" ? t("chatRolePlayer") : t("chatRoleHost"),
+      );
     });
     questionIndex = qi;
     if (GameState.remainingQuestions <= 0) {
@@ -1129,7 +1133,8 @@ function addChatMsg(role, content, meta, i18nKey) {
   const tpl = $("chat-template");
   const node = tpl.content.firstElementChild.cloneNode(true);
   node.classList.add(role);
-  const label = meta || (role === "user" ? "玩家" : "LLM");
+  const label =
+    meta || (role === "user" ? t("chatRolePlayer") : t("chatRoleHost"));
   const prefix =
     role === "user" && questionIndex > 0 ? `Q${questionIndex} · ` : "";
   node.querySelector(".chat-meta").textContent = prefix + label;
@@ -1211,7 +1216,7 @@ async function handleQuestion(e) {
 
     if (GameState.demoMode) {
       const reply = getLocalReply(q);
-      addChatMsg("assistant", reply.reply, "LLM");
+      addChatMsg("assistant", reply.reply, t("chatRoleHost"));
       GameState.questionLog.push({
         role: "assistant",
         content: reply.reply,
@@ -1244,7 +1249,7 @@ async function handleQuestion(e) {
         console.warn("question stream failed", e);
       }
       const reply = parseReply(raw);
-      placeholder.finalize(reply.reply, "LLM");
+      placeholder.finalize(reply.reply, t("chatRoleHost"));
       GameState.questionLog.push({
         role: "assistant",
         content: reply.reply,
@@ -1316,7 +1321,7 @@ function addChatPlaceholder() {
   const tpl = $("chat-template");
   const node = tpl.content.firstElementChild.cloneNode(true);
   node.classList.add("assistant");
-  node.querySelector(".chat-meta").textContent = "LLM";
+  node.querySelector(".chat-meta").textContent = t("chatRoleHost");
   const content = node.querySelector(".chat-content");
   content.textContent = "...";
   DOMRef["chat-log"].appendChild(node);
@@ -1328,7 +1333,7 @@ function addChatPlaceholder() {
     },
     finalize: (text, meta) => {
       content.textContent = text;
-      node.querySelector(".chat-meta").textContent = meta || "LLM";
+      node.querySelector(".chat-meta").textContent = meta || t("chatRoleHost");
       DOMRef["chat-log"].scrollTop = DOMRef["chat-log"].scrollHeight;
     },
   };
