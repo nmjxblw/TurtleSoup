@@ -1,0 +1,21 @@
+<!-- Diamond Shape (Rounded Corners) -->
+<!-- 
+  Regular Square rotated 45°
+  Center: (50, 50), Radius: 32, Vertices: 4
+  V1=(50, 18), V2=(82, 50), V3=(50, 82), V4=(18, 50)
+  Corner offset: 6px (4.24px along each edge)
+  √2/2 ≈ 0.707, offset = 6 * 0.707 ≈ 4.24
+-->
+<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+  <path d="
+    M 54.24,22.24
+    L 77.76,45.76
+    Q 82,50 77.76,54.24
+    L 54.24,77.76
+    Q 50,82 45.76,77.76
+    L 22.24,54.24
+    Q 18,50 22.24,45.76
+    L 45.76,22.24
+    Q 50,18 54.24,22.24
+    Z"/>
+</svg>

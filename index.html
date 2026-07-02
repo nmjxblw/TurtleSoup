@@ -6,8 +6,12 @@
       name="viewport"
       content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no"
     />
-    <meta name="description" content="TurtleSoup 海龟汤" />
-    <title>海龟汤 TurtleSoup</title>
+    <meta
+      name="description"
+      data-i18n-content="pageDescription"
+      content="TurtleSoup 海龟汤"
+    />
+    <title data-i18n-content="pageTitle">海龟汤 TurtleSoup</title>
     <link rel="icon" href="icon.png" />
     <link rel="stylesheet" href="styles.css" />
   </head>
@@ -69,11 +73,13 @@
     <!-- ===== MENU TOGGLE (独立于 side-menu，最高层级) ===== -->
     <button
       id="menu-toggle"
-      class="icon-btn"
-      title="菜单"
-      aria-label="打开菜单"
+      class="menu-toggle-btn"
+      data-i18n-title="menuToggleTitle"
+      data-i18n-aria="menuToggleAria"
     >
-      ☰
+      <span class="menu-toggle-icon" aria-hidden="true">
+        <img src="svg/gear.svg" alt="" />
+      </span>
     </button>
     <!-- ===== SIDE MENU ===== -->
     <div class="side-menu" id="side-menu">
@@ -81,7 +87,11 @@
       <nav class="side-menu-drawer" id="menu-drawer">
         <div class="menu-drawer-header">
           <span data-i18n="menuLabel">菜单</span>
-          <button id="menu-close-btn" class="icon-btn" aria-label="关闭菜单">
+          <button
+            id="menu-close-btn"
+            class="icon-btn"
+            data-i18n-aria="menuCloseAria"
+          >
             ✕
           </button>
         </div>
@@ -100,13 +110,17 @@
     <main id="view-cover" class="view">
       <div class="cover-bg"></div>
       <div class="cover-content">
-        <img class="cover-logo" src="icon.png" alt="海龟汤" />
+        <img
+          class="cover-logo"
+          src="icon.png"
+          data-i18n-alt="coverLogoAlt"
+          alt=""
+        />
         <p><span class="cover-sub steam-text">海龟汤</span></p>
         <p class="cover-eyebrow">Turtle Soup</p>
 
         <p class="cover-desc" data-i18n="coverDesc">
-          一个故事，一碗汤。<br />你只知道开头，却猜不到结局。<br />向 AI
-          提问，拼凑真相，还原完整的故事。
+          一个故事，一碗汤<br />你只知道开头，却猜不到结局<br />加入想象的调料，还原完整的味道……
         </p>
         <button id="cover-start-btn" class="cover-btn">
           <span data-i18n="startBtn">开始推理</span>
@@ -150,14 +164,15 @@
               <input
                 id="apikey-input"
                 type="password"
-                placeholder="sk-..."
+                data-i18n-ph="apikeyPlaceholder"
+                placeholder=""
                 autocomplete="off"
               />
               <button
                 type="button"
                 id="apikey-toggle"
                 class="toggle-vis"
-                title="显示/隐藏"
+                data-i18n-title="toggleVisTitle"
               >
                 👁
               </button>
@@ -229,7 +244,7 @@
                   type="button"
                   id="dice-random-style"
                   class="dice-btn"
-                  title="随机配置"
+                  data-i18n-title="randomConfigTitle"
                 >
                   🎲
                 </button>
@@ -242,7 +257,7 @@
               </select>
             </div>
             <label class="field">
-              <span data-i18n="qlLabel">提问次数 <em id="ql-val">20</em></span>
+              <span data-i18n="qlLabel">提问次数<em id="ql-val">20</em></span>
               <input
                 id="config-question-limit"
                 type="range"
@@ -252,7 +267,7 @@
               />
             </label>
             <label class="field">
-              <span data-i18n="tlLabel">文本长度 <em id="tl-val">800</em></span>
+              <span data-i18n="tlLabel">文本长度<em id="tl-val">800</em></span>
               <input
                 id="config-text-length"
                 type="range"
@@ -339,7 +354,7 @@
               id="config-custom-style"
               type="text"
               data-i18n-ph="customStylePH"
-              placeholder="补充自定义风格，用逗号分隔"
+              placeholder=""
             />
           </div>
           <div class="step-actions">
@@ -382,7 +397,7 @@
           <div class="spinner-icon">🫖</div>
           <div id="loading-words" class="loading-words"></div>
         </div>
-        <h2 id="loading-title">正在熬汤...</h2>
+        <h2 id="loading-title" data-i18n="loadingTitle">正在熬汤...</h2>
         <div class="loading-dots"><span></span><span></span><span></span></div>
       </div>
     </main>
@@ -448,7 +463,7 @@
               id="question-input"
               rows="2"
               data-i18n-ph="askPlaceholder"
-              placeholder="输入你的问题，一次只问一个..."
+              placeholder=""
             ></textarea>
             <button
               id="ask-btn"
@@ -530,7 +545,7 @@
             id="modal-soup-input"
             rows="4"
             data-i18n-ph="soupPlaceholder"
-            placeholder="输入你认为的汤底（故事真相）..."
+            placeholder=""
           ></textarea>
           <div class="modal-actions">
             <button
@@ -624,6 +639,24 @@
       </article>
     </template>
 
-    <script src="app.js"></script>
+    <!-- ====== scripts (load-order by dependency) ====== -->
+    <script src="scripts/config.js"></script>
+    <script src="scripts/utils.js"></script>
+    <script src="scripts/i18n.js"></script>
+    <script src="scripts/persistence.js"></script>
+    <script src="scripts/prompts.js"></script>
+    <script src="scripts/api.js"></script>
+    <script src="scripts/loading.js"></script>
+    <script src="scripts/views.js"></script>
+    <script src="scripts/theme.js"></script>
+    <script src="scripts/chat.js"></script>
+    <script src="scripts/timer.js"></script>
+    <script src="scripts/question.js"></script>
+    <script src="scripts/result.js"></script>
+    <script src="scripts/soup.js"></script>
+    <script src="scripts/export.js"></script>
+    <script src="scripts/game.js"></script>
+    <script src="scripts/events.js"></script>
+    <script src="scripts/main.js"></script>
   </body>
 </html>

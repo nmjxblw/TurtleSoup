@@ -50,6 +50,9 @@
   --modal-bg: rgba(5, 10, 22, 0.82);
   --scrollbar-thumb: rgba(255, 255, 255, 0.14);
   --ghost-bg: rgba(255, 255, 255, 0.04);
+  --menu-toggle-bg: rgba(14, 21, 40, 0.58);
+  --menu-toggle-size: clamp(34px, 3.4vw, 44px);
+  --menu-toggle-offset: clamp(12px, 2vw, 20px);
   --toggle-vis-bg: rgba(255, 255, 255, 0.05);
   --game-meta-bg: rgba(255, 255, 255, 0.03);
   --result-border: rgba(61, 214, 161, 0.3);
@@ -99,6 +102,9 @@
   --modal-bg: rgba(245, 246, 250, 0.94);
   --scrollbar-thumb: rgba(0, 0, 0, 0.14);
   --ghost-bg: rgba(0, 0, 0, 0.04);
+  --menu-toggle-bg: rgba(255, 255, 255, 0.7);
+  --menu-toggle-size: clamp(34px, 3.4vw, 44px);
+  --menu-toggle-offset: clamp(12px, 2vw, 20px);
   --toggle-vis-bg: rgba(0, 0, 0, 0.04);
   --game-meta-bg: rgba(0, 0, 0, 0.03);
   --result-border: rgba(26, 138, 106, 0.25);
@@ -131,17 +137,19 @@ body {
 }
 #menu-toggle {
   position: fixed;
-  top: 20px;
-  right: 20px;
+  top: var(--menu-toggle-offset);
+  right: var(--menu-toggle-offset);
   z-index: 9999;
-  width: 44px;
-  height: 44px;
+  width: var(--menu-toggle-size);
+  height: var(--menu-toggle-size);
   padding: 0;
   border-radius: 50%;
   border: 1px solid var(--line);
-  background: var(--panel);
+  background: transparent;
   color: var(--text);
   backdrop-filter: blur(8px);
+  -webkit-appearance: none;
+  appearance: none;
   font-size: 1.3rem;
   line-height: 1;
   cursor: grab;
@@ -153,6 +161,33 @@ body {
     opacity 0.25s ease;
   user-select: none;
   touch-action: none;
+}
+#menu-toggle.menu-toggle-btn {
+  background: transparent;
+}
+#menu-toggle.menu-toggle-btn:hover {
+  transform: none;
+}
+#menu-toggle.menu-toggle-btn .menu-toggle-icon {
+  width: 60%;
+  height: 60%;
+  display: block;
+  animation: icon-spin 12s linear infinite;
+  animation-play-state: paused;
+  transform-origin: center;
+}
+#menu-toggle.menu-toggle-btn .menu-toggle-icon img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  display: block;
+  transition: transform 0.18s ease;
+}
+#menu-toggle.menu-toggle-btn:hover .menu-toggle-icon {
+  animation-play-state: running;
+}
+#menu-toggle.menu-toggle-btn:hover .menu-toggle-icon img {
+  transform: scale(1.2);
 }
 #menu-toggle.menu-open {
   opacity: 0;
@@ -202,6 +237,12 @@ body {
 .side-menu-drawer.dragging {
   transition: none;
 }
+
+#ql-val,
+#tl-val {
+  margin-left: 0.25em;
+}
+
 /* 右边缘拖拽提示（菜单关闭时显示） */
 .side-menu-edge {
   position: fixed;
@@ -702,6 +743,37 @@ button:disabled {
   opacity: 0.5;
   transform: none;
 }
+.icon-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  padding: 0;
+  background: var(--ghost-bg);
+  border: 1px solid var(--line);
+  aspect-ratio: 1;
+}
+.icon-btn img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  display: block;
+  animation: icon-spin 12s linear infinite;
+  animation-play-state: paused;
+  transform-origin: center;
+}
+.icon-btn:hover img {
+  animation-play-state: running;
+}
+@keyframes icon-spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
 .primary-btn {
   color: var(--btn-text);
   background: linear-gradient(135deg, var(--accent), var(--btn-accent-end));
@@ -765,7 +837,7 @@ button:disabled {
   display: none;
 }
 .spinner-icon {
-  font-size: 2rem;
+  font-size: 2.6rem;
   position: relative;
   z-index: 2;
 }
@@ -814,7 +886,7 @@ button:disabled {
 }
 .loading-card h2 {
   font-family: var(--font-heading);
-  font-size: 1.6rem;
+  font-size: 1.35rem;
   margin: 0 0 12px;
 }
 .loading-card p {
@@ -1426,11 +1498,9 @@ button:disabled {
     z-index: 300;
   }
   #menu-toggle {
-    width: 38px;
-    height: 38px;
-    font-size: 1.1rem;
-    top: 12px;
-    right: 12px;
+    font-size: 1rem;
+    top: var(--menu-toggle-offset);
+    right: var(--menu-toggle-offset);
   }
   .side-menu-drawer {
     width: 240px;

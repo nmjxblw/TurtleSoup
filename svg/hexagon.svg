@@ -1,0 +1,25 @@
+<!-- Hexagon Shape (Rounded Corners) -->
+<!-- 
+  Regular Hexagon (pointy-top)
+  Center: (50, 50), Radius: 32, Vertices: 6
+  V1=(50, 18), V2=(77.71, 34), V3=(77.71, 66), V4=(50, 82), V5=(22.29, 66), V6=(22.29, 34)
+  Edge length = 32 (equals radius for regular hexagon)
+  Corner offset: 5px from each vertex
+-->
+<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+  <path d="
+    M 54.33,20.5
+    L 73.38,31.5
+    Q 77.71,34 77.71,39
+    L 77.71,61
+    Q 77.71,66 73.38,68.5
+    L 54.33,79.5
+    Q 50,82 45.67,79.5
+    L 26.62,68.5
+    Q 22.29,66 22.29,61
+    L 22.29,39
+    Q 22.29,34 26.62,31.5
+    L 45.67,20.5
+    Q 50,18 54.33,20.5
+    Z"/>
+</svg>

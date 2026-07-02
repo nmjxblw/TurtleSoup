@@ -1,0 +1,6 @@
+<!-- Square Shape (Rounded) -->
+<!-- Square with rounded corners -->
+<!-- Size: 60x60, Corner radius: 12 -->
+<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+  <rect x="20" y="20" width="60" height="60" rx="12" ry="12"/>
+</svg>

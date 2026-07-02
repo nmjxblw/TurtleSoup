@@ -1,0 +1,19 @@
+<!-- Triangle Shape (Rounded Corners) -->
+<!-- 
+  Regular Equilateral Triangle
+  Center: (50, 50), Radius: 32, Vertices: 3
+  V1=(50, 18), V2=(77.71, 66), V3=(22.29, 66)
+  Edge V2-V3 is horizontal (bottom edge)
+  Corner offset: 6px from each vertex
+-->
+<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+  <path d="
+    M 53,23.2
+    L 74.71,60.8
+    Q 77.71,66 71.71,66
+    L 28.29,66
+    Q 22.29,66 25.29,60.8
+    L 47,23.2
+    Q 50,18 53,23.2
+    Z"/>
+</svg>
