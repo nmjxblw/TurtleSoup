@@ -6,7 +6,7 @@
 
 - 当前游戏语言：{{language}}
 - 当前谜面难度：{{difficulty}}
-- 是否为本格推理：{{isWhodunit}}
+- 是否为本格推理：{{isHonkaku}}
 - 当前海龟汤标题：{{storyTitle}}
 - 概要：{{storyOutline}}
 - 谜面：{{riddleText}}

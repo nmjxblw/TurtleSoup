@@ -12,6 +12,60 @@
     <link rel="stylesheet" href="styles.css" />
   </head>
   <body>
+    <!-- 全局 SVG 滤镜定义，可被任意位置的元素通过 url(#filter-id) 引用 -->
+    <svg
+      width="0"
+      height="0"
+      style="position: absolute; pointer-events: none"
+      aria-hidden="true"
+    >
+      <filter id="steam-filter">
+        <feTurbulence
+          type="fractalNoise"
+          baseFrequency="0.015"
+          numOctaves="2"
+          result="noise"
+        >
+          <animate
+            attributeName="baseFrequency"
+            values="0.015;0.025;0.015"
+            dur="3s"
+            repeatCount="indefinite"
+          />
+        </feTurbulence>
+        <feDisplacementMap
+          in="SourceGraphic"
+          in2="noise"
+          scale="4"
+          xChannelSelector="R"
+          yChannelSelector="G"
+        />
+      </filter>
+    </svg>
+    <svg width="0" height="0" style="position: absolute; z-index: -1">
+      <filter id="water-ripple-filter">
+        <feTurbulence
+          type="fractalNoise"
+          baseFrequency="0.02 0.06"
+          numOctaves="2"
+          result="wave"
+        >
+          <animate
+            attributeName="baseFrequency"
+            values="0.02 0.06; 0.025 0.08; 0.02 0.06"
+            dur="5s"
+            repeatCount="indefinite"
+          />
+        </feTurbulence>
+        <feDisplacementMap
+          in="SourceGraphic"
+          in2="wave"
+          scale="8"
+          xChannelSelector="R"
+          yChannelSelector="G"
+        />
+      </filter>
+    </svg>
     <!-- ===== MENU TOGGLE (独立于 side-menu，最高层级) ===== -->
     <button
       id="menu-toggle"
@@ -47,7 +101,7 @@
       <div class="cover-bg"></div>
       <div class="cover-content">
         <img class="cover-logo" src="icon.png" alt="海龟汤" />
-        <p class="cover-sub">海龟汤</p>
+        <p><span class="cover-sub steam-text">海龟汤</span></p>
         <p class="cover-eyebrow">Turtle Soup</p>
 
         <p class="cover-desc" data-i18n="coverDesc">
@@ -210,29 +264,27 @@
             </label>
           </div>
           <div class="field toggle-field">
-            <span data-i18n="whodunitLabel">本格推理</span>
+            <span data-i18n="honkakuLabel" data-tooltip-key="honkakuHint"
+              >本格推理</span
+            >
             <label class="toggle">
-              <input id="config-whodunit" type="checkbox" />
+              <input id="config-honkaku" type="checkbox" />
               <span class="toggle-track"></span>
-              <span class="toggle-text" data-i18n="whodunitHint"
-                >强调逻辑闭环与现实约束</span
-              >
             </label>
           </div>
           <div class="field toggle-field hidden" id="death-mode-field">
-            <span data-i18n="deathModeLabel" data-i18n-title="deathModeTooltip"
+            <span data-i18n="deathModeLabel" data-tooltip-key="deathModeHint"
               >死亡模式</span
             >
             <label class="toggle">
               <input id="config-death-mode" type="checkbox" />
               <span class="toggle-track"></span>
-              <span class="toggle-text" data-i18n="deathModeHint"
-                >限时竞速，超时即失败</span
-              >
             </label>
           </div>
           <div class="field">
-            <span data-i18n="styleLabel">故事风格</span>
+            <span data-i18n="styleLabel" data-tooltip-key="styleTooltip"
+              >故事风格</span
+            >
             <div class="style-picks" id="config-style-picks">
               <label class="chip"
                 ><input type="checkbox" value="悬疑推理" checked /><span
@@ -364,7 +416,7 @@
           </div>
           <div class="game-meta">
             <span id="game-style-tag">--</span>
-            <span id="game-whodunit-tag">--</span>
+            <span id="game-honkaku-tag">--</span>
           </div>
           <article class="riddle-card">
             <div class="riddle-label" data-i18n="riddleLabel">📜 谜面</div>
@@ -561,6 +613,9 @@
         </div>
       </div>
     </main>
+
+    <!-- 通用 Toast / 通知容器，全局最高层级 -->
+    <div id="toast-container" aria-live="polite"></div>
 
     <template id="chat-template">
       <article class="chat-item">
