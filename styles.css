@@ -347,21 +347,11 @@ body {
   padding: 40px 24px;
 }
 .cover-eyebrow {
-  letter-spacing: 0.22em;
+  letter-spacing: 0.12em;
   text-transform: uppercase;
   color: var(--accent);
   font-size: 0.85rem;
   margin: 0 0 16px;
-}
-.cover-title {
-  font-family: var(--font-heading);
-  font-size: clamp(3rem, 8vw, 5.2rem);
-  letter-spacing: 0.15em;
-  margin: 0;
-  background: linear-gradient(135deg, var(--text) 30%, var(--accent) 70%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
 }
 .cover-logo {
   display: block;
@@ -372,15 +362,19 @@ body {
 }
 .cover-sub {
   font-family: var(--font-heading);
-  font-style: italic;
-  color: var(--muted);
-  font-size: 1.2rem;
-  margin: 8px 0 32px;
+  font-size: clamp(3rem, 8vw, 5.2rem);
+  letter-spacing: 0.15em;
+  font-style: normal;
+  margin: 8px 0 0;
+  background: linear-gradient(135deg, var(--text) 30%, var(--accent) 70%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
 }
 .cover-desc {
   color: var(--muted);
-  line-height: 1.9;
-  font-size: 1.05rem;
+  line-height: 1.8;
+  font-size: 0.92rem;
   margin: 0 0 40px;
 }
 .cover-btn {
@@ -1456,18 +1450,18 @@ button:disabled {
     padding: 32px 20px;
   }
   .cover-eyebrow {
-    font-size: 0.75rem;
-    letter-spacing: 0.16em;
+    font-size: 0.72rem;
+    letter-spacing: 0.1em;
   }
   .cover-logo {
     width: clamp(100px, 22vw, 150px);
   }
   .cover-sub {
-    font-size: 1rem;
-    margin: 6px 0 24px;
+    font-size: clamp(2rem, 7vw, 3.5rem);
+    margin: 6px 0 0;
   }
   .cover-desc {
-    font-size: 0.95rem;
+    font-size: 0.82rem;
     margin-bottom: 32px;
   }
   .cover-btn {
@@ -1725,5 +1719,94 @@ button:disabled {
   }
   .cover-content {
     padding: 40px 24px;
+  }
+}
+
+/* 蒸汽特效文字样式 */
+.steam-text {
+  filter: url("#steam-filter");
+
+  display: inline-block;
+
+  /* 可选：给蒸汽文字加点颜色或发光效果增强氛围 */
+  /* color: #28cd25; */
+  font-weight: bold;
+  text-shadow: 0 0 3px rgba(255, 255, 255, 0.3);
+}
+/* 水面涟漪特效文字样式 */
+.ripple-text {
+  /* 绑定刚才定义的水面滤镜 ID */
+  filter: url("#water-ripple-filter");
+
+  /* 必须设置为 inline-block 确保滤镜渲染完整 */
+  display: inline-block;
+
+  /* 使用渐变色营造水流质感 */
+  /* background: linear-gradient(180deg, #3b82f6 0%, #1d4ed8 100%); */
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+
+  font-weight: bold;
+  position: relative;
+
+  /* 添加微弱的蓝色水光发光动画 */
+  animation: water-glow 3s infinite alternate ease-in-out;
+}
+
+/* 水光呼吸动画 */
+@keyframes water-glow {
+  0% {
+    filter: url(#water-ripple-filter)
+      drop-shadow(0 0 2px rgba(59, 130, 246, 0.3));
+  }
+  100% {
+    filter: url(#water-ripple-filter)
+      drop-shadow(0 0 6px rgba(96, 165, 250, 0.6));
+  }
+}
+
+/* 环形扩散涟漪样式 */
+.circle-ripple {
+  position: relative;
+  display: inline-block;
+  color: #2563eb;
+  font-weight: bold;
+  padding: 0 4px;
+}
+
+/* 涟漪圆圈 1 */
+.circle-ripple::before,
+/* 涟漪圆圈 2 */
+.circle-ripple::after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 100%;
+  height: 100%;
+  border: 2px solid #60a5fa;
+  border-radius: 50%; /* 变成圆环 */
+  transform: translate(-50%, -50%) scale(1);
+  opacity: 0;
+  pointer-events: none; /* 防止遮挡鼠标事件 */
+}
+
+/* 让两个圆圈错开时间扩散 */
+.circle-ripple::before {
+  animation: pulse-ripple 2s infinite ease-out;
+}
+.circle-ripple::after {
+  animation: pulse-ripple 2s infinite ease-out 1s; /* 延迟1秒发射 */
+}
+
+/* 扩散动画：从小变大，从实变透明 */
+@keyframes pulse-ripple {
+  0% {
+    transform: translate(-50%, -50%) scale(0.8);
+    opacity: 0.8;
+  }
+  100% {
+    transform: translate(-50%, -50%) scale(2.5); /* 向外扩散 2.5 倍 */
+    opacity: 0;
   }
 }
