@@ -112,10 +112,10 @@ chatRoleRule,Rule
 shortRepliesList,yes/no/important/unimportant/neither/cannot determine/not relevant
 randomStyle,Random style
 gameReady,"Broth's ready—time to season it...
-You may only ask one question at a time; the system will answer yes or no.
+You may only ask one question at a time; the host will answer yes or no.
 Uncover the truth within your limited attempts.."
 gameReadyDeath,"Time is running out—if you don't finish seasoning soon, the flavor will vanish in an instant...
-You may only ask one question at a time; the system will answer yes or no.
+You may only ask one question at a time; the host will answer yes or no.
 Uncover the truth within your limited attempts."
 chatRoleHost,Host
 chatRolePlayer,Player
