@@ -590,9 +590,38 @@ textarea {
   transform: translateX(24px);
   background: var(--accent);
 }
-.toggle-text {
+/* tooltip bubble on field labels */
+.field > [data-tooltip-key],
+.toggle-field > [data-tooltip-key] {
+  position: relative;
+  cursor: help;
+  width: fit-content;
+}
+.field > [data-tooltip-key]::after,
+.toggle-field > [data-tooltip-key]::after {
+  content: attr(data-tooltip);
+  position: absolute;
+  left: 0;
+  bottom: calc(100% + 8px);
+  padding: 6px 12px;
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.8);
+  border: 1px solid rgba(0, 0, 0, 0.1);
   color: var(--muted);
-  font-size: 0.9rem;
+  font-size: 0.8rem;
+  white-space: nowrap;
+  pointer-events: none;
+  opacity: 0;
+  transform: translateY(4px);
+  transition:
+    opacity 0.18s ease,
+    transform 0.18s ease;
+  z-index: 10;
+}
+.field > [data-tooltip-key]:hover::after,
+.toggle-field > [data-tooltip-key]:hover::after {
+  opacity: 1;
+  transform: translateY(0);
 }
 
 /* chips */
@@ -756,31 +785,32 @@ button:disabled {
   z-index: 3;
 }
 .loading-word {
-  position: absolute;
-  left: 50%;
-  transform: translateX(-50%);
+  display: inline-block;
   white-space: nowrap;
   font-size: 0.85rem;
   font-weight: 600;
   color: var(--accent);
-  animation: potDrop 2.2s ease-out forwards;
+  animation: fadeInOut 2s ease-in-out forwards;
 }
-@keyframes potDrop {
+@keyframes fadeInOut {
   0% {
     opacity: 0;
-    transform: translateX(-50%) translateY(-28px) scale(0.6);
+    transform: translateY(-8px) scale(0.5);
   }
   18% {
     opacity: 1;
-    transform: translateX(-50%) translateY(0) scale(1);
+    transform: translateY(0) scale(1.1);
   }
-  55% {
+  24% {
+    transform: translateY(0) scale(1);
+  }
+  65% {
     opacity: 1;
-    transform: translateX(-50%) translateY(0) scale(1);
+    transform: translateY(0) scale(1);
   }
   100% {
     opacity: 0;
-    transform: translateX(-50%) translateY(48px) scale(0.15);
+    transform: translateY(36px) scale(0.3);
   }
 }
 @keyframes spin {
@@ -1235,6 +1265,109 @@ button:disabled {
 }
 
 /* soup modal */
+/* ---- Toast 通用通知 ---- */
+#toast-container {
+  position: fixed;
+  top: 16px;
+  right: 16px;
+  z-index: 9999;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  pointer-events: none;
+  max-width: 420px;
+  width: calc(100% - 32px);
+}
+.toast {
+  pointer-events: auto;
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 14px 18px;
+  border-radius: 12px;
+  background: var(--panel);
+  border: 1px solid var(--line);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.35);
+  animation: toastIn 0.3s ease-out forwards;
+  cursor: pointer;
+}
+.toast.toast--out {
+  animation: toastOut 0.25s ease-in forwards;
+}
+.toast-icon {
+  font-size: 1.2rem;
+  flex-shrink: 0;
+  line-height: 1.4;
+}
+.toast-body {
+  flex: 1;
+  min-width: 0;
+}
+.toast-title {
+  font-weight: 700;
+  font-size: 0.9rem;
+  margin: 0 0 2px;
+}
+.toast-msg {
+  font-size: 0.82rem;
+  color: var(--muted);
+  margin: 0;
+}
+.toast-close {
+  flex-shrink: 0;
+  background: none;
+  border: none;
+  color: var(--muted);
+  font-size: 1.1rem;
+  cursor: pointer;
+  padding: 0;
+  line-height: 1;
+  opacity: 0.6;
+  transition: opacity 0.15s;
+}
+.toast-close:hover {
+  opacity: 1;
+}
+/* toast 类型颜色 */
+.toast--error {
+  border-color: var(--danger);
+}
+.toast--error .toast-title {
+  color: var(--danger);
+}
+.toast--warn {
+  border-color: var(--accent-2);
+}
+.toast--warn .toast-title {
+  color: var(--accent-2);
+}
+.toast--info {
+  border-color: var(--accent);
+}
+.toast--info .toast-title {
+  color: var(--accent);
+}
+@keyframes toastIn {
+  from {
+    opacity: 0;
+    transform: translateX(40px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+@keyframes toastOut {
+  from {
+    opacity: 1;
+    transform: translateX(0);
+  }
+  to {
+    opacity: 0;
+    transform: translateX(40px);
+  }
+}
+
 .modal-overlay {
   position: fixed;
   inset: 0;

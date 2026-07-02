@@ -1,6 +1,6 @@
 key,zh,en
-coverDesc,"一个故事，一碗汤。
-你只知道开头，却猜不到结局。
+coverDesc,"一个故事，一碗汤
+你只知道开头，却猜不到结局
 加入想象的调料，还原完整的味道……","A story, a bowl of soup.
 You know the beginning, but never the ending.
 Add a dash of imagination to savor the full flavor..."
@@ -14,7 +14,7 @@ apikeyNext,下一步：配置游戏,"Next: Configure Game"
 apikeySkip,跳过，使用演示模式,"Skip, use Demo Mode"
 backCover,返回封面,Back to Cover
 configTitle,定制你的谜题,Customize Your Puzzle
-configDesc,"选择故事风格、推理类型与难度，AI 将据此生成专属海龟汤。","Choose story style, reasoning type, and difficulty. AI will generate a unique mystery."
+configDesc,"选择故事风格、推理类型与难度，智能体将据此生成专属汤底","Choose story style, reasoning type, and difficulty. Agent will generate a unique soup base."
 langLabel,界面语言,Language
 menuLabel,菜单,Menu
 themeLabel,主题切换,Theme
@@ -25,22 +25,19 @@ diffEasy,简单,Easy
 diffHard,专家,Hard
 diffHardcore,硬核,Hardcore
 deathModeLabel,死亡模式,Death Mode
-deathModeHint,限时竞速，超时即失败,Timed challenge — fail on timeout
-deathModeTooltip,"🕐 倒计时 = 提问次数 × 1 分钟
-❄️ 离开游戏界面时冻结计时
-⏳ 超时强制清零提问次数
-🎁 解锁线索返还 LLM 耗时","🕐 Countdown = questions × 1 min
-❄️ Timer freezes when leaving game
-⏳ Timeout clears all questions
-🎁 Clue discovery refunds LLM time"
+deathModeHint,限时竞速，在有限的时间内提问,Timed challenge — fail on timeout
+deathModeTooltip,"在有限的时间内提问，
+超时将被禁止提问。","Ask questions within a limited time; 
+timeout will disable further questions."
 deathExpired,💀 时间耗尽！你的所有提问次数已被清零，请提交汤底。,"💀 Time's up! All questions cleared. Submit your answer."
 deathExpiredPH,时间耗尽...,Time's up...
 customDiffLabel,自定义难度,Custom Difficulty
 qlLabel,提问次数,Questions
 tlLabel,文本长度,Text Length
-whodunitLabel,本格推理,whodunit
-whodunitHint,强调逻辑闭环与现实约束,Emphasizes logical closure and real-world constraints
+honkakuLabel,本格推理,Honkaku Mystery
+honkakuHint,强调逻辑闭环与现实约束,Emphasizes logical closure and real-world constraints
 styleLabel,故事风格,Story Style
+styleTooltip,在这里定制你喜欢的故事内容和主题,Customize your preferred story content and themes here.
 styleSuspense,悬疑推理,Suspense
 styleHorror,惊悚,Horror
 styleTerror,恐怖,Terror
@@ -77,15 +74,15 @@ loadingTitle,正在熬汤...,Brewing the soup...
 loadingDesc,"正在构思故事...","Crafting the story..."
 loadingProgress,已生成 {0} 字...,{0} characters generated...
 evaluatingTitle,正在评分...,Evaluating...
-evaluatingDesc,AI 正在评估你的汤底，请稍候。,AI is evaluating your soup guess. Please wait.
+evaluatingDesc,主持人正在评估你的汤底，请稍候。,Host is evaluating your soup guess. Please wait.
 evaluatingProgress,已分析 {0} 字...,{0} characters analyzed...
 gameReady,"汤底完成，开始调味吧...
-每次只能提出一个问题，系统会告诉你是与否。
+每次只能提出一个问题，主持人会告诉你是与否。
 请在有限的提问次数里推理出真相。","Broth's ready—time to season it...
 You may only ask one question at a time; the system will answer yes or no.
 Uncover the truth within your limited attempts.."
 gameReadyDeath,"时间正在流逝，若是不能尽快完成调味，美味将会转瞬即逝...
-每次只能提出一个问题，系统会告诉你是与否。
+每次只能提出一个问题，主持人会告诉你是与否。
 请在有限的提问次数里推理出真相。","Time is running out—if you don't finish seasoning soon, the flavor will vanish in an instant...
 You may only ask one question at a time; the system will answer yes or no.
 Uncover the truth within your limited attempts."
@@ -110,11 +107,11 @@ mistakesLabel,失误点,Mistakes
 tipsLabel,提升建议,Tips
 summaryLabel,总结,Summary
 exportName,turtlesoup-export.json,turtlesoup-export.json
-whodunitOn,本格推理,whodunit
-whodunitOff,非本格推理,Non-whodunit
+honkakuOn,本格推理,Honkaku Mystery
+honkakuOff,非本格推理,Non-Honkaku Mystery
 localScoreVerdict,本地评估结果。,Local evaluation result.
 localFit,与官方汤底存在部分吻合。,Partially matched the official soup.
-localMistake,本地模式下未调用 LLM 复核。,No LLM validation in local mode.
+localMistake,本地模式下未调用 Agent 复核。,No Agent validation in local mode.
 localTip,建议围绕关键盘问点整理时间线。,Try to align the timeline around the key clues.
 localSummary,本地演示分数。,Local demo score.
 shareSoupBtn,分享汤底,Share Soup
@@ -126,3 +123,7 @@ errorDesc,AI 引擎返回了错误，请检查网络或 API Key 后重试。,The
 errorRetry,重试,Retry
 errorDemo,使用演示模式,Use Demo Mode
 errorCancel,返回,Go Back
+api401Title,API Key 无效,Invalid API Key
+api401Desc,您的 API Key 已失效或余额不足，请更新 Key 后重试。,Your API Key is invalid or has insufficient balance. Please update it and try again.
+api429Title,请求过于频繁,Too Many Requests
+api429Desc,请稍等片刻后再试。,Please wait a moment and try again.

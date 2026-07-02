@@ -139,7 +139,7 @@ const GameState = {
   apiKey: "",
   model: "deepseek-chat",
   language: "zh-CN",
-  isWhodunit: true,
+  isHonkaku: true,
   difficulty: "custom_model",
   customDifficulty: null,
   customQuestionLimit: 20,
@@ -194,7 +194,7 @@ function initDom() {
     "config-text-length",
     "ql-val",
     "tl-val",
-    "config-whodunit",
+    "config-honkaku",
     "config-style-picks",
     "config-custom-style",
     "config-back",
@@ -205,7 +205,7 @@ function initDom() {
     "game-difficulty-tag",
     "game-title",
     "game-style-tag",
-    "game-whodunit-tag",
+    "game-honkaku-tag",
     "remaining-count",
     "remaining-label",
     "riddle-output",
@@ -268,6 +268,107 @@ function loc() {
 }
 function t(key) {
   return L[loc()][key] || L.zh[key] || key;
+}
+
+/* ---- Toast 通用通知 ---- */
+const TOAST_ICONS = {
+  error: "❌",
+  warn: "⚠️",
+  info: "ℹ️",
+};
+
+function showToast(title, message, type, duration) {
+  type = type || "info";
+  duration = duration != null ? duration : 5000;
+  const container = document.getElementById("toast-container");
+  if (!container) return;
+
+  const toast = document.createElement("div");
+  toast.className = "toast toast--" + type;
+
+  const icon = document.createElement("span");
+  icon.className = "toast-icon";
+  icon.textContent = TOAST_ICONS[type] || TOAST_ICONS.info;
+
+  const body = document.createElement("div");
+  body.className = "toast-body";
+
+  const titleEl = document.createElement("p");
+  titleEl.className = "toast-title";
+  titleEl.textContent = title || "";
+
+  const msgEl = document.createElement("p");
+  msgEl.className = "toast-msg";
+  msgEl.textContent = message || "";
+
+  body.appendChild(titleEl);
+  body.appendChild(msgEl);
+
+  const closeBtn = document.createElement("button");
+  closeBtn.className = "toast-close";
+  closeBtn.textContent = "×";
+  closeBtn.setAttribute("aria-label", "关闭");
+
+  toast.appendChild(icon);
+  toast.appendChild(body);
+  toast.appendChild(closeBtn);
+
+  let timer = null;
+  function dismiss() {
+    if (timer) clearTimeout(timer);
+    toast.classList.add("toast--out");
+    toast.addEventListener(
+      "animationend",
+      function () {
+        toast.remove();
+      },
+      { once: true },
+    );
+  }
+
+  closeBtn.addEventListener("click", dismiss);
+  toast.addEventListener("click", function (e) {
+    if (e.target === closeBtn) return;
+    dismiss();
+  });
+
+  container.appendChild(toast);
+
+  if (duration > 0) {
+    timer = setTimeout(dismiss, duration);
+  }
+}
+
+/**
+ * 处理 API 错误，401 弹出专用通知并引导用户修复。
+ * 返回 true 表示已处理（调用方应停止后续操作）。
+ */
+function handleApiError(err, context) {
+  const msg = String(err.message || err);
+  if (msg.startsWith("401:")) {
+    showToast(
+      t("api401Title") || "API Key 无效",
+      t("api401Desc") || "您的 API Key 已失效或余额不足，请更新 Key 后重试。",
+      "error",
+      0,
+    );
+    return true;
+  }
+  if (msg.startsWith("429:")) {
+    showToast(
+      t("api429Title") || "请求过于频繁",
+      t("api429Desc") || "请稍等片刻后再试。",
+      "warn",
+      6000,
+    );
+    return true;
+  }
+  if (context === "stream") {
+    // 流式错误可能是中途断开，温和提示
+    console.warn("stream error:", err);
+    return true;
+  }
+  return false;
 }
 
 function escapeHtml(s) {
@@ -424,7 +525,7 @@ function saveSettings() {
     apiKey: GameState.apiKey,
     model: GameState.model,
     language: GameState.language,
-    isWhodunit: GameState.isWhodunit,
+    isHonkaku: GameState.isHonkaku,
     difficulty: GameState.difficulty,
     customDifficulty: GameState.customDifficulty,
     customQuestionLimit: GameState.customQuestionLimit,
@@ -465,7 +566,7 @@ function saveGameProgress() {
     canSubmit: GameState.canSubmit,
     isFinished: GameState.isFinished,
     scoreResult: GameState.scoreResult,
-    isWhodunit: GameState.isWhodunit,
+    isHonkaku: GameState.isHonkaku,
     demoMode: GameState.demoMode,
     questionIndex: questionIndex,
     gameStartTime: GameState.gameStartTime,
@@ -509,7 +610,7 @@ function restoreGame() {
     "canSubmit",
     "isFinished",
     "scoreResult",
-    "isWhodunit",
+    "isHonkaku",
     "demoMode",
   ];
   mapKeys.forEach((k) => {
@@ -583,15 +684,25 @@ function startLoadingWords() {
   if (!container) return;
   container.innerHTML = "";
   let idx = 0;
+  const span = document.createElement("span");
+  span.className = "loading-word";
+  container.appendChild(span);
+
   function tick() {
-    const span = document.createElement("span");
-    span.className = "loading-word";
     span.textContent = words[idx % words.length];
-    container.appendChild(span);
-    // 动画结束后移除
-    span.addEventListener("animationend", () => span.remove());
-    idx++;
-    _loadingWordsTimer = setTimeout(tick, 900);
+    // 强制重新触发动画
+    span.style.animation = "none";
+    void span.offsetHeight;
+    span.style.animation = "";
+    // 动画结束后播下一个
+    span.addEventListener(
+      "animationend",
+      () => {
+        idx++;
+        _loadingWordsTimer = setTimeout(tick, 200);
+      },
+      { once: true },
+    );
   }
   tick();
 }
@@ -637,7 +748,7 @@ function populateConfigForm() {
   DOMRef["ql-val"].textContent = GameState.customQuestionLimit || 20;
   DOMRef["config-text-length"].value = GameState.customTextLength || 800;
   DOMRef["tl-val"].textContent = GameState.customTextLength || 800;
-  DOMRef["config-whodunit"].checked = !!GameState.isWhodunit;
+  DOMRef["config-honkaku"].checked = !!GameState.isHonkaku;
   DOMRef["config-death-mode"].checked = !!GameState.deathMode;
   DOMRef["config-custom-style"].value = GameState.customStyleText || "";
   const sel = new Set(GameState.storyStyles || ["悬疑推理"]);
@@ -676,6 +787,7 @@ async function fetchModels() {
     else if (models.includes("deepseek-chat")) select.value = "deepseek-chat";
     else select.value = models[0];
   } catch (e) {
+    handleApiError(e, "models");
     /* keep hardcoded options */
   }
 }
@@ -712,7 +824,7 @@ async function handleConfigSubmit(e) {
   GameState.customDifficulty = DOMRef["config-custom-difficulty"].value;
   GameState.customQuestionLimit = Number(DOMRef["config-question-limit"].value);
   GameState.customTextLength = Number(DOMRef["config-text-length"].value);
-  GameState.isWhodunit = DOMRef["config-whodunit"].checked;
+  GameState.isHonkaku = DOMRef["config-honkaku"].checked;
   GameState.deathMode =
     DOMRef["config-death-mode"].checked && getActiveDifficulty() === "hardcore";
   GameState.storyStyles = getSelectedStyles();
@@ -764,7 +876,7 @@ async function handleConfigSubmit(e) {
           role: "user",
           content: JSON.stringify({
             language: GameState.language,
-            is_whodunit: GameState.isWhodunit,
+            is_honkaku: GameState.isHonkaku,
             difficulty: getActiveDifficulty(),
             question_limit: getQuestionLimit(),
             style: GameState.storyStyles,
@@ -802,9 +914,12 @@ async function handleConfigSubmit(e) {
     GameState.loadingPhase = null;
     stopLoadingWords();
     goConfig();
-    DOMRef["error-msg"].textContent =
-      t("errorDesc") + "\n" + String(err.message || err).slice(0, 200);
-    DOMRef["error-modal"].classList.remove("hidden");
+    // 401 等已通过 toast 处理，不再弹 error-modal
+    if (!handleApiError(err, "generate")) {
+      DOMRef["error-msg"].textContent =
+        t("errorDesc") + "\n" + String(err.message || err).slice(0, 200);
+      DOMRef["error-modal"].classList.remove("hidden");
+    }
     return;
   }
   await sleep(800);
@@ -1017,9 +1132,9 @@ function enterGame(restoring) {
   DOMRef["death-mode-tag"].classList.toggle("hidden", !GameState.deathMode);
   DOMRef["game-title"].textContent = g.title;
   DOMRef["game-style-tag"].textContent = (g.styles || []).join(" / ");
-  DOMRef["game-whodunit-tag"].textContent = GameState.isWhodunit
-    ? t("whodunitOn")
-    : t("whodunitOff");
+  DOMRef["game-honkaku-tag"].textContent = GameState.isHonkaku
+    ? t("honkakuOn")
+    : t("honkakuOff");
   DOMRef["remaining-count"].textContent = String(GameState.remainingQuestions);
   DOMRef["riddle-output"].innerHTML = sanitizeHtml(g.riddle_html || "");
 
@@ -1487,7 +1602,7 @@ function exportJson() {
     settings: {
       language: GameState.language,
       model: GameState.model,
-      isWhodunit: GameState.isWhodunit,
+      isHonkaku: GameState.isHonkaku,
       difficulty: GameState.difficulty,
       customDifficulty: GameState.customDifficulty,
       questionLimit: getQuestionLimit(),
@@ -1541,7 +1656,7 @@ function exportSoup() {
       styles: GameState.generated.styles,
     },
     config: {
-      isWhodunit: GameState.isWhodunit,
+      isHonkaku: GameState.isHonkaku,
       difficulty: GameState.difficulty,
       customDifficulty: GameState.customDifficulty,
       questionLimit: getQuestionLimit(),
@@ -1589,7 +1704,7 @@ async function importSoup(file) {
       difficultyLabel: data.story.difficultyLabel || "导入",
       styles: data.story.styles || [],
     };
-    GameState.isWhodunit = !!(data.config && data.config.isWhodunit);
+    GameState.isHonkaku = !!(data.config && data.config.isHonkaku);
     GameState.difficulty =
       (data.config && data.config.difficulty) || "custom_model";
     GameState.customDifficulty =
@@ -1631,7 +1746,7 @@ function buildStoryPrompt() {
   return renderTemplate(PROMPTS.story, {
     language: lc === "en" ? "English" : "Chinese",
     storyStyles: GameState.storyStyles.join(", "),
-    isWhodunit: String(GameState.isWhodunit),
+    isHonkaku: String(GameState.isHonkaku),
     difficulty: difficulty,
     questionLimit: String(getQuestionLimit()),
     textLengthMin: String(text_length_range.min),
@@ -1653,7 +1768,7 @@ function buildQuestionPrompt(question) {
   return renderTemplate(PROMPTS.question, {
     language: lang,
     difficulty: getActiveDifficulty(),
-    isWhodunit: String(GameState.isWhodunit),
+    isHonkaku: String(GameState.isHonkaku),
     shortReplies,
     storyTitle: GameState.generated?.title || "",
     storyOutline: GameState.generated?.outline || "",
@@ -1701,7 +1816,9 @@ async function apiRequest(messages, temperature = 0.8) {
   });
   if (!resp.ok) {
     const t = await resp.text();
-    throw new Error(`${resp.status}: ${t}`);
+    const err = new Error(`${resp.status}: ${t}`);
+    handleApiError(err, "api");
+    throw err;
   }
   return resp.json();
 }
@@ -1723,7 +1840,9 @@ async function apiRequestStream(messages, temperature, onChunk) {
   });
   if (!resp.ok) {
     const t = await resp.text();
-    throw new Error(`${resp.status}: ${t}`);
+    const err = new Error(`${resp.status}: ${t}`);
+    handleApiError(err, "stream");
+    throw err;
   }
   const reader = resp.body.getReader();
   const decoder = new TextDecoder();
@@ -1811,7 +1930,7 @@ function wireEvents() {
     DOMRef["config-text-length"].value = randTL;
     DOMRef["tl-val"].textContent = randTL;
     // 随机本格推理
-    DOMRef["config-whodunit"].checked = Math.random() > 0.5;
+    DOMRef["config-honkaku"].checked = Math.random() > 0.5;
     // 随机故事风格 - 取消所有勾选，填入"随机风格"
     [
       ...DOMRef["config-style-picks"].querySelectorAll(
@@ -1930,10 +2049,15 @@ function syncI18n() {
     const key = el.getAttribute("data-i18n-title");
     if (L[loc()] && L[loc()][key]) el.title = t(key);
   });
+  document.querySelectorAll("[data-tooltip-key]").forEach((el) => {
+    const key = el.getAttribute("data-tooltip-key");
+    if (L[loc()] && L[loc()][key])
+      el.setAttribute("data-tooltip", L[loc()][key]);
+  });
   if (GameState.generated) {
-    DOMRef["game-whodunit-tag"].textContent = GameState.isWhodunit
-      ? t("whodunitOn")
-      : t("whodunitOff");
+    DOMRef["game-honkaku-tag"].textContent = GameState.isHonkaku
+      ? t("honkakuOn")
+      : t("honkakuOff");
     DOMRef["remaining-label"].textContent = t("remainingLabel");
     DOMRef["question-input"].placeholder = t("askPlaceholder");
   }
