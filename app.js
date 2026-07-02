@@ -2098,7 +2098,7 @@ function initToggleDrag() {
 }
 
 /* ---- Side Menu (drag-enabled) ---- */
-const MENU_DRAG = { on: false, sx: 0, st: 0, last: 0 };
+const MENU_DRAG = { on: false, sx: 0, st: 0, last: 0, fromEdge: false };
 
 function initMenuDrag() {
   const drawer = DOMRef["menu-drawer"];
@@ -2126,12 +2126,8 @@ function initMenuDrag() {
     MENU_DRAG.sx = x;
     MENU_DRAG.st = isOpen ? 0 : w;
     MENU_DRAG.last = MENU_DRAG.st;
+    MENU_DRAG.fromEdge = nearEdge;
     drawer.classList.add("dragging");
-
-    if (!isOpen) {
-      sideMenu.classList.add("open");
-      overlay.style.transition = "none";
-    }
   }
 
   function onMove(e) {
@@ -2142,6 +2138,13 @@ function initMenuDrag() {
     let t = MENU_DRAG.st + dx;
     t = Math.max(0, Math.min(w, t));
     MENU_DRAG.last = t;
+    // 仅当实际拖拽 >5px 时才显示菜单
+    const dist = Math.abs(dx);
+    if (dist > 5 && MENU_DRAG.fromEdge) {
+      sideMenu.classList.add("open");
+      overlay.style.transition = "none";
+      MENU_DRAG.fromEdge = false;
+    }
     drawer.style.transform = "translateX(" + t + "px)";
     const p = 1 - t / w;
     overlay.style.opacity = p;

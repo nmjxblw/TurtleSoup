@@ -363,6 +363,13 @@ body {
   -webkit-text-fill-color: transparent;
   background-clip: text;
 }
+.cover-logo {
+  display: block;
+  width: clamp(140px, 28vw, 200px);
+  height: auto;
+  margin: 0 auto;
+  filter: drop-shadow(0 4px 20px var(--btn-accent-shadow));
+}
 .cover-sub {
   font-family: var(--font-heading);
   font-style: italic;
@@ -1319,9 +1326,8 @@ button:disabled {
     font-size: 0.75rem;
     letter-spacing: 0.16em;
   }
-  .cover-title {
-    font-size: clamp(2.2rem, 11vw, 3.6rem);
-    letter-spacing: 0.1em;
+  .cover-logo {
+    width: clamp(100px, 22vw, 150px);
   }
   .cover-sub {
     font-size: 1rem;
