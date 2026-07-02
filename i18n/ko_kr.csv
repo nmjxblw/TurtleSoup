@@ -1,0 +1,162 @@
+key,text
+coverDesc,"하나의 이야기, 한 그릇의 수프
+당신은 시작만 알 뿐, 결말은 짐작할 수 없습니다
+상상이라는 양념을 더해 완전한 맛을 되찾아보세요…"
+startBtn,추리 시작
+reviewBtn,지난 회차 돌아보기
+apikeyTitle,API Key 설정
+apikeyDesc,DeepSeek API Key를 입력하여 퍼즐 생성과 질문을 구동합니다. Key는 브라우저 로컬에만 저장됩니다.
+apiKeyLabel,DeepSeek API Key
+apikeyPlaceholder,sk-...
+modelLabel,모델 선택
+apikeyNext,다음: 게임 설정
+apikeySkip,건너뛰기 (데모 모드 사용)
+backCover,표지로 돌아가기
+configTitle,퍼즐 맞춤 설정
+configDesc,이야기 스타일, 추리 유형 및 난이도를 선택하면 에이전트가 맞춤형 수프의 진실을 생성합니다.
+pageTitle,터틀스프 TurtleSoup
+pageDescription,TurtleSoup 터틀스프
+langLabel,인터페이스 언어
+menuLabel,메뉴
+coverLogoAlt,터틀스프
+menuToggleTitle,메뉴
+menuToggleAria,메뉴 열기
+menuCloseAria,메뉴 닫기
+themeLabel,테마 전환
+diffLabel,난이도
+diffCustom,사용자 정의 모드
+diffNewb,입문
+diffEasy,쉬움
+diffHard,전문가
+diffHardcore,하드코어
+deathModeLabel,데스 모드
+deathModeHint,제한 시간 내에 질문하는 타임 어택
+deathModeTooltip,"제한 시간 내에 질문하세요.
+시간이 초과되면 질문이 금지됩니다."
+deathExpired,💀 시간 초과! 모든 질문 횟수가 초기화되었습니다. 수프의 진실을 제출하세요.
+deathExpiredPH,시간 초과...
+customDiffLabel,사용자 정의 난이도
+qlLabel,질문 횟수
+tlLabel,텍스트 길이
+honkakuLabel,본격 추리
+honkakuHint,논리적 일관성과 현실적 제약을 중시
+styleLabel,스토리 스타일
+styleTooltip,여기서 원하는 스토리 내용과 테마를 맞춤 설정하세요
+styleSuspense,서스펜스 추리
+styleHorror,호러
+styleTerror,공포
+styleComedy,코미디
+styleSupernatural,오컬트 판타지
+styleCrime,범죄 서스펜스
+styleXianxia,선협 쾌속 액션
+styleRuleHorror,룰 괴담
+customStylePH,사용자 정의 스타일을 쉼표로 구분하여 추가
+toggleVisTitle,표시/숨기기
+randomConfigTitle,무작위 설정
+generateBtn,퍼즐 생성
+backPrev,이전 단계로 돌아가기
+remainingLabel,남은 질문
+riddleLabel,📜 수수께끼
+riddleWaiting,생성 대기 중...
+progressLabel,추리 진행 상황
+askPlaceholder,질문을 입력하세요 (한 번에 하나씩)
+askBtn,질문하기
+submitSoupBtn,수프의 진실 제출
+viewResultBtn,결과 보기
+closeBtn,닫기
+exportBtn,JSON으로 내보내기
+replayBtn,한 그릇 더
+modalTitle,수프의 진실 제출
+modalDesc,당신이 추리한 이야기의 진실을 입력하세요.
+soupPlaceholder,정답을 입력하여 수수께끼 완성
+modalSubmit,확인 후 제출
+modalCancel,취소
+modalGiveup,게임 포기
+nokeyTitle,API Key 미설정
+nokeyDesc,API Key가 설정되지 않아 퍼즐을 생성할 수 없습니다. 먼저 API Key를 설정하세요.
+nokeyGo,API Key 설정하러 가기
+nokeyCancel,취소
+loadingTitle,셰프가 레시피를 생각 중입니다...(${seconds}초 경과)
+loadingDesc,스토리 구상 중...
+loadingProgress,요리 중...(${count}자 완료)
+loadingWord1,영감을 더하다
+loadingWord2,세부 사항을 풍부하게
+loadingWord3,대본을 다듬다
+loadingWord4,퍼즐을 구상하다
+promptLanguageEnglish,English
+promptLanguageChinese,Chinese
+evaluatingTitle,평가 중...
+evaluatingDesc,사회자가 당신의 수프 진실을 평가하고 있습니다. 잠시 기다려 주세요.
+evaluatingProgress,채점 중...(${count}자 분석 완료)
+untitledStoryTitle,명칭 없는 터틀스프
+importLabel,불러오기
+randomStyle,랜덤 스타일
+shortRepliesList,예/아니요/중요함/중요하지 않음/그렇기도 하고 아니기도 함/가능함/판단 불가/신경 쓸 필요 없음
+replyYes,예.
+replyNo,아니요.
+replyImportant,중요합니다.
+chatRoleRule,규칙
+demoStoryTitle,사라진 수프 냄비
+demoStoryOutline,주인이 이웃에게 수프 냄비를 빌려줬는데, 이웃은 냄비에 남은 것이 평범한 찌꺼기 수프라고 생각했지만 실제로는 신원 오인 단서가 담긴 진실이 봉인되어 있었다.
+demoStoryRiddleHtml,"<p>밤, 마을 외곽의 작은 가게가 갑자기 문을 닫았다. 다음 날 아침, 주인은 창백한 얼굴로 문 앞에 서 있었다.</p><p>그는 경찰에게 말했다. <em>냄비는 있는데 수프가 사라졌어요.</em> 주변 사람들은 터무니없다고 웃었지만, 그 냄비에 대해 물어본 사람만이 왜 그가 부엌 구석을 계속 응시하는지 이해했다.</p>"
+demoStoryClues,냄비 속 내용물은 일반 음식이 아니라 정보를 저장하는 매개체였다.\n진짜 핵심은 도난 자체가 아니라 시간 차이에 있다.\n이웃과 주인은 동일한 물건에 대해 서로 다른 인식을 가지고 있다.\n냄새, 온도 또는 잔류 흔적이 진실을 결정한다.
+demoStorySoup,주인은 냄비를 사용해 과거 사건과 관련된 증거를 보관하고 있었다. 이웃이 그것을 빌려 잘못 판단해 증거를 처리해 버렸고, 주인은 도난당했다고 오해했다. 진짜 비밀은 냄비에 남은 냄새와 시간선 속에 숨겨져 있다.
+demoStorySetting,마을 외곽의 작은 가게
+demoStoryCharacters,주인
+replyImportant,중요합니다.
+replyYes,예.
+replyNo,아니요.
+chatRoleRule,규칙
+shortRepliesList,예/아니요/중요함/중요하지 않음/그렇기도 하고 아니기도 함/가능함/판단 불가/신경 쓸 필요 없음
+randomStyle,랜덤 스타일
+gameReady,"수프의 진실이 완성되었습니다. 이제 양념을 시작하세요…
+한 번에 하나의 질문만 할 수 있으며, 사회자는 '예' 또는 '아니요'로 답합니다.
+제한된 질문 횟수 안에 진실을 밝혀내세요."
+gameReadyDeath,"시간이 빠르게 흐르고 있습니다. 빨리 양념을 완성하지 않으면 맛이 사라져 버립니다…
+한 번에 하나의 질문만 할 수 있으며, 사회자는 '예' 또는 '아니요'로 답합니다.
+제한된 질문 횟수 안에 진실을 밝혀내세요."
+chatRoleHost,사회자
+chatRolePlayer,플레이어
+chatRoleSystem,시스템
+chatMetaQuestion,Q${index} · ${label}
+speedBonus,+${seconds}초
+demoWarning,API Key가 설정되지 않았습니다. 로컬 데모 모드로 전환했습니다.
+noQuestion,질문을 입력한 후 보내주세요.
+tooMany,여러 개의 질문을 연속으로 보낼 수 없습니다. 하지만 첫 번째 질문에 답변드립니다: ${followUp}
+tooManyFollowUp,먼저 하나의 질문에 집중하세요.
+waitGenerate,먼저 수수께끼를 생성하세요.
+limitHint,질문 횟수를 모두 소진했습니다. 수프의 진실을 제출하세요.
+exhaustedPlaceholder,질문 횟수 소진. 수프의 진실을 제출하세요.
+unlockHint,모든 조사 포인트를 발견했습니다. 제출이 해제되었습니다.
+needSoup,먼저 수프의 진실을 입력하세요.
+resultTitle,🎉 게임 종료
+clueTitle,조사 포인트 돌아보기
+clueFound,발견됨
+cluePending,미발견
+scoreLabel,점수
+verdictLabel,판정
+fitLabel,적합도
+mistakesLabel,실수 지점
+tipsLabel,개선 제안
+summaryLabel,요약
+exportName,turtlesoup-export.json
+honkakuOn,본격 추리
+honkakuOff,비본격 추리
+localScoreVerdict,로컬 평가 결과.
+localFit,공식 수프 진실과 일부 일치.
+localMistake,로컬 모드에서는 Agent 재확인을 수행하지 않았습니다.
+localTip,중요한 조사 포인트를 중심으로 타임라인을 정리하는 것을 권장합니다.
+localSummary,로컬 데모 점수.
+shareSoupBtn,수프 공유
+importSoupBtn,수프 불러오기
+importInvalid,유효하지 않은 수프 파일입니다. 파일 형식을 확인하세요.
+importFailed,불러오기 실패. 파일이 손상되었을 수 있습니다.
+errorTitle,생성 실패
+errorDesc,AI 엔진이 오류를 반환했습니다. 네트워크 또는 API Key를 확인하고 다시 시도하세요.
+errorRetry,재시도
+errorDemo,데모 모드 사용
+errorCancel,돌아가기
+api401Title,API Key 무효
+api401Desc,API Key가 만료되었거나 잔액이 부족합니다. Key를 업데이트하고 다시 시도하세요.
+api429Title,요청이 너무 많습니다
+api429Desc,잠시 기다린 후 다시 시도하세요.

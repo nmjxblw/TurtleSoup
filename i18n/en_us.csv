@@ -1,0 +1,162 @@
+key,text
+coverDesc,"A story, a bowl of soup.
+You know the beginning, but never the ending.
+Add a dash of imagination to savor the full flavor..."
+startBtn,Start
+reviewBtn,Review Last Game
+apikeyTitle,Connect AI Engine
+apikeyDesc,Enter your DeepSeek API Key to power puzzle generation and Q&A. The key is stored only in your browser.
+apiKeyLabel,DeepSeek API Key
+apikeyPlaceholder,sk-...
+modelLabel,Model
+apikeyNext,Next: Configure Game
+apikeySkip,"Skip, use Demo Mode"
+backCover,Back to Cover
+configTitle,Customize Your Puzzle
+configDesc,"Choose story style, reasoning type, and difficulty. Agent will generate a unique soup base."
+pageTitle,TurtleSoup
+pageDescription,TurtleSoup mystery soup game
+langLabel,Language
+menuLabel,Menu
+coverLogoAlt,TurtleSoup
+menuToggleTitle,Menu
+menuToggleAria,Open menu
+menuCloseAria,Close menu
+themeLabel,Theme
+diffLabel,Difficulty
+diffCustom,Custom
+diffNewb,Newbie
+diffEasy,Easy
+diffHard,Hard
+diffHardcore,Hardcore
+deathModeLabel,Death Mode
+deathModeHint,Timed challenge — fail on timeout
+deathModeTooltip,"Ask questions within a limited time; 
+timeout will disable further questions."
+deathExpired,💀 Time's up! All questions cleared. Submit your answer.
+deathExpiredPH,Time's up...
+customDiffLabel,Custom Difficulty
+qlLabel,Questions
+tlLabel,Text Length
+honkakuLabel,Honkaku Mystery
+honkakuHint,Emphasizes logical closure and real-world constraints
+styleLabel,Story Style
+styleTooltip,Customize your preferred story content and themes here.
+styleSuspense,Suspense
+styleHorror,Horror
+styleTerror,Terror
+styleComedy,Comedy
+styleSupernatural,Supernatural
+styleCrime,Crime
+styleXianxia,Xianxia
+styleRuleHorror,Rule Horror
+customStylePH,"Add custom styles, separated by commas"
+toggleVisTitle,Show/Hide
+randomConfigTitle,Randomize settings
+generateBtn,Generate Mystery
+backPrev,Back
+remainingLabel,Remaining
+riddleLabel,📜 Riddle
+riddleWaiting,Waiting for generation...
+progressLabel,Progress
+askPlaceholder,Ask one question at a time...
+askBtn,Ask
+submitSoupBtn,Submit Soup
+viewResultBtn,View Result
+closeBtn,Close
+exportBtn,Export JSON
+replayBtn,One More Soup
+modalTitle,Submit Soup
+modalDesc,Enter the story truth you have deduced.
+soupPlaceholder,Enter your soup guess ...
+modalSubmit,Confirm
+modalCancel,Cancel
+modalGiveup,Give Up
+nokeyTitle,No API Key
+nokeyDesc,Cannot generate a mystery without an API Key. Please configure your API Key first.
+nokeyGo,Configure API Key
+nokeyCancel,Cancel
+loadingTitle,The chef is thinking about the recipe... (${seconds}s elapsed)
+loadingDesc,Crafting the story...
+loadingProgress,Cooking in progress... (${count} characters completed)
+loadingWord1,Adding ideas
+loadingWord2,Enriching details
+loadingWord3,Polishing plot
+loadingWord4,Crafting puzzle
+promptLanguageEnglish,English
+promptLanguageChinese,Chinese
+evaluatingTitle,Evaluating...
+evaluatingDesc,Host is evaluating your soup guess. Please wait.
+evaluatingProgress,Scoring in progress... (${count} characters analyzed)
+untitledStoryTitle,Untitled Mystery
+importLabel,Imported
+randomStyle,Random style
+shortRepliesList,yes/no/important/unimportant/neither/cannot determine/not relevant
+replyYes,Yes.
+replyNo,No.
+replyImportant,Important.
+chatRoleRule,Rule
+demoStoryTitle,The Missing Pot
+demoStoryOutline,"A shop owner lends a pot to a neighbor. The neighbor mistakes the leftover liquid for ordinary broth, but it actually contains a truth tied to mistaken identity."
+demoStoryRiddleHtml,"<p>Overnight, the little shop in the south of town suddenly closed. The next morning, the owner stood at the doorway, pale.</p><p>He told the police: <em>The pot is still here, but the soup is gone.</em> Everyone else thought it was absurd, but only the person who asked about the pot knew why he kept staring at the kitchen corner.</p>"
+demoStoryClues,"What was in the pot was not ordinary food, but a medium for storing information.\nThe real key is the time gap, not the theft itself.\nThe neighbor and the owner understand the same object differently.\nSmell, temperature, or residue will determine the truth."
+demoStorySoup,The owner used the pot to store evidence tied to an old case. After the neighbor borrowed it
+demoStorySetting,The south-side shop
+demoStoryCharacters,邻居
+replyImportant,Important.
+replyYes,Yes.
+replyNo,No.
+chatRoleRule,Rule
+shortRepliesList,yes/no/important/unimportant/neither/cannot determine/not relevant
+randomStyle,Random style
+gameReady,"Broth's ready—time to season it...
+You may only ask one question at a time; the system will answer yes or no.
+Uncover the truth within your limited attempts.."
+gameReadyDeath,"Time is running out—if you don't finish seasoning soon, the flavor will vanish in an instant...
+You may only ask one question at a time; the system will answer yes or no.
+Uncover the truth within your limited attempts."
+chatRoleHost,Host
+chatRolePlayer,Player
+chatRoleSystem,System
+chatMetaQuestion,Q${index} · ${label}
+speedBonus,+${seconds}s
+demoWarning,No API key configured. Switched to local demo mode.
+noQuestion,Please enter a question first.
+tooMany,You cannot ask multiple questions at once. I can answer the first one: ${followUp}
+tooManyFollowUp,please focus on the first one.
+waitGenerate,Generate a mystery first.
+limitHint,No attempts left. Please submit your soup.
+exhaustedPlaceholder,No questions left. Please submit your soup.
+unlockHint,All clues discovered. Submission unlocked.
+needSoup,Please enter your soup guess first.
+resultTitle,🎉 Game Over
+clueTitle,Clue Review
+clueFound,Discovered
+cluePending,Pending
+scoreLabel,Score
+verdictLabel,Verdict
+fitLabel,Fit
+mistakesLabel,Mistakes
+tipsLabel,Tips
+summaryLabel,Summary
+exportName,turtlesoup-export.json
+honkakuOn,Honkaku Mystery
+honkakuOff,Non-Honkaku Mystery
+localScoreVerdict,Local evaluation result.
+localFit,Partially matched the official soup.
+localMistake,No Agent validation in local mode.
+localTip,Try to align the timeline around the key clues.
+localSummary,Local demo score.
+shareSoupBtn,Share Soup
+importSoupBtn,Import Soup
+importInvalid,Invalid soup file. Please check the file format.
+importFailed,Import failed. The file may be corrupted.
+errorTitle,Generation Failed
+errorDesc,The AI engine returned an error. Please check your network or API Key and try again.
+errorRetry,Retry
+errorDemo,Use Demo Mode
+errorCancel,Go Back
+api401Title,Invalid API Key
+api401Desc,Your API Key is invalid or has insufficient balance. Please update it and try again.
+api429Title,Too Many Requests
+api429Desc,Please wait a moment and try again.

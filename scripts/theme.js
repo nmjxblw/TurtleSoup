@@ -39,8 +39,7 @@ function applyTheme(theme) {
  */
 function initLangIcon() {
   const langIcon = DOMRef["lang-toggle"].querySelector(".menu-item-icon");
-  if (langIcon)
-    langIcon.textContent = GameState.language === "zh-CN" ? "🇨🇳" : "🇺🇸";
+  if (langIcon) langIcon.textContent = getLanguageIcon();
 }
 
 /* ---- Side Menu ---- */

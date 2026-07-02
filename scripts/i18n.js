@@ -57,21 +57,27 @@ function parseCSV(text) {
  */
 async function loadI18n() {
   try {
-    const resp = await fetch("i18n.csv");
-    if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
-    const text = await resp.text();
-    const rows = parseCSV(text);
-    const data = { zh: {}, en: {} };
-    for (let i = 1; i < rows.length; i++) {
-      const cols = rows[i];
-      if (cols.length >= 3 && cols[0]) {
-        data.zh[cols[0]] = cols[1] || "";
-        data.en[cols[0]] = cols[2] || "";
+    const parseLocale = (text) => {
+      const rows = parseCSV(text);
+      const data = {};
+      for (let i = 1; i < rows.length; i++) {
+        const cols = rows[i];
+        if (cols.length >= 2 && cols[0]) {
+          data[cols[0]] = cols[1] || "";
+        }
       }
-    }
-    L = data;
+      return data;
+    };
+    const entries = await Promise.all(
+      LANGUAGE_LIST.map(async (language) => {
+        const response = await fetch(language.file);
+        if (!response.ok) throw new Error(`HTTP ${response.status}`);
+        return [language.code, parseLocale(await response.text())];
+      }),
+    );
+    L = Object.fromEntries(entries);
   } catch (e) {
-    console.warn("i18n CSV 加载失败，使用内置回退文本", e);
+    console.warn("i18n 文件加载失败，使用内置回退文本", e);
   }
 }
 
@@ -98,7 +104,38 @@ function renderTemplate(tmpl, vars) {
  * @returns {string} 返回字符串。
  */
 function loc() {
-  return GameState.language === "en-US" ? "en" : "zh";
+  return GameState.language;
+}
+
+/**
+ * 中文说明：获取指定语言的配置。
+ * @param {string} language 语言类型。
+ * @returns {Object} 返回语言配置对象。
+ */
+function getLanguageSpec(language = GameState.language) {
+  return (
+    LANGUAGE_LIST.find((item) => item.code === language) || LANGUAGE_LIST[0]
+  );
+}
+
+/**
+ * 中文说明：获取指定语言的图标。
+ * @param {string} language 语言类型。
+ * @returns {string} 返回语言图标。
+ */
+function getLanguageIcon(language = GameState.language) {
+  return getLanguageSpec(language).flagEmoji;
+}
+
+/**
+ * 中文说明：获取下一个可用语言。
+ * @param {string} language 当前语言类型。
+ * @returns {string} 返回下一个语言类型。
+ */
+function getNextLanguage(language = GameState.language) {
+  const index = LANGUAGE_LIST.findIndex((item) => item.code === language);
+  if (index < 0) return LANGUAGE_LIST[0].code;
+  return LANGUAGE_LIST[(index + 1) % LANGUAGE_LIST.length].code;
 }
 
 /**
@@ -108,7 +145,7 @@ function loc() {
  * @returns {string} 返回字符串。
  */
 function t(key, vars = {}) {
-  const tmpl = L[loc()]?.[key] || L.zh[key] || key;
+  const tmpl = L[loc()]?.[key] || L[LANGUAGE_TYPES.ZH_CN]?.[key] || key;
   return renderTemplate(tmpl, vars);
 }
 
@@ -150,10 +187,9 @@ function refreshLoadingTitle() {
  * @returns {void} 无返回值。
  */
 function toggleLanguage() {
-  GameState.language = GameState.language === "zh-CN" ? "en-US" : "zh-CN";
+  GameState.language = getNextLanguage();
   const langIcon = DOMRef["lang-toggle"].querySelector(".menu-item-icon");
-  if (langIcon)
-    langIcon.textContent = GameState.language === "zh-CN" ? "🇨🇳" : "🇺🇸";
+  if (langIcon) langIcon.textContent = getLanguageIcon();
   document.documentElement.lang = GameState.language;
   syncI18n();
   saveSettings();

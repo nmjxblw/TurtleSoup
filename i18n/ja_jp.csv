@@ -1,0 +1,162 @@
+key,text
+coverDesc,"一つの物語、一杯のスープ
+あなたは始まりしか知らないが、結末は予想できない
+想像という調味料を加えて、完全な味を取り戻そう……"
+startBtn,推理を開始
+reviewBtn,前回を振り返る
+apikeyTitle,API Key設定
+apikeyDesc,DeepSeek API Keyを入力して謎解きと質疑応答を駆動します。Keyはブラウザのローカルにのみ保存されます。
+apiKeyLabel,DeepSeek API Key
+apikeyPlaceholder,sk-...
+modelLabel,モデル選択
+apikeyNext,次へ：ゲーム設定
+apikeySkip,スキップ（デモモードを使用）
+backCover,表紙に戻る
+configTitle,パズルをカスタマイズ
+configDesc,ストーリーのスタイル、推理の種類、難易度を選択してください。これらをもとにエージェントが専用のスープの真相を生成します。
+pageTitle,海龜湯 TurtleSoup
+pageDescription,TurtleSoup 海龜湯
+langLabel,インターフェース言語
+menuLabel,メニュー
+coverLogoAlt,海龜湯
+menuToggleTitle,メニュー
+menuToggleAria,メニューを開く
+menuCloseAria,メニューを閉じる
+themeLabel,テーマ切替
+diffLabel,難易度
+diffCustom,カスタムモード
+diffNewb,入門
+diffEasy,簡単
+diffHard,エキスパート
+diffHardcore,ハードコア
+deathModeLabel,デスモード
+deathModeHint,制限時間内に質問するタイムアタック
+deathModeTooltip,"制限時間内に質問してください。
+時間切れになると質問が禁止されます。"
+deathExpired,💀 時間切れ！すべての質問回数がリセットされました。スープの真相を提出してください。
+deathExpiredPH,時間切れ...
+customDiffLabel,カスタム難易度
+qlLabel,質問回数
+tlLabel,テキスト長
+honkakuLabel,本格推理
+honkakuHint,論理的な整合性と現実的な制約を重視
+styleLabel,ストーリースタイル
+styleTooltip,お好みのストーリー内容やテーマをここでカスタマイズ
+styleSuspense,サスペンス推理
+styleHorror,ホラー
+styleTerror,恐怖
+styleComedy,コメディ
+styleSupernatural,オカルト・ファンタジー
+styleCrime,刑事サスペンス
+styleXianxia,仙侠痛快アクション
+styleRuleHorror,ルール怪談
+customStylePH,カスタムスタイルをカンマ区切りで追加
+toggleVisTitle,表示/非表示
+randomConfigTitle,ランダム設定
+generateBtn,謎を生成
+backPrev,前のステップに戻る
+remainingLabel,残り質問数
+riddleLabel,📜 謎面
+riddleWaiting,生成待機中...
+progressLabel,推理進捗
+askPlaceholder,質問を入力してください（一度に一つだけ）
+askBtn,質問する
+submitSoupBtn,スープの真相を提出
+viewResultBtn,結果を見る
+closeBtn,閉じる
+exportBtn,JSONとしてエクスポート
+replayBtn,もう一杯
+modalTitle,スープの真相を提出
+modalDesc,あなたが推理した物語の真実を入力してください。
+soupPlaceholder,答えを入力して謎面を完成
+modalSubmit,確認して提出
+modalCancel,キャンセル
+modalGiveup,ゲームを諦める
+nokeyTitle,API Keyが未設定
+nokeyDesc,API Keyが設定されていないため謎を生成できません。先にAPI Keyを設定してください。
+nokeyGo,API Keyを設定しに行く
+nokeyCancel,キャンセル
+loadingTitle,シェフがレシピを考えています...（${seconds}秒経過）
+loadingDesc,ストーリーを構想中...
+loadingProgress,調理中...（${count}文字完了）
+loadingWord1,ひらめきを加える
+loadingWord2,詳細を豊かにする
+loadingWord3,脚本を磨く
+loadingWord4,謎を練る
+promptLanguageEnglish,English
+promptLanguageChinese,Chinese
+evaluatingTitle,評価中...
+evaluatingDesc,司会者があなたのスープの真相を評価しています。お待ちください。
+evaluatingProgress,採点中...（${count}文字分析済み）
+untitledStoryTitle,名称未設定の海龜湯
+importLabel,インポート
+randomStyle,ランダムスタイル
+shortRepliesList,はい/いいえ/重要/重要ではない/どちらでもない/可能性あり/判断不可/気にする必要はない
+replyYes,はい。
+replyNo,いいえ。
+replyImportant,重要です。
+chatRoleRule,ルール
+demoStoryTitle,消えたスープ鍋
+demoStoryOutline,店主が隣人にスープ鍋を貸したところ、隣人は鍋の中に残っていたのは普通の残りスープだと思い込んだが、実際には身分誤認の手がかりを含む真相が封印されていた。
+demoStoryRiddleHtml,<p>夜、町はずれの小さな店が突然休業した。翌朝、店主は青ざめた顔で玄関に立っていた。</p><p>彼は警察にこう言った。<em>鍋はあるのに、スープが消えた。</em> 周囲の者は馬鹿げていると笑ったが、その鍋について尋ねた者だけが、なぜ彼が台所の隅をじっと見つめ続けているのか理解した。</p>
+demoStoryClues,鍋の中身は普通の食べ物ではなく、情報を保存するための媒体だった。\n本当の鍵は盗難そのものではなく、時間差にある。\n隣人と店主は同じ品物に対して異なる認識を持っている。\n匂い、温度、または残留痕跡が真実を決定づける。
+demoStorySoup,店主は鍋を使って過去の事件に関連する証拠を保存していた。隣人がそれを借りて誤って証拠を処分してしまい、店主は盗まれたと誤解した。本当の秘密は鍋に残された匂いと時間線の中に隠されている。
+demoStorySetting,町はずれの小さな店
+demoStoryCharacters,店主
+replyImportant,重要です。
+replyYes,はい。
+replyNo,いいえ。
+chatRoleRule,ルール
+shortRepliesList,はい/いいえ/重要/重要ではない/どちらでもない/可能性あり/判断不可/気にする必要はない
+randomStyle,ランダムスタイル
+gameReady,"スープの真相が完成しました。さあ味付けを始めましょう…
+一度に一つだけ質問できます。司会者は「はい」か「いいえ」で答えます。
+限られた質問回数の中で真相を突き止めてください。"
+gameReadyDeath,"時間が刻々と過ぎていきます。早く味付けを完成させなければ、美味しさは逃げてしまいます…
+一度に一つだけ質問できます。司会者は「はい」か「いいえ」で答えます。
+限られた質問回数の中で真相を突き止めてください。"
+chatRoleHost,司会者
+chatRolePlayer,プレイヤー
+chatRoleSystem,システム
+chatMetaQuestion,Q${index} · ${label}
+speedBonus,+${seconds}秒
+demoWarning,API Keyが設定されていません。ローカルデモモードに切り替えました。
+noQuestion,質問を入力してから送信してください。
+tooMany,複数の質問を連続して送信することはできません。ただし、最初の質問にお答えします：${followUp}
+tooManyFollowUp,まずは一つの質問に集中してください。
+waitGenerate,先に謎面を生成してください。
+limitHint,質問回数を使い切りました。スープの真相を提出してください。
+exhaustedPlaceholder,質問回数を使い切りました。スープの真相を提出してください。
+unlockHint,すべての調査ポイントを発見しました。提出が解除されました。
+needSoup,先にスープの真相を入力してください。
+resultTitle,🎉 ゲーム終了
+clueTitle,調査ポイント振り返り
+clueFound,発見済み
+cluePending,未発見
+scoreLabel,得点
+verdictLabel,判定
+fitLabel,適合度
+mistakesLabel,ミス箇所
+tipsLabel,改善アドバイス
+summaryLabel,まとめ
+exportName,turtlesoup-export.json
+honkakuOn,本格推理
+honkakuOff,非本格推理
+localScoreVerdict,ローカル評価結果。
+localFit,公式スープの真相と一部合致。
+localMistake,ローカルモードではAgentによる再確認を行っていません。
+localTip,重要な調査ポイントを中心にタイムラインを整理することをおすすめします。
+localSummary,ローカルデモの点数。
+shareSoupBtn,スープを共有
+importSoupBtn,スープをインポート
+importInvalid,無効なスープファイルです。ファイル形式を確認してください。
+importFailed,インポートに失敗しました。ファイルが破損している可能性があります。
+errorTitle,生成失敗
+errorDesc,AIエンジンがエラーを返しました。ネットワークまたはAPI Keyを確認して再試行してください。
+errorRetry,再試行
+errorDemo,デモモードを使用
+errorCancel,戻る
+api401Title,API Keyが無効
+api401Desc,API Keyが期限切れまたは残高不足です。Keyを更新して再試行してください。
+api429Title,リクエストが多すぎます
+api429Desc,しばらく待ってから再試行してください。

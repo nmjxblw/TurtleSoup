@@ -9,11 +9,11 @@
  */
 async function loadPrompt(name) {
   try {
-    const resp = await fetch(`default.${name}.md`);
+    const resp = await fetch(`prompts/${name}.md`);
     if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
     return await resp.text();
   } catch (e) {
-    console.warn(`Prompt 模板 default.${name}.md 加载失败`, e);
+    console.warn(`Prompt 模板 prompts/${name}.md 加载失败`, e);
     return "";
   }
 }
@@ -101,7 +101,7 @@ function getSelectedStyles() {
 function buildStoryPrompt() {
   const difficulty = getActiveDifficulty();
   const text_length_range = getLengthRange();
-  const lc = loc();
+  const languageSpec = getLanguageSpec();
   const clueCount =
     difficulty === "newb"
       ? Math.floor(Math.random() * 3) + 2
@@ -112,8 +112,7 @@ function buildStoryPrompt() {
           : /* hardcore */ Math.floor(Math.random() * 3) + 4;
 
   return renderTemplate(PROMPTS.story, {
-    language:
-      lc === "en" ? t("promptLanguageEnglish") : t("promptLanguageChinese"),
+    language: t(languageSpec.promptLabelKey),
     storyStyles: GameState.storyStyles.join(", "),
     isHonkaku: String(GameState.isHonkaku),
     difficulty: difficulty,
@@ -133,7 +132,7 @@ function buildQuestionPrompt(question) {
   const undiscovered = (GameState.generated?.clues || []).filter(
     (_, i) => !GameState.discoveredClues.has(i),
   );
-  const lang = loc() === "en" ? "en-US" : "zh-CN";
+  const lang = getLanguageSpec().promptLocale;
 
   return renderTemplate(PROMPTS.question, {
     language: lang,
@@ -162,8 +161,7 @@ function buildQuestionPrompt(question) {
  */
 function buildScoringPrompt(guess) {
   return renderTemplate(PROMPTS.score, {
-    language:
-      loc() === "en" ? t("promptLanguageEnglish") : t("promptLanguageChinese"),
+    language: t(getLanguageSpec().promptLabelKey),
     storyOutline: GameState.generated?.outline || "",
     storySoup: GameState.generated?.soup || "",
     playerGuess: guess,

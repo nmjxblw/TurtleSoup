@@ -238,13 +238,7 @@ function getLocalReply(question) {
     if (kw.some((w) => n.includes(w.toLowerCase()))) matched.push(i);
   });
   return {
-    reply: matched.length
-      ? loc() === "zh"
-        ? t("replyImportant")
-        : t("replyImportant")
-      : loc() === "zh"
-        ? t("replyNo")
-        : t("replyNo"),
+    reply: matched.length ? t("replyImportant") : t("replyNo"),
     i18nKey: matched.length ? "replyImportant" : "replyNo",
     matchedClues: matched,
     clueReason: "local",

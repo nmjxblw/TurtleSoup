@@ -1,0 +1,162 @@
+key,text
+coverDesc,"一個故事，一碗湯
+你只知道開頭，卻猜不到結局
+加入想像的調味料，還原完整的味道……"
+startBtn,開始推理
+reviewBtn,回顧上一局
+apikeyTitle,API Key 設定
+apikeyDesc,輸入 DeepSeek API Key 驅動謎題生成與問答。Key 僅儲存在你的瀏覽器本地。
+apiKeyLabel,DeepSeek API Key
+apikeyPlaceholder,sk-...
+modelLabel,模型選擇
+apikeyNext,下一步：設定遊戲
+apikeySkip,跳過，使用示範模式
+backCover,返回封面
+configTitle,訂製你的謎題
+configDesc,選擇故事風格、推理類型與難度，智慧體將據此生成專屬湯底
+pageTitle,海龜湯 TurtleSoup
+pageDescription,TurtleSoup 海龜湯
+langLabel,介面語言
+menuLabel,選單
+coverLogoAlt,海龜湯
+menuToggleTitle,選單
+menuToggleAria,開啟選單
+menuCloseAria,關閉選單
+themeLabel,主題切換
+diffLabel,難度
+diffCustom,自訂模式
+diffNewb,入門
+diffEasy,簡單
+diffHard,專家
+diffHardcore,硬核
+deathModeLabel,死亡模式
+deathModeHint,限時競速，在有限的時間內提問
+deathModeTooltip,"在有限的時間內提問，
+超時將被禁止提問。"
+deathExpired,💀 時間耗盡！你的所有提問次數已被歸零，請提交湯底。
+deathExpiredPH,時間耗盡...
+customDiffLabel,自訂難度
+qlLabel,提問次數
+tlLabel,文字長度
+honkakuLabel,本格推理
+honkakuHint,強調邏輯閉環與現實約束
+styleLabel,故事風格
+styleTooltip,在這裡訂製你喜歡的故事內容和主題
+styleSuspense,懸疑推理
+styleHorror,驚悚
+styleTerror,恐怖
+styleComedy,喜劇
+styleSupernatural,鬼怪玄幻
+styleCrime,刑偵懸疑
+styleXianxia,仙俠爽文
+styleRuleHorror,規則怪談
+customStylePH,補充自訂風格，用逗號分隔
+toggleVisTitle,顯示／隱藏
+randomConfigTitle,隨機設定
+generateBtn,生成謎題
+backPrev,返回上一步
+remainingLabel,剩餘提問
+riddleLabel,📜 謎面
+riddleWaiting,等待生成...
+progressLabel,推理進度
+askPlaceholder,輸入你的問題，一次只問一個...
+askBtn,提問
+submitSoupBtn,提交湯底
+viewResultBtn,查看結果
+closeBtn,關閉
+exportBtn,匯出 JSON
+replayBtn,再來一湯
+modalTitle,提交湯底
+modalDesc,請輸入你推理出的故事真相。
+soupPlaceholder,輸入答案，完成湯面
+modalSubmit,確認提交
+modalCancel,取消
+modalGiveup,放棄遊戲
+nokeyTitle,未設定 API Key
+nokeyDesc,未設定 API Key 無法生成謎題。請先設定 API Key 後再試。
+nokeyGo,去設定 API Key
+nokeyCancel,取消
+loadingTitle,主廚正在思考食譜中...(已經思考 ${seconds} 秒)
+loadingDesc,正在構思故事...
+loadingProgress,正在烹調中...(已完成 ${count} 字)
+loadingWord1,加入靈感
+loadingWord2,豐富細節
+loadingWord3,打磨劇本
+loadingWord4,構思謎題
+promptLanguageEnglish,English
+promptLanguageChinese,Chinese
+evaluatingTitle,正在評分...
+evaluatingDesc,主持人正在評估你的湯底，請稍候。
+evaluatingProgress,正在評分中...(已分析 ${count} 字)
+untitledStoryTitle,未命名海龜湯
+importLabel,匯入
+randomStyle,隨機風格
+shortRepliesList,是／不是／重要／不重要／是也不是／皆有可能／無法確定／不需要關心
+replyYes,是。
+replyNo,不是。
+replyImportant,重要。
+chatRoleRule,規則
+demoStoryTitle,失蹤的湯鍋
+demoStoryOutline,一名店主把湯鍋借給鄰居，鄰居誤以為鍋裡剩下的是普通殘湯，實際上裡面封存著一段帶有身份誤認線索的真相。
+demoStoryRiddleHtml,<p>夜裡，城南的小店忽然停了業。第二天一早，店主站在門口，臉色發白。</p><p>他對警察說：<em>鍋還在，湯卻不見了。</em> 旁人聽完只覺得荒唐，可只有問到那口鍋的人，才知道他為什麼一直盯著廚房角落。</p>
+demoStoryClues,鍋裡的東西並不是普通食物，而是被用來保存資訊的媒介。\n真正的關鍵是時間差，不是失竊本身。\n鄰居和店主對同一件物品的理解並不一致。\n氣味、溫度或殘留痕跡會決定真相。
+demoStorySoup,店主用鍋保存了與一宗舊案有關的證據，鄰居藉走後因為誤判把證據處理掉，導致店主誤以為被盜；真正的秘密藏在鍋裡殘留的氣味和時間線裡。
+demoStorySetting,城南小店
+demoStoryCharacters,店主
+replyImportant,重要。
+replyYes,是。
+replyNo,不是。
+chatRoleRule,規則
+shortRepliesList,是／不是／重要／不重要／是也不是／皆有可能／無法確定／不需要關心
+randomStyle,隨機風格
+gameReady,"湯底完成，開始調味吧...
+每次只能提出一個問題，主持人會告訴你是與否。
+請在有限的提問次數裡推理出真相。"
+gameReadyDeath,"時間正在流逝，若是不能儘快完成調味，美味將會轉瞬即逝...
+每次只能提出一個問題，主持人會告訴你是與否。
+請在有限的提問次數裡推理出真相。"
+chatRoleHost,主持人
+chatRolePlayer,玩家
+chatRoleSystem,系統
+chatMetaQuestion,Q${index} · ${label}
+speedBonus,+${seconds}s
+demoWarning,未設定 API Key，已切換到本地示範模式。
+noQuestion,請輸入一個問題後再發送。
+tooMany,你不能連續提問多個問題。但我可以先回答第一個問題：${followUp}
+tooManyFollowUp,你先聚焦第一個問題。
+waitGenerate,請先生成謎面。
+limitHint,提問機會已用盡，請提交湯底。
+exhaustedPlaceholder,提問次數用盡，請提交湯底。
+unlockHint,所有盤問點已發現，提交已解鎖。
+needSoup,請先輸入湯底。
+resultTitle,🎉 遊戲結束
+clueTitle,盤問點回顧
+clueFound,已發現
+cluePending,未發現
+scoreLabel,得分
+verdictLabel,定性
+fitLabel,吻合度
+mistakesLabel,失誤點
+tipsLabel,提升建議
+summaryLabel,總結
+exportName,turtlesoup-export.json
+honkakuOn,本格推理
+honkakuOff,非本格推理
+localScoreVerdict,本地評估結果。
+localFit,與官方湯底存在部分吻合。
+localMistake,本地模式下未呼叫 Agent 覆核。
+localTip,建議圍繞關鍵盤問點整理時間線。
+localSummary,本地示範分數。
+shareSoupBtn,分享湯底
+importSoupBtn,匯入湯底
+importInvalid,無效的湯底檔案，請檢查檔案格式。
+importFailed,匯入失敗，檔案可能已損壞。
+errorTitle,生成失敗
+errorDesc,AI 引擎返回了錯誤，請檢查網路或 API Key 後重試。
+errorRetry,重試
+errorDemo,使用示範模式
+errorCancel,返回
+api401Title,API Key 無效
+api401Desc,您的 API Key 已失效或餘額不足，請更新 Key 後重試。
+api429Title,請求過於頻繁
+api429Desc,請稍等片刻後再試。

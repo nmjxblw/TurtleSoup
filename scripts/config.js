@@ -4,6 +4,52 @@
 
 const BASE_URL = "https://api.deepseek.com";
 
+const LANGUAGE_TYPES = Object.freeze({
+  ZH_CN: "zh-CN",
+  HU_TW: "hu-TW",
+  EN_US: "en-US",
+  JA_JP: "ja-JP",
+  KO_KR: "ko-KR",
+});
+
+const LANGUAGE_LIST = Object.freeze([
+  {
+    code: LANGUAGE_TYPES.ZH_CN,
+    file: "i18n/zh_cn.csv",
+    flagEmoji: "🇨🇳",
+    promptLocale: "zh-CN",
+    promptLabelKey: "promptLanguageChinese",
+  },
+  {
+    code: LANGUAGE_TYPES.HU_TW,
+    file: "i18n/hu_tw.csv",
+    flagEmoji: "🇭🇹",
+    promptLocale: "hu-TW",
+    promptLabelKey: "promptLanguageTraditionalChinese",
+  },
+  {
+    code: LANGUAGE_TYPES.EN_US,
+    file: "i18n/en_us.csv",
+    flagEmoji: "🇺🇸",
+    promptLocale: "en-US",
+    promptLabelKey: "promptLanguageEnglish",
+  },
+  {
+    code: LANGUAGE_TYPES.JA_JP,
+    file: "i18n/ja_jp.csv",
+    flagEmoji: "🇯🇵",
+    promptLocale: "ja-JP",
+    promptLabelKey: "promptLanguageJapanese",
+  },
+  {
+    code: LANGUAGE_TYPES.KO_KR,
+    file: "i18n/ko_kr.csv",
+    flagEmoji: "🇰🇷",
+    promptLocale: "ko-KR",
+    promptLabelKey: "promptLanguageKorean",
+  },
+]);
+
 const DIFFICULTY_PRESETS = {
   newb: {
     questionLimit: 30,
@@ -31,14 +77,14 @@ const DIFFICULTY_PRESETS = {
   },
 };
 
-let L = { zh: {}, en: {} };
+let L = Object.fromEntries(LANGUAGE_LIST.map((item) => [item.code, {}]));
 let PROMPTS = { story: "", question: "", score: "" };
 
 /* ---- GameState ---- */
 const GameState = {
   apiKey: "",
   model: "deepseek-chat",
-  language: "zh-CN",
+  language: LANGUAGE_TYPES.ZH_CN,
   isHonkaku: true,
   difficulty: "custom_model",
   customDifficulty: null,
