@@ -3,7 +3,7 @@
    ================================================================ */
 
 /**
- * 中文说明：显示结果浮层。
+ * 显示结果浮层。
  * @returns {void} 无返回值。
  */
 function showResultOverlay() {
@@ -32,7 +32,7 @@ function showResultOverlay() {
 }
 
 /**
- * 中文说明：隐藏结果浮层。
+ * 隐藏结果浮层。
  * @returns {void} 无返回值。
  */
 function hideResultOverlay() {

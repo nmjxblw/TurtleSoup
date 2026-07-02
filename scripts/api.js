@@ -3,7 +3,7 @@
    ================================================================ */
 
 /**
- * 中文说明：发起 API 请求。
+ * 发起 API 请求。
  * @param {Array<any>} messages 消息列表。
  * @param {number} temperature 采样温度。
  * @returns {Promise<any>} 返回接口响应数据。
@@ -33,7 +33,7 @@ async function apiRequest(messages, temperature = 0.8) {
 }
 
 /**
- * 中文说明：发起流式 API 请求。
+ * 发起流式 API 请求。
  * @param {Array<any>} messages 消息列表。
  * @param {number} temperature 采样温度。
  * @param {Function} onChunk 分块回调。

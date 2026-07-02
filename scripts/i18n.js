@@ -4,7 +4,7 @@
 
 /* ---- i18n CSV 解析 ---- */
 /**
- * 中文说明：解析 CSV 文本。
+ * 解析 CSV 文本。
  * @param {string} text 文本字符串。
  * @returns {Array<Array<string>>} 返回数组。
  */
@@ -52,7 +52,7 @@ function parseCSV(text) {
 }
 
 /**
- * 中文说明：加载国际化词条。
+ * 加载国际化词条。
  * @returns {Promise<void>} 返回异步执行结果。
  */
 async function loadI18n() {
@@ -83,7 +83,7 @@ async function loadI18n() {
 
 /* ---- 模板渲染 ---- */
 /**
- * 中文说明：按变量渲染模板字符串。
+ * 按变量渲染模板字符串。
  * @param {string} tmpl 模板字符串。
  * @param {Object} vars 变量对象。
  * @returns {any} 返回结果对象。
@@ -100,7 +100,7 @@ function renderTemplate(tmpl, vars) {
 }
 
 /**
- * 中文说明：获取当前语言代码。
+ * 获取当前语言代码。
  * @returns {string} 返回字符串。
  */
 function loc() {
@@ -108,7 +108,7 @@ function loc() {
 }
 
 /**
- * 中文说明：获取指定语言的配置。
+ * 获取指定语言的配置。
  * @param {string} language 语言类型。
  * @returns {Object} 返回语言配置对象。
  */
@@ -119,7 +119,7 @@ function getLanguageSpec(language = GameState.language) {
 }
 
 /**
- * 中文说明：获取指定语言的图标。
+ * 获取指定语言的图标。
  * @param {string} language 语言类型。
  * @returns {string} 返回语言图标。
  */
@@ -128,7 +128,7 @@ function getLanguageIcon(language = GameState.language) {
 }
 
 /**
- * 中文说明：获取下一个可用语言。
+ * 获取下一个可用语言。
  * @param {string} language 当前语言类型。
  * @returns {string} 返回下一个语言类型。
  */
@@ -139,7 +139,7 @@ function getNextLanguage(language = GameState.language) {
 }
 
 /**
- * 中文说明：获取当前语言下的词条文本。
+ * 获取当前语言下的词条文本。
  * @param {string} key 键名。
  * @param {Object} vars 变量对象。
  * @returns {string} 返回字符串。
@@ -151,7 +151,7 @@ function t(key, vars = {}) {
 
 /* ---- Loading 标题 ---- */
 /**
- * 中文说明：生成加载页标题文案。
+ * 生成加载页标题文案。
  * @returns {string} 返回字符串。
  */
 function getLoadingTitleText() {
@@ -172,7 +172,7 @@ function getLoadingTitleText() {
 }
 
 /**
- * 中文说明：刷新加载页标题。
+ * 刷新加载页标题。
  * @returns {any} 返回结果对象。
  */
 function refreshLoadingTitle() {
@@ -183,7 +183,7 @@ function refreshLoadingTitle() {
 
 /* ---- 语言切换 ---- */
 /**
- * 中文说明：切换界面语言。
+ * 切换界面语言。
  * @returns {void} 无返回值。
  */
 function toggleLanguage() {
@@ -196,7 +196,7 @@ function toggleLanguage() {
 }
 
 /**
- * 中文说明：同步国际化文案。
+ * 同步国际化文案。
  * @returns {void} 无返回值。
  */
 function syncI18n() {

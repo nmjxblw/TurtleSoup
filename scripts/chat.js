@@ -5,7 +5,7 @@
 let questionIndex = 0;
 
 /**
- * 中文说明：添加聊天消息。
+ * 添加聊天消息。
  * @param {string} role 角色标识。
  * @param {string} content 内容。
  * @param {string} metaKey 参数。
@@ -42,7 +42,7 @@ function addChatMsg(role, content, metaKey, i18nKey, i18nVars) {
 }
 
 /**
- * 中文说明：渲染聊天元信息标签。
+ * 渲染聊天元信息标签。
  * @param {string} role 角色标识。
  * @param {any} qindex 参数。
  * @param {string} metaKey 参数。
@@ -59,7 +59,7 @@ function renderChatMetaLabel(role, qindex, metaKey) {
 }
 
 /**
- * 中文说明：从日志中获取聊天元信息键。
+ * 从日志中获取聊天元信息键。
  * @param {any} entry 参数。
  * @returns {string} 返回字符串。
  */
@@ -81,7 +81,7 @@ function getChatMetaKeyFromLog(entry) {
 }
 
 /**
- * 中文说明：同步聊天日志的国际化内容。
+ * 同步聊天日志的国际化内容。
  * @returns {any} 返回结果对象。
  */
 function syncChatLogI18n() {
@@ -136,7 +136,7 @@ function syncChatLogI18n() {
 }
 
 /**
- * 中文说明：添加聊天占位消息。
+ * 添加聊天占位消息。
  * @returns {Object} 返回占位消息控制对象。
  */
 function addChatPlaceholder() {

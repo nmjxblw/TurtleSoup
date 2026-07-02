@@ -3,7 +3,7 @@
    ================================================================ */
 
 /**
- * 中文说明：提交汤底并进入评分。
+ * 提交汤底并进入评分。
  * @returns {Promise<void>} 返回异步执行结果。
  */
 async function submitSoup() {
@@ -72,7 +72,7 @@ async function submitSoup() {
 }
 
 /**
- * 中文说明：生成本地演示评分。
+ * 生成本地演示评分。
  * @param {string} guess 汤底猜测内容。
  * @returns {Object} 返回本地演示评分结果对象。
  */
@@ -101,7 +101,7 @@ function getLocalScore(guess) {
 }
 
 /**
- * 中文说明：打开汤底提交弹窗。
+ * 打开汤底提交弹窗。
  * @returns {void} 无返回值。
  */
 function openSoupModal() {
@@ -113,7 +113,7 @@ function openSoupModal() {
 }
 
 /**
- * 中文说明：关闭汤底提交弹窗。
+ * 关闭汤底提交弹窗。
  * @returns {void} 无返回值。
  */
 function closeSoupModal() {

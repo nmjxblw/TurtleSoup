@@ -3,7 +3,7 @@
    ================================================================ */
 
 /**
- * 中文说明：切换页面视图。
+ * 切换页面视图。
  * @param {string} viewId 视图 ID。
  * @returns {void} 无返回值。
  */
@@ -27,7 +27,7 @@ function showView(viewId) {
 }
 
 /**
- * 中文说明：返回封面页。
+ * 返回封面页。
  * @returns {void} 无返回值。
  */
 function goCover() {
@@ -40,7 +40,7 @@ function goCover() {
 }
 
 /**
- * 中文说明：进入 API Key 页面。
+ * 进入 API Key 页面。
  * @returns {void} 无返回值。
  */
 function goApikey() {
@@ -49,7 +49,7 @@ function goApikey() {
 }
 
 /**
- * 中文说明：进入配置页面。
+ * 进入配置页面。
  * @returns {void} 无返回值。
  */
 function goConfig() {
@@ -58,7 +58,7 @@ function goConfig() {
 }
 
 /**
- * 中文说明：进入加载页面。
+ * 进入加载页面。
  * @returns {void} 无返回值。
  */
 function goLoading() {
@@ -67,7 +67,7 @@ function goLoading() {
 }
 
 /**
- * 中文说明：进入游戏页面。
+ * 进入游戏页面。
  * @returns {void} 无返回值。
  */
 function goGame() {

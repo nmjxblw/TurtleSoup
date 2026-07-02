@@ -3,7 +3,7 @@
    ================================================================ */
 
 /**
- * 中文说明：导出 JSON 结果。
+ * 导出 JSON 结果。
  * @returns {void} 无返回值。
  */
 function exportJson() {
@@ -51,7 +51,7 @@ function exportJson() {
 }
 
 /**
- * 中文说明：导出汤底文件。
+ * 导出汤底文件。
  * @returns {void} 无返回值。
  */
 function exportSoup() {
@@ -94,7 +94,7 @@ function exportSoup() {
 }
 
 /**
- * 中文说明：导入汤底文件。
+ * 导入汤底文件。
  * @param {File} file 文件对象。
  * @returns {Promise<void>} 返回异步执行结果。
  */

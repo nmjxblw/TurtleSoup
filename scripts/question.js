@@ -3,7 +3,7 @@
    ================================================================ */
 
 /**
- * 中文说明：判断问题是否包含多个问号。
+ * 判断问题是否包含多个问号。
  * @param {string} text 文本字符串。
  * @returns {boolean} 返回布尔结果。
  */
@@ -12,7 +12,7 @@ function hasMultipleQuestions(text) {
 }
 
 /**
- * 中文说明：处理提问提交。
+ * 处理提问提交。
  * @param {Event} e 事件对象。
  * @returns {Promise<void>} 返回异步执行结果。
  */
@@ -150,7 +150,7 @@ async function handleQuestion(e) {
 }
 
 /**
- * 中文说明：收尾一轮问答。
+ * 收尾一轮问答。
  * @returns {void} 无返回值。
  */
 function finalizeTurn() {
@@ -167,7 +167,7 @@ function finalizeTurn() {
 }
 
 /**
- * 中文说明：应用线索命中结果。
+ * 应用线索命中结果。
  * @param {Array<any>} indices 索引数组。
  * @returns {void} 无返回值。
  */
@@ -190,7 +190,7 @@ function applyClueHits(indices) {
 }
 
 /**
- * 中文说明：解析回复内容。
+ * 解析回复内容。
  * @param {any} raw 参数。
  * @returns {Object} 返回解析后的回复对象。
  */
@@ -221,7 +221,7 @@ function parseReply(raw) {
 }
 
 /**
- * 中文说明：生成本地演示回复。
+ * 生成本地演示回复。
  * @param {string} question 提问内容。
  * @returns {Object} 返回本地演示回复对象。
  */

@@ -3,7 +3,7 @@
    ================================================================ */
 
 /**
- * 中文说明：构建演示故事。
+ * 构建演示故事。
  * @returns {Object} 返回演示故事对象。
  */
 function buildDemoStory() {
@@ -31,7 +31,7 @@ function buildDemoStory() {
 }
 
 /**
- * 中文说明：进入游戏并渲染状态。
+ * 进入游戏并渲染状态。
  * @param {boolean} restoring 是否为恢复流程。
  * @returns {void} 无返回值。
  */
@@ -141,7 +141,7 @@ function enterGame(restoring) {
 }
 
 /**
- * 中文说明：更新游戏统计信息。
+ * 更新游戏统计信息。
  * @returns {void} 无返回值。
  */
 function updateGameStats() {
@@ -174,7 +174,7 @@ function updateGameStats() {
 }
 
 /**
- * 中文说明：从封面重新开始。
+ * 从封面重新开始。
  * @returns {void} 无返回值。
  */
 function startFromCover() {
@@ -202,7 +202,7 @@ function startFromCover() {
 }
 
 /**
- * 中文说明：填充配置表单。
+ * 填充配置表单。
  * @returns {void} 无返回值。
  */
 function populateConfigForm() {
@@ -227,7 +227,7 @@ function populateConfigForm() {
 }
 
 /**
- * 中文说明：拉取模型列表。
+ * 拉取模型列表。
  * @returns {Promise<void>} 返回异步执行结果。
  */
 async function fetchModels() {
@@ -261,7 +261,7 @@ async function fetchModels() {
 }
 
 /**
- * 中文说明：同步自定义配置控件。
+ * 同步自定义配置控件。
  * @returns {void} 无返回值。
  */
 function syncCustomControls() {
@@ -271,7 +271,7 @@ function syncCustomControls() {
 }
 
 /**
- * 中文说明：同步死亡模式开关。
+ * 同步死亡模式开关。
  * @returns {void} 无返回值。
  */
 function syncDeathModeToggle() {
@@ -283,7 +283,7 @@ function syncDeathModeToggle() {
 }
 
 /**
- * 中文说明：处理 API Key 提交。
+ * 处理 API Key 提交。
  * @param {Event} e 事件对象。
  * @returns {void} 无返回值。
  */
@@ -297,7 +297,7 @@ function handleApikeySubmit(e) {
 }
 
 /**
- * 中文说明：处理配置提交。
+ * 处理配置提交。
  * @param {Event} e 事件对象。
  * @returns {Promise<void>} 返回异步执行结果。
  */

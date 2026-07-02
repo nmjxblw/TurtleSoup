@@ -3,7 +3,7 @@
    ================================================================ */
 
 /**
- * 中文说明：限制数值范围。
+ * 限制数值范围。
  * @param {number} v 数值。
  * @param {number} lo 下界。
  * @param {number} hi 上界。
@@ -14,7 +14,7 @@ function clamp(v, lo, hi) {
 }
 
 /**
- * 中文说明：转义 HTML 字符。
+ * 转义 HTML 字符。
  * @param {number} s 秒数或字符串。
  * @returns {string} 返回字符串。
  */
@@ -27,7 +27,7 @@ function escapeHtml(s) {
 }
 
 /**
- * 中文说明：去除 HTML 标签。
+ * 去除 HTML 标签。
  * @param {number} h 高度。
  * @returns {string} 返回字符串。
  */
@@ -38,7 +38,7 @@ function stripHtml(h) {
 }
 
 /**
- * 中文说明：清理富文本 HTML。
+ * 清理富文本 HTML。
  * @param {string} html HTML 字符串。
  * @returns {string} 返回字符串。
  */
@@ -82,7 +82,7 @@ function sanitizeHtml(html) {
 }
 
 /**
- * 中文说明：规范化并解析 JSON。
+ * 规范化并解析 JSON。
  * @param {string} text 文本字符串。
  * @returns {any} 返回结果对象。
  */
@@ -126,7 +126,7 @@ function normalizeJson(text) {
 }
 
 /**
- * 中文说明：等待指定毫秒数。
+ * 等待指定毫秒数。
  * @param {number} ms 毫秒数。
  * @returns {any} 返回结果对象。
  */
@@ -138,7 +138,7 @@ function sleep(ms) {
 const TOAST_ICONS = { error: "❌", warn: "⚠️", info: "ℹ️" };
 
 /**
- * 中文说明：显示通知提示。
+ * 显示通知提示。
  * @param {string} title 标题。
  * @param {string} message 消息内容。
  * @param {string} type 类型标识。
@@ -183,7 +183,7 @@ function showToast(title, message, type, duration) {
 
   let timer = null;
   /**
-   * 中文说明：关闭并移除提示。
+   * 关闭并移除提示。
    * @returns {void} 无返回值。
    */
   function dismiss() {
@@ -210,7 +210,7 @@ function showToast(title, message, type, duration) {
 }
 
 /**
- * 中文说明：处理 API 错误。
+ * 处理 API 错误。
  * @param {Error} err 错误对象。
  * @param {string} context 上下文信息。
  * @returns {boolean} 返回是否已处理该错误。

@@ -3,7 +3,7 @@
    ================================================================ */
 
 /**
- * 中文说明：格式化计时器显示。
+ * 格式化计时器显示。
  * @param {number} seconds 秒数。
  * @returns {string} 返回字符串。
  */
@@ -17,7 +17,7 @@ function formatTimer(seconds) {
 }
 
 /**
- * 中文说明：启动速度计时器。
+ * 启动速度计时器。
  * @returns {void} 无返回值。
  */
 function startSpeedTimer() {
@@ -40,7 +40,7 @@ function startSpeedTimer() {
 }
 
 /**
- * 中文说明：停止速度计时器。
+ * 停止速度计时器。
  * @returns {void} 无返回值。
  */
 function stopSpeedTimer() {
@@ -51,7 +51,7 @@ function stopSpeedTimer() {
 }
 
 /**
- * 中文说明：冻结死亡模式计时器。
+ * 冻结死亡模式计时器。
  * @returns {void} 无返回值。
  */
 function freezeDeathTimer() {
@@ -61,7 +61,7 @@ function freezeDeathTimer() {
 }
 
 /**
- * 中文说明：恢复死亡模式计时器。
+ * 恢复死亡模式计时器。
  * @returns {void} 无返回值。
  */
 function resumeDeathTimer() {
@@ -73,7 +73,7 @@ function resumeDeathTimer() {
 }
 
 /**
- * 中文说明：更新速度计时器显示。
+ * 更新速度计时器显示。
  * @returns {void} 无返回值。
  */
 function updateSpeedTimer() {
@@ -122,7 +122,7 @@ function updateSpeedTimer() {
 }
 
 /**
- * 中文说明：处理死亡模式超时。
+ * 处理死亡模式超时。
  * @returns {void} 无返回值。
  */
 function handleDeathModeExpiration() {
@@ -149,7 +149,7 @@ function handleDeathModeExpiration() {
 }
 
 /**
- * 中文说明：增加死亡模式补时。
+ * 增加死亡模式补时。
  * @param {number} seconds 秒数。
  * @returns {void} 无返回值。
  */

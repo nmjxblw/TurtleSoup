@@ -3,7 +3,7 @@
    ================================================================ */
 
 /**
- * 中文说明：初始化主题。
+ * 初始化主题。
  * @returns {void} 无返回值。
  */
 function initTheme() {
@@ -12,7 +12,7 @@ function initTheme() {
 }
 
 /**
- * 中文说明：切换主题。
+ * 切换主题。
  * @returns {void} 无返回值。
  */
 function toggleTheme() {
@@ -23,7 +23,7 @@ function toggleTheme() {
 }
 
 /**
- * 中文说明：应用主题。
+ * 应用主题。
  * @param {string} theme 主题名称。
  * @returns {void} 无返回值。
  */
@@ -34,7 +34,7 @@ function applyTheme(theme) {
 }
 
 /**
- * 中文说明：初始化语言图标。
+ * 初始化语言图标。
  * @returns {void} 无返回值。
  */
 function initLangIcon() {
@@ -44,7 +44,7 @@ function initLangIcon() {
 
 /* ---- Side Menu ---- */
 /**
- * 中文说明：打开侧边菜单。
+ * 打开侧边菜单。
  * @returns {void} 无返回值。
  */
 function openSideMenu() {
@@ -53,7 +53,7 @@ function openSideMenu() {
 }
 
 /**
- * 中文说明：关闭侧边菜单。
+ * 关闭侧边菜单。
  * @returns {void} 无返回值。
  */
 function closeSideMenu() {
@@ -65,7 +65,7 @@ function closeSideMenu() {
 const TOGGLE_DRAG = { on: false, sx: 0, sy: 0, ox: 0, oy: 0, moved: false };
 
 /**
- * 中文说明：初始化菜单按钮拖拽。
+ * 初始化菜单按钮拖拽。
  * @returns {void} 无返回值。
  */
 function initToggleDrag() {
@@ -86,7 +86,7 @@ function initToggleDrag() {
   }
 
   /**
-   * 中文说明：获取拖拽坐标。
+   * 获取拖拽坐标。
    * @param {Event} e 事件对象。
    * @returns {Object} 返回结果对象。
    */
@@ -97,7 +97,7 @@ function initToggleDrag() {
   }
 
   /**
-   * 中文说明：处理开始拖拽事件。
+   * 处理开始拖拽事件。
    * @param {Event} e 事件对象。
    * @returns {void} 无返回值。
    */
@@ -120,7 +120,7 @@ function initToggleDrag() {
   }
 
   /**
-   * 中文说明：处理拖拽移动事件。
+   * 处理拖拽移动事件。
    * @param {Event} e 事件对象。
    * @returns {void} 无返回值。
    */
@@ -144,7 +144,7 @@ function initToggleDrag() {
   }
 
   /**
-   * 中文说明：处理拖拽结束事件。
+   * 处理拖拽结束事件。
    * @returns {void} 无返回值。
    */
   function onEnd() {
@@ -193,7 +193,7 @@ function initToggleDrag() {
 const MENU_DRAG = { on: false, sx: 0, st: 0, last: 0, fromEdge: false };
 
 /**
- * 中文说明：初始化侧边菜单拖拽。
+ * 初始化侧边菜单拖拽。
  * @returns {void} 无返回值。
  */
 function initMenuDrag() {
@@ -202,7 +202,7 @@ function initMenuDrag() {
   const overlay = DOMRef["menu-overlay"];
 
   /**
-   * 中文说明：获取横向坐标。
+   * 获取横向坐标。
    * @param {Event} e 事件对象。
    * @returns {number} 返回数值。
    */
@@ -211,7 +211,7 @@ function initMenuDrag() {
   }
 
   /**
-   * 中文说明：处理开始拖拽事件。
+   * 处理开始拖拽事件。
    * @param {Event} e 事件对象。
    * @returns {void} 无返回值。
    */
@@ -236,7 +236,7 @@ function initMenuDrag() {
   }
 
   /**
-   * 中文说明：处理拖拽移动事件。
+   * 处理拖拽移动事件。
    * @param {Event} e 事件对象。
    * @returns {void} 无返回值。
    */
@@ -261,7 +261,7 @@ function initMenuDrag() {
   }
 
   /**
-   * 中文说明：处理拖拽结束事件。
+   * 处理拖拽结束事件。
    * @returns {void} 无返回值。
    */
   function onEnd() {
@@ -289,7 +289,7 @@ function initMenuDrag() {
 const SPLIT_DRAG = { on: false, sy: 0, sh: 0 };
 
 /**
- * 中文说明：初始化游戏分栏拖拽。
+ * 初始化游戏分栏拖拽。
  * @returns {void} 无返回值。
  */
 function initGameSplitHandle() {
@@ -298,7 +298,7 @@ function initGameSplitHandle() {
   if (!handle || !layout) return;
 
   /**
-   * 中文说明：获取纵向坐标。
+   * 获取纵向坐标。
    * @param {Event} e 事件对象。
    * @returns {number} 返回数值。
    */
@@ -307,7 +307,7 @@ function initGameSplitHandle() {
   }
 
   /**
-   * 中文说明：判断是否移动端。
+   * 判断是否移动端。
    * @returns {boolean} 返回布尔结果。
    */
   function isMobile() {
@@ -315,7 +315,7 @@ function initGameSplitHandle() {
   }
 
   /**
-   * 中文说明：处理开始拖拽事件。
+   * 处理开始拖拽事件。
    * @param {Event} e 事件对象。
    * @returns {void} 无返回值。
    */
@@ -333,7 +333,7 @@ function initGameSplitHandle() {
   }
 
   /**
-   * 中文说明：处理拖拽移动事件。
+   * 处理拖拽移动事件。
    * @param {Event} e 事件对象。
    * @returns {void} 无返回值。
    */
@@ -352,7 +352,7 @@ function initGameSplitHandle() {
   }
 
   /**
-   * 中文说明：处理拖拽结束事件。
+   * 处理拖拽结束事件。
    * @returns {void} 无返回值。
    */
   function onEnd() {
@@ -365,7 +365,7 @@ function initGameSplitHandle() {
   }
 
   /**
-   * 中文说明：恢复分栏比例。
+   * 恢复分栏比例。
    * @returns {void} 无返回值。
    */
   function restoreRatio() {

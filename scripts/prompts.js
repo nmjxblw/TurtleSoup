@@ -3,7 +3,7 @@
    ================================================================ */
 
 /**
- * 中文说明：加载单个提示词模板。
+ * 加载单个提示词模板。
  * @param {string} name 名称。
  * @returns {Promise<string>} 返回提示词模板文本。
  */
@@ -19,7 +19,7 @@ async function loadPrompt(name) {
 }
 
 /**
- * 中文说明：加载全部提示词模板。
+ * 加载全部提示词模板。
  * @returns {Promise<void>} 返回异步执行结果。
  */
 async function loadPrompts() {
@@ -35,7 +35,7 @@ async function loadPrompts() {
 
 /* ---- Difficulty helpers ---- */
 /**
- * 中文说明：获取当前生效的难度。
+ * 获取当前生效的难度。
  * @returns {string} 返回字符串。
  */
 function getActiveDifficulty() {
@@ -45,7 +45,7 @@ function getActiveDifficulty() {
 }
 
 /**
- * 中文说明：获取难度显示文案（getDifficultyLabel）。
+ * 获取难度显示文案（getDifficultyLabel）。
  */
 function getDifficultyLabel(difficulty = getActiveDifficulty()) {
   const preset = DIFFICULTY_PRESETS[difficulty];
@@ -53,7 +53,7 @@ function getDifficultyLabel(difficulty = getActiveDifficulty()) {
 }
 
 /**
- * 中文说明：获取提问次数上限。
+ * 获取提问次数上限。
  * @returns {number} 返回数值。
  */
 function getQuestionLimit() {
@@ -63,7 +63,7 @@ function getQuestionLimit() {
 }
 
 /**
- * 中文说明：获取文本长度范围。
+ * 获取文本长度范围。
  * @returns {Object} 返回结果对象。
  */
 function getLengthRange() {
@@ -76,7 +76,7 @@ function getLengthRange() {
 }
 
 /**
- * 中文说明：获取已选择的故事风格。
+ * 获取已选择的故事风格。
  * @returns {Array<string>} 返回数组。
  */
 function getSelectedStyles() {
@@ -95,7 +95,7 @@ function getSelectedStyles() {
 
 /* ---- Prompt builders ---- */
 /**
- * 中文说明：构建故事生成提示词。
+ * 构建故事生成提示词。
  * @returns {string} 返回字符串。
  */
 function buildStoryPrompt() {
@@ -124,7 +124,7 @@ function buildStoryPrompt() {
 }
 
 /**
- * 中文说明：构建提问提示词。
+ * 构建提问提示词。
  * @param {string} question 提问内容。
  * @returns {string} 返回字符串。
  */
@@ -155,7 +155,7 @@ function buildQuestionPrompt(question) {
 }
 
 /**
- * 中文说明：构建评分提示词。
+ * 构建评分提示词。
  * @param {string} guess 汤底猜测内容。
  * @returns {string} 返回字符串。
  */

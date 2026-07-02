@@ -3,7 +3,7 @@
    ================================================================ */
 
 /**
- * 中文说明：保存设置。
+ * 保存设置。
  * @returns {void} 无返回值。
  */
 function saveSettings() {
@@ -25,7 +25,7 @@ function saveSettings() {
 }
 
 /**
- * 中文说明：加载设置。
+ * 加载设置。
  * @returns {any} 返回结果对象。
  */
 function loadSettings() {
@@ -41,7 +41,7 @@ function loadSettings() {
 }
 
 /**
- * 中文说明：判断是否首次访问。
+ * 判断是否首次访问。
  * @returns {boolean} 返回布尔结果。
  */
 function isFirstVisit() {
@@ -49,7 +49,7 @@ function isFirstVisit() {
 }
 
 /**
- * 中文说明：保存游戏进度。
+ * 保存游戏进度。
  * @returns {void} 无返回值。
  */
 function saveGameProgress() {
@@ -80,7 +80,7 @@ function saveGameProgress() {
 }
 
 /**
- * 中文说明：加载游戏进度。
+ * 加载游戏进度。
  * @returns {Object | null} 返回保存的进度对象，失败时返回 null。
  */
 function loadGameProgress() {
@@ -99,7 +99,7 @@ function loadGameProgress() {
 }
 
 /**
- * 中文说明：清空游戏进度。
+ * 清空游戏进度。
  * @returns {void} 无返回值。
  */
 function clearGameProgress() {
@@ -107,7 +107,7 @@ function clearGameProgress() {
 }
 
 /**
- * 中文说明：恢复已保存的游戏进度。
+ * 恢复已保存的游戏进度。
  * @returns {boolean} 返回是否成功恢复。
  */
 function restoreGame() {

@@ -118,7 +118,7 @@ let loadingTitleTimer = null;
 /* ---- DOM refs ---- */
 const DOMRef = {};
 /**
- * 中文说明：获取 DOM 元素。
+ * 获取 DOM 元素。
  * @param {string} id 元素 ID。
  * @returns {Element | null} 返回匹配的 DOM 元素，若不存在则返回 null。
  */
@@ -127,7 +127,7 @@ function $(id) {
 }
 
 /**
- * 中文说明：初始化 DOM 引用。
+ * 初始化 DOM 引用。
  * @returns {void} 无返回值。
  */
 function initDom() {

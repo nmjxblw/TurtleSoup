@@ -5,7 +5,7 @@
 let _loadingWordsTimer = null;
 
 /**
- * 中文说明：开始加载页词条轮播。
+ * 开始加载页词条轮播。
  * @returns {void} 无返回值。
  */
 function startLoadingWords() {
@@ -25,7 +25,7 @@ function startLoadingWords() {
   container.appendChild(span);
 
   /**
-   * 中文说明：推进词条轮播一次。
+   * 推进词条轮播一次。
    * @returns {void} 无返回值。
    */
   function tick() {
@@ -46,7 +46,7 @@ function startLoadingWords() {
 }
 
 /**
- * 中文说明：停止加载页词条轮播。
+ * 停止加载页词条轮播。
  * @returns {void} 无返回值。
  */
 function stopLoadingWords() {
@@ -59,7 +59,7 @@ function stopLoadingWords() {
 }
 
 /**
- * 中文说明：启动加载标题计时器。
+ * 启动加载标题计时器。
  * @returns {void} 无返回值。
  */
 function startLoadingTitleTimer() {
@@ -74,7 +74,7 @@ function startLoadingTitleTimer() {
 }
 
 /**
- * 中文说明：停止加载标题计时器。
+ * 停止加载标题计时器。
  * @returns {void} 无返回值。
  */
 function stopLoadingTitleTimer() {
